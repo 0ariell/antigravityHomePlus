@@ -81,9 +81,18 @@ export class ServiceRequestService {
         .filter(s=>s.isActive)
         .map(s=>s.zone); // Naive matching
 
+    // DEBUG: Log filtering info
+    console.log('DEBUG findAllOpen:', {
+      providerId,
+      allServices: provider.services.length,
+      activeServices: provider.services.filter(s => s.isActive).length,
+      myCategories,
+      myZones,
+    });
+
     // Find OPEN requests in those categories
     // For MVP, we'll just match categories. Zone matching can be strict or loose.
-    return this.prisma.serviceRequest.findMany({
+    const requests = await this.prisma.serviceRequest.findMany({
       where: {
         status: RequestStatus.OPEN,
         category: { in: myCategories },
@@ -103,6 +112,9 @@ export class ServiceRequestService {
         }
       },
     });
+
+    console.log('DEBUG findAllOpen results:', requests.length, 'requests found');
+    return requests;
   }
 
   async findMyRequests(clientId: string) {

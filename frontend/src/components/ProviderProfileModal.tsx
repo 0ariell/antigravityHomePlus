@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { X, Star, Calendar, MapPin, Loader2 } from 'lucide-react';
-import { httpClient } from '../../infra/http';
+import { httpClient } from '../infra/http';
 
 interface Review {
   id: string;
