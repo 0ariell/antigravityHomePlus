@@ -20,6 +20,8 @@ export class ServiceRequestService {
         title: dto.title,
         description: dto.description,
         zone: dto.zone,
+        latitude: dto.latitude,
+        longitude: dto.longitude,
         images: dto.images || [],
         preferredDate: dto.preferredDate ? new Date(dto.preferredDate) : null,
         status: RequestStatus.OPEN,
@@ -143,5 +145,22 @@ export class ServiceRequestService {
             }
         }
     })
+  }
+
+  async findAllOpenGlobal() {
+    return this.prisma.serviceRequest.findMany({
+      where: {
+        status: RequestStatus.OPEN,
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        client: {
+          select: { firstName: true, lastName: true, avatarUrl: true, address: true },
+        },
+        _count: {
+          select: { quotes: true },
+        },
+      },
+    });
   }
 }

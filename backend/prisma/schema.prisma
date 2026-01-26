@@ -75,6 +75,10 @@ model User {
   // Status
   isOnline      Boolean   @default(false)
   
+  // Geolocation
+  latitude      Float?
+  longitude     Float?
+  
   // Timestamps
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -143,6 +147,8 @@ model ServiceRequest {
   description String
   images      String[]
   zone        String        // Location of the job
+  latitude    Float?
+  longitude   Float?
   preferredDate DateTime?
   
   status      RequestStatus @default(OPEN)

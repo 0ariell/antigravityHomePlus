@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsArray, IsOptional, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateServiceRequestDto {
   @IsString()
@@ -24,4 +24,12 @@ export class CreateServiceRequestDto {
   @IsString()
   @IsOptional()
   preferredDate?: string;
+
+  @IsNumber()
+  @IsOptional()
+  latitude?: number;
+
+  @IsNumber()
+  @IsOptional()
+  longitude?: number;
 }

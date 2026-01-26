@@ -31,6 +31,13 @@ export class ServiceRequestController {
     return this.serviceRequestService.findMyRequests(clientId);
   }
 
+  @Get('all-open')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.PROVIDER)
+  findAllOpenGlobal() {
+    return this.serviceRequestService.findAllOpenGlobal();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.serviceRequestService.findOne(id);

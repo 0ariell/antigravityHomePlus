@@ -7,6 +7,8 @@ export interface CreateRequestDto {
   zone: string;
   images?: string[];
   preferredDate?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface ServiceRequest {
@@ -17,6 +19,8 @@ export interface ServiceRequest {
   zone: string;
   images: string[];
   status: 'OPEN' | 'CLOSED' | 'CANCELLED';
+  latitude: number | null;
+  longitude: number | null;
   createdAt: string;
   client: {
     firstName: string;
@@ -43,6 +47,11 @@ export const requestsService = {
 
   getOne: async (id: string) => {
     const response = await httpClient.get(`/service-requests/${id}`);
+    return response.data;
+  },
+
+  getAllOpen: async (): Promise<ServiceRequest[]> => {
+    const response = await httpClient.get('/service-requests/all-open');
     return response.data;
   }
 };
