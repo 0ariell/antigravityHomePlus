@@ -64,7 +64,7 @@ export function MyServicesPage() {
 
   const loadMyServices = async () => {
     try {
-      const response = await httpClient.get('/services/my-services');
+      const response = await httpClient.get('/services/provider/my-services');
       setServices(response.data || []);
     } catch (error) {
       console.error('Error loading services:', error);
