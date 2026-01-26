@@ -53,6 +53,12 @@ export function BookingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [expandedBooking, setExpandedBooking] = useState<string | null>(null);
+  
+  // Accept modal state
+  const [showAcceptModal, setShowAcceptModal] = useState(false);
+  const [acceptingBooking, setAcceptingBooking] = useState<Booking | null>(null);
+  const [quotedPrice, setQuotedPrice] = useState<string>('');
 
   const isProvider = user?.role === 'PROVIDER';
 
@@ -96,6 +102,38 @@ export function BookingsPage() {
       // Create conversation if doesn't exist
       navigate('/chat');
     }
+  };
+
+  const openAcceptModal = (booking: Booking) => {
+    setAcceptingBooking(booking);
+    setQuotedPrice('');
+    setShowAcceptModal(true);
+  };
+
+  const handleAccept = async () => {
+    if (!acceptingBooking) return;
+    setActionLoading(acceptingBooking.id);
+    try {
+      const payload: any = { status: 'ACCEPTED' };
+      if (quotedPrice) {
+        payload.quotedPrice = parseFloat(quotedPrice);
+      }
+      await httpClient.patch(`/bookings/${acceptingBooking.id}/status`, payload);
+      setBookings((prev) =>
+        prev.map((b) => (b.id === acceptingBooking.id ? { ...b, status: 'ACCEPTED' as Booking['status'], quotedPrice: payload.quotedPrice || null } : b))
+      );
+      setShowAcceptModal(false);
+      setAcceptingBooking(null);
+    } catch (error) {
+      console.error('Error accepting booking:', error);
+      alert('Error al aceptar la solicitud');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const toggleExpand = (bookingId: string) => {
+    setExpandedBooking(expandedBooking === bookingId ? null : bookingId);
   };
 
   const filteredBookings = selectedStatus === 'all' 
@@ -221,7 +259,7 @@ export function BookingsPage() {
                       {isProvider && booking.status === 'PENDING' && (
                         <>
                           <button
-                            onClick={() => updateBookingStatus(booking.id, 'ACCEPTED')}
+                            onClick={() => openAcceptModal(booking)}
                             disabled={isActionLoading}
                             className="btn-primary text-sm py-2 px-3 flex items-center gap-1"
                           >
@@ -286,6 +324,62 @@ export function BookingsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Accept Modal */}
+      {showAcceptModal && acceptingBooking && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">Aceptar Solicitud</h2>
+              <p className="text-sm text-gray-500 mt-1">{acceptingBooking.service?.title}</p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Detalles del cliente:</h4>
+                <p className="text-sm text-gray-600">{acceptingBooking.description}</p>
+                {acceptingBooking.address && (
+                  <p className="text-sm text-gray-500 mt-1">📍 {acceptingBooking.address}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Presupuesto estimado (opcional)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <input
+                    type="number"
+                    value={quotedPrice}
+                    onChange={(e) => setQuotedPrice(e.target.value)}
+                    className="input-field pl-8"
+                    placeholder="0.00"
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-1">Puedes dejarlo vacío y acordar después por chat</p>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-100 flex gap-3">
+              <button
+                onClick={() => setShowAcceptModal(false)}
+                className="flex-1 btn-secondary"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleAccept}
+                disabled={actionLoading === acceptingBooking.id}
+                className="flex-1 btn-primary flex items-center justify-center gap-2"
+              >
+                {actionLoading === acceptingBooking.id && <Loader2 className="w-4 h-4 animate-spin" />}
+                Confirmar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
