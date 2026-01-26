@@ -321,7 +321,7 @@ export function ChatPage() {
                       {getOtherParticipant(selectedConversation).lastName}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {selectedConversation.booking.service.title}
+                      {selectedConversation.booking?.service?.title || 'Servicio'}
                     </p>
                   </div>
                 </div>
