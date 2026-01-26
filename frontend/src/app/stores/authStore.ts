@@ -31,7 +31,7 @@ interface AuthState {
     lastName?: string;
   }) => Promise<void>;
   logout: () => void;
-  loadUser: () => void;
+  loadUser: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -84,14 +84,26 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, isAuthenticated: false, error: null });
   },
 
-  loadUser: () => {
+  loadUser: async () => {
     const token = storage.getToken();
-    const user = storage.getUser<User>();
-
-    if (token && user) {
-      set({ user, isAuthenticated: true, isLoading: false });
-    } else {
+    
+    if (!token) {
       set({ isLoading: false });
+      return;
+    }
+
+    try {
+      // Fetch fresh user data from API
+      const response = await httpClient.get('/auth/me');
+      const user = response.data;
+      
+      // Update localStorage and state
+      storage.setUser(user);
+      set({ user, isAuthenticated: true, isLoading: false });
+    } catch (error) {
+      // Token invalid or expired
+      storage.clear();
+      set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },
 
