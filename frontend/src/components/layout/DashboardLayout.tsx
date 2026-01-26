@@ -45,7 +45,7 @@ export function DashboardLayout() {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
     localStorage.setItem('theme', newMode ? 'dark' : 'light');
-    document.documentElement.classList.toggle('dark');
+    // document.documentElement.classList.toggle('dark'); // REMOVED: useEffect handles this
   };
 
   const toggleOnline = async () => {

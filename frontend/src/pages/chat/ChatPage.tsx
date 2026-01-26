@@ -49,7 +49,8 @@ interface Conversation {
       lastName: string;
     };
   };
-  messages: Message[];
+  messages?: Message[]; // Optional because backend might not send it
+  lastMessage?: Message | null; // Backend sends this
   updatedAt: string;
 }
 
@@ -82,7 +83,12 @@ export function ChatPage() {
       setConversations((prev) => 
         prev.map((conv) => 
           conv.id === message.conversationId 
-            ? { ...conv, messages: [...conv.messages, message], updatedAt: message.createdAt }
+            ? { 
+                ...conv, 
+                messages: [...(conv.messages || []), message], 
+                lastMessage: message,
+                updatedAt: message.createdAt 
+              }
             : conv
         ).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
       );
@@ -211,8 +217,9 @@ export function ChatPage() {
   const filteredConversations = conversations.filter((conv) => {
     const other = getOtherParticipant(conv);
     const fullName = `${other.firstName} ${other.lastName}`.toLowerCase();
+    const serviceTitle = conv.booking?.service?.title?.toLowerCase() || '';
     return fullName.includes(searchQuery.toLowerCase()) ||
-           conv.booking.service.title.toLowerCase().includes(searchQuery.toLowerCase());
+           serviceTitle.includes(searchQuery.toLowerCase());
   });
 
   if (isLoading) {
@@ -256,7 +263,7 @@ export function ChatPage() {
               filteredConversations.map((conv) => {
                 const other = getOtherParticipant(conv);
                 const isSelected = selectedConversation?.id === conv.id;
-                const lastMessage = conv.messages[conv.messages.length - 1];
+                const lastMessage = conv.lastMessage || (conv.messages?.length ? conv.messages[conv.messages.length - 1] : null);
 
                 return (
                   <button
@@ -278,7 +285,7 @@ export function ChatPage() {
                           {lastMessage ? formatDate(lastMessage.createdAt) : ''}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 mb-1">{conv.booking.service.title}</p>
+                      <p className="text-xs text-gray-500 mb-1">{conv.booking?.service?.title || 'Servicio'}</p>
                       <p className="text-sm text-gray-500 truncate">
                         {lastMessage?.content || 'Sin mensajes'}
                       </p>
