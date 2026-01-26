@@ -1,0 +1,254 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== ENUMS =====
+enum UserRole {
+  CLIENT
+  PROVIDER
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum NotificationType {
+  BOOKING_CREATED
+  BOOKING_ACCEPTED
+  BOOKING_REJECTED
+  BOOKING_COMPLETED
+  BOOKING_CANCELLED
+  NEW_MESSAGE
+  NEW_REVIEW
+  PAYMENT_RECEIVED
+}
+
+// ===== MODELS =====
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String?   // Nullable for OAuth users
+  role          UserRole
+  googleId      String?   @unique
+  
+  // Profile
+  firstName     String?
+  lastName      String?
+  phone         String?
+  avatarUrl     String?
+  bio           String?
+  
+  // Provider-specific
+  zone          String?   // Area de trabajo
+  trades        String[]  // Oficios: plomería, electricidad, etc.
+  certifications String[]
+  portfolioUrls String[]
+  
+  // Client-specific
+  address       String?
+  
+  // Ratings (computed)
+  avgRating     Float     @default(0)
+  totalReviews  Int       @default(0)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  services      Service[]
+  bookingsAsClient   Booking[] @relation("ClientBookings")
+  bookingsAsProvider Booking[] @relation("ProviderBookings")
+  messages      Message[]
+  reviewsGiven  Review[]  @relation("ReviewAuthor")
+  reviewsReceived Review[] @relation("ReviewSubject")
+  notifications Notification[]
+  payments      Payment[]
+  
+  @@map("users")
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  providerId  String
+  provider    User     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String
+  category    String   // plomería, electricidad, pintura, etc.
+  zone        String   // Zona de servicio
+  priceBase   Float?   // Precio base opcional
+  priceUnit   String?  // "por hora", "por trabajo", etc.
+  
+  images      String[] // URLs de imágenes
+  isActive    Boolean  @default(true)
+  
+  // Ratings (computed from reviews of bookings)
+  avgRating   Float    @default(0)
+  totalReviews Int     @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  bookings    Booking[]
+  
+  @@index([category])
+  @@index([zone])
+  @@index([providerId])
+  @@index([avgRating])
+  @@map("services")
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  clientId    String
+  client      User          @relation("ClientBookings", fields: [clientId], references: [id], onDelete: Cascade)
+  providerId  String
+  provider    User          @relation("ProviderBookings", fields: [providerId], references: [id], onDelete: Cascade)
+  serviceId   String
+  service     Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  status      BookingStatus @default(PENDING)
+  
+  // Request details
+  description String        // Descripción del problema
+  images      String[]      // Fotos del problema
+  preferredDate DateTime?   // Fecha preferida
+  address     String        // Dirección aproximada
+  notes       String?       // Notas adicionales
+  
+  // Pricing
+  quotedPrice Float?        // Precio cotizado por provider
+  finalPrice  Float?        // Precio final
+  
+  // Timestamps
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  acceptedAt  DateTime?
+  completedAt DateTime?
+  
+  // Relations
+  conversation Conversation?
+  review      Review?
+  payment     Payment?
+  
+  @@index([clientId])
+  @@index([providerId])
+  @@index([status])
+  @@map("bookings")
+}
+
+model Conversation {
+  id        String    @id @default(uuid())
+  bookingId String    @unique
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Relations
+  messages  Message[]
+  
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  
+  content        String
+  attachments    String[]     // URLs de adjuntos
+  
+  createdAt      DateTime     @default(now())
+  readAt         DateTime?
+  
+  @@index([conversationId])
+  @@index([senderId])
+  @@map("messages")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  bookingId  String   @unique
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  providerId String
+  provider   User     @relation("ReviewSubject", fields: [providerId], references: [id], onDelete: Cascade)
+  
+  rating     Int      // 1-5
+  comment    String?
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@index([providerId])
+  @@map("reviews")
+}
+
+model Payment {
+  id           String        @id @default(uuid())
+  bookingId    String        @unique
+  booking      Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  providerId   String
+  provider     User          @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  amount       Float
+  currency     String        @default("ARS")
+  status       PaymentStatus @default(PENDING)
+  
+  // Provider references (Stripe/MercadoPago)
+  providerRef  String?
+  providerData Json?
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  completedAt  DateTime?
+  
+  @@index([providerId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?            // Datos adicionales (bookingId, etc.)
+  
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  
+  @@index([userId])
+  @@index([readAt])
+  @@map("notifications")
+}
