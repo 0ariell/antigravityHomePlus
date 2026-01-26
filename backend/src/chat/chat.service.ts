@@ -12,12 +12,29 @@ export class ChatService {
       include: {
         booking: {
           select: {
+            id: true,
             clientId: true,
             providerId: true,
             status: true,
             service: {
               select: {
                 title: true,
+              },
+            },
+            client: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
+              },
+            },
+            provider: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
               },
             },
           },
@@ -220,13 +237,21 @@ export class ChatService {
       },
     });
 
-    return bookings.map((booking) => ({
-      id: booking.conversation?.id,
-      bookingId: booking.id,
-      serviceTitle: booking.service?.title || 'Servicio Personalizado',
-      status: booking.status,
-      otherUser: userId === booking.clientId ? booking.provider : booking.client,
-      lastMessage: booking.conversation?.messages[0] || null,
-    }));
+    return bookings
+      .filter((booking) => booking.conversation !== null)
+      .map((booking) => ({
+        id: booking.conversation!.id,
+        bookingId: booking.id,
+        booking: {
+          id: booking.id,
+          service: {
+            title: booking.service?.title || 'Servicio Personalizado',
+          },
+          client: booking.client,
+          provider: booking.provider,
+        },
+        lastMessage: booking.conversation!.messages[0] || null,
+        updatedAt: booking.conversation!.updatedAt,
+      }));
   }
 }
