@@ -1,3 +1,4 @@
+// ChatPage component
 import { useEffect, useState, useRef } from 'react';
 import { 
   MessageSquare, 

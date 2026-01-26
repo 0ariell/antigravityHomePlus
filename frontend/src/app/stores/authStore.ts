@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { httpClient } from '../../infra/http';
 import { storage } from '../../infra/storage';
 
+// User interface definition
 export interface User {
   id: string;
   email: string;

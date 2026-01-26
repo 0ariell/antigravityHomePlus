@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { 
-  User, 
+  User as UserIcon, 
   Bell, 
   Lock, 
   CreditCard, 
@@ -58,7 +58,7 @@ export function SettingsPage() {
   };
 
   const tabs = [
-    { id: 'profile' as const, label: 'Perfil', icon: User },
+    { id: 'profile' as const, label: 'Perfil', icon: UserIcon },
     { id: 'notifications' as const, label: 'Notificaciones', icon: Bell },
     { id: 'security' as const, label: 'Seguridad', icon: Lock },
     { id: 'payments' as const, label: 'Pagos', icon: CreditCard },
