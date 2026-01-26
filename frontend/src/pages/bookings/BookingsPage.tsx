@@ -6,10 +6,8 @@ import {
   CheckCircle, 
   X, 
   MessageSquare,
-  ChevronRight,
   Loader2,
-  Check,
-  AlertCircle
+  Check
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useAuthStore } from '../../app/stores';

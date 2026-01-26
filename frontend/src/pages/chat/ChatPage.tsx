@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   MessageSquare, 
   Send, 
@@ -54,7 +53,6 @@ interface Conversation {
 }
 
 export function ChatPage() {
-  const navigate = useNavigate();
   const { user } = useAuthStore();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
