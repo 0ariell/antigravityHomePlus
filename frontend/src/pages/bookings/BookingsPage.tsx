@@ -53,7 +53,7 @@ export function BookingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [expandedBooking, setExpandedBooking] = useState<string | null>(null);
+
   
   // Accept modal state
   const [showAcceptModal, setShowAcceptModal] = useState(false);
@@ -132,9 +132,7 @@ export function BookingsPage() {
     }
   };
 
-  const toggleExpand = (bookingId: string) => {
-    setExpandedBooking(expandedBooking === bookingId ? null : bookingId);
-  };
+
 
   const filteredBookings = selectedStatus === 'all' 
     ? bookings 
