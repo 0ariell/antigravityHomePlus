@@ -57,7 +57,10 @@ export class ReviewService {
     await this.updateProviderRating(booking.providerId);
 
     // Update service's average rating
-    await this.updateServiceRating(booking.serviceId);
+    // Update service's average rating if service exists
+    if (booking.serviceId) {
+      await this.updateServiceRating(booking.serviceId);
+    }
 
     return review;
   }

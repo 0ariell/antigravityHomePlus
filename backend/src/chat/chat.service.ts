@@ -223,7 +223,7 @@ export class ChatService {
     return bookings.map((booking) => ({
       id: booking.conversation?.id,
       bookingId: booking.id,
-      serviceTitle: booking.service.title,
+      serviceTitle: booking.service?.title || 'Servicio Personalizado',
       status: booking.status,
       otherUser: userId === booking.clientId ? booking.provider : booking.client,
       lastMessage: booking.conversation?.messages[0] || null,
