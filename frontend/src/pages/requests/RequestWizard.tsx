@@ -11,7 +11,7 @@ import {
   Check,
   Loader2
 } from 'lucide-react';
-import { requestsService, CreateRequestDto } from '../../services/requests.service';
+import { requestsService, type CreateRequestDto } from '../../services/requests.service';
 
 const CATEGORIES = [
   { id: 'plomeria', label: 'Plomería', icon: Droplet, color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' },

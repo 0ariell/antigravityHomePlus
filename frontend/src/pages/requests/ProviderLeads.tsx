@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { requestsService, ServiceRequest } from '../../services/requests.service';
+import { requestsService, type ServiceRequest } from '../../services/requests.service';
 import { quotesService } from '../../services/quotes.service';
 import { MapPin, Clock, Loader2, DollarSign, CheckCircle } from 'lucide-react';
 
@@ -163,4 +163,4 @@ export function ProviderLeads() {
 }
 
 // Missing CheckCircle import, adding simple icon mock or import
-import { CheckCircle } from 'lucide-react';
+
