@@ -153,8 +153,11 @@ export function ChatPage() {
   };
 
   const getOtherParticipant = (conversation: Conversation) => {
+    if (!conversation?.booking) return { firstName: 'Usuario', lastName: 'Desconocido' };
     const isProvider = user?.role === 'PROVIDER';
-    return isProvider ? conversation.booking.client : conversation.booking.provider;
+    // If provider, return client. If client, return provider.
+    const participant = isProvider ? conversation.booking.client : conversation.booking.provider;
+    return participant || { firstName: 'Usuario', lastName: 'Desconocido' };
   };
 
   const formatTime = (dateString: string) => {
