@@ -7,10 +7,13 @@ import {
   X, 
   MessageSquare,
   Loader2,
-  Check
+  Check,
+  Star,
+  User
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useAuthStore } from '../../app/stores';
+import { ProviderProfileModal } from '../../components/ProviderProfileModal';
 
 interface Booking {
   id: string;
@@ -29,6 +32,9 @@ interface Booking {
     id: string;
     firstName: string;
     lastName: string;
+    avatarUrl?: string | null;
+    avgRating?: number;
+    totalReviews?: number;
   };
   client: {
     id: string;
@@ -54,11 +60,14 @@ export function BookingsPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  
   // Accept modal state
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [acceptingBooking, setAcceptingBooking] = useState<Booking | null>(null);
   const [quotedPrice, setQuotedPrice] = useState<string>('');
+
+  // Provider profile modal state
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
 
   const isProvider = user?.role === 'PROVIDER';
 
@@ -238,12 +247,21 @@ export function BookingsPage() {
                         <Clock className="w-4 h-4" />
                         {formatDate(booking.createdAt)}
                       </span>
-                      <span>
-                        {isProvider 
-                          ? `Cliente: ${booking.client?.firstName} ${booking.client?.lastName}`
-                          : `Profesional: ${booking.provider?.firstName} ${booking.provider?.lastName}`
-                        }
-                      </span>
+                      {isProvider ? (
+                        <span>
+                          Cliente: {booking.client?.firstName} {booking.client?.lastName}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <span>Profesional: {booking.provider?.firstName} {booking.provider?.lastName}</span>
+                          {booking.provider?.avgRating !== undefined && booking.provider.avgRating > 0 && (
+                            <span className="flex items-center gap-1 text-yellow-600">
+                              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                              {booking.provider.avgRating.toFixed(1)}
+                            </span>
+                          )}
+                        </span>
+                      )}
                       {booking.quotedPrice && (
                         <span className="font-medium text-orange-600">
                           ${booking.quotedPrice}
@@ -305,6 +323,20 @@ export function BookingsPage() {
                         >
                           <X className="w-4 h-4" />
                           Cancelar
+                        </button>
+                      )}
+
+                      {/* Ver Perfil - Only for clients */}
+                      {!isProvider && booking.provider?.id && (
+                        <button
+                          onClick={() => {
+                            setSelectedProviderId(booking.provider.id);
+                            setShowProfileModal(true);
+                          }}
+                          className="btn-secondary text-sm py-2 px-3 flex items-center gap-1"
+                        >
+                          <User className="w-4 h-4" />
+                          <span className="hidden sm:inline">Ver Perfil</span>
                         </button>
                       )}
 
@@ -379,6 +411,18 @@ export function BookingsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Provider Profile Modal */}
+      {selectedProviderId && (
+        <ProviderProfileModal
+          providerId={selectedProviderId}
+          isOpen={showProfileModal}
+          onClose={() => {
+            setShowProfileModal(false);
+            setSelectedProviderId(null);
+          }}
+        />
       )}
     </div>
   );

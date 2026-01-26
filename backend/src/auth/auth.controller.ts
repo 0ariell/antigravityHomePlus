@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus, Patch } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, HttpCode, HttpStatus, Patch, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, UpdateProfileDto } from './dto';
 import { JwtAuthGuard } from './guards';
@@ -38,5 +38,11 @@ export class AuthController {
     // JWT is stateless, logout is handled client-side
     // Could implement token blacklist here if needed
     return { message: 'Logged out successfully' };
+  }
+
+  @Get('users/:id/public-profile')
+  @UseGuards(JwtAuthGuard)
+  async getPublicProfile(@Param('id') userId: string) {
+    return this.authService.getPublicProfile(userId);
   }
 }

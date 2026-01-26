@@ -131,7 +131,6 @@ export function ChatPage() {
   const loadConversations = async () => {
     try {
       const response = await httpClient.get('/chat/conversations');
-      console.log('DEBUG - Conversations API response:', JSON.stringify(response.data, null, 2));
       setConversations(response.data || []);
     } catch (error) {
       console.error('Error loading conversations:', error);
