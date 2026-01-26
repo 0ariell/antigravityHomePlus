@@ -9,6 +9,9 @@ export interface User {
   firstName?: string;
   lastName?: string;
   avatarUrl?: string;
+  phone?: string;
+  bio?: string;
+  zone?: string;
 }
 
 interface AuthState {
