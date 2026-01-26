@@ -13,6 +13,7 @@ export interface User {
   phone?: string;
   bio?: string;
   zone?: string;
+  isOnline?: boolean;
 }
 
 interface AuthState {

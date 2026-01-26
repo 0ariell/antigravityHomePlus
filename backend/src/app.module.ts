@@ -9,6 +9,8 @@ import { BookingModule } from './booking/booking.module';
 import { ChatModule } from './chat/chat.module';
 import { ReviewModule } from './review/review.module';
 import { NotificationModule } from './notification/notification.module';
+import { ServiceRequestModule } from './service-request/service-request.module';
+import { QuoteModule } from './quote/quote.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { NotificationModule } from './notification/notification.module';
     PrismaModule,
     AuthModule,
     ServicesModule,
+    ServiceRequestModule,
+    QuoteModule,
     BookingModule,
     ChatModule,
     ReviewModule,

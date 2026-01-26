@@ -2,7 +2,7 @@ import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
-import { RegisterDto, LoginDto } from './dto';
+import { RegisterDto, LoginDto, UpdateProfileDto } from './dto';
 import { JwtPayload } from './strategies/jwt.strategy';
 
 @Injectable()
@@ -145,6 +145,7 @@ export class AuthService {
         firstName: true,
         lastName: true,
         phone: true,
+        isOnline: true,
         avatarUrl: true,
         bio: true,
         zone: true,
@@ -173,5 +174,23 @@ export class AuthService {
     };
 
     return this.jwtService.sign(payload);
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: dto,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        avatarUrl: true,
+        bio: true,
+        zone: true,
+        isOnline: true,
+      }
+    });
+    return user;
   }
 }

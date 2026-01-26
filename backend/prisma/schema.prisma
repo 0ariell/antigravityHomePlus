@@ -72,12 +72,17 @@ model User {
   avgRating     Float     @default(0)
   totalReviews  Int       @default(0)
   
+  // Status
+  isOnline      Boolean   @default(false)
+  
   // Timestamps
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
   // Relations
   services      Service[]
+  serviceRequests ServiceRequest[]
+  quotes        Quote[]
   bookingsAsClient   Booking[] @relation("ClientBookings")
   bookingsAsProvider Booking[] @relation("ProviderBookings")
   messages      Message[]
@@ -94,31 +99,87 @@ model Service {
   providerId  String
   provider    User     @relation(fields: [providerId], references: [id], onDelete: Cascade)
   
-  title       String
+  // Capability definition
+  title       String   // e.g. "Plomería General", "Electricidad"
   description String
-  category    String   // plomería, electricidad, pintura, etc.
-  zone        String   // Zona de servicio
-  priceBase   Float?   // Precio base opcional
-  priceUnit   String?  // "por hora", "por trabajo", etc.
+  category    String   // This matches the ServiceRequest category
+  zone        String   // Zone where provider operates
   
-  images      String[] // URLs de imágenes
-  isActive    Boolean  @default(true)
+  // Optional: Base pricing for unnecessary info, but kept for legacy/reference
+  priceBase   Float?
+  priceUnit   String?
   
-  // Ratings (computed from reviews of bookings)
+  images      String[] // Portfolio images
+  isActive    Boolean  @default(true) // If true, provider receives requests for this category
+  
+  // Ratings
   avgRating   Float    @default(0)
   totalReviews Int     @default(0)
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
-  // Relations
   bookings    Booking[]
   
   @@index([category])
   @@index([zone])
   @@index([providerId])
-  @@index([avgRating])
   @@map("services")
+}
+
+enum RequestStatus {
+  OPEN
+  CLOSED
+  CANCELLED
+}
+
+model ServiceRequest {
+  id          String        @id @default(uuid())
+  clientId    String
+  client      User          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  category    String        // Match with Service.category
+  title       String        // e.g. "Pérdida de agua en cocina"
+  description String
+  images      String[]
+  zone        String        // Location of the job
+  preferredDate DateTime?
+  
+  status      RequestStatus @default(OPEN)
+  
+  quotes      Quote[]
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  @@index([category])
+  @@index([zone])
+  @@index([status])
+  @@map("service_requests")
+}
+
+enum QuoteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model Quote {
+  id          String      @id @default(uuid())
+  requestId   String
+  request     ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  providerId  String
+  provider    User        @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  price       Float
+  description String?
+  
+  status      QuoteStatus @default(PENDING)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@map("quotes")
 }
 
 model Booking {
@@ -127,10 +188,11 @@ model Booking {
   client      User          @relation("ClientBookings", fields: [clientId], references: [id], onDelete: Cascade)
   providerId  String
   provider    User          @relation("ProviderBookings", fields: [providerId], references: [id], onDelete: Cascade)
-  serviceId   String
-  service     Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId   String?       // Make optional if coming from Request
+  service     Service?      @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   
   status      BookingStatus @default(PENDING)
+
   
   // Request details
   description String        // Descripción del problema
