@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Home, Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Mail, Lock, Eye, EyeOff, Loader2, Zap, ArrowRight, Shield, Star, Users } from 'lucide-react';
 import { useAuthStore } from '../../app/stores';
+
+const features = [
+  { icon: Shield, title: 'Profesionales verificados', desc: 'Todos pasan por un proceso de validación' },
+  { icon: Star, title: 'Calidad garantizada', desc: 'Valoraciones reales de clientes' },
+  { icon: Users, title: '+2,000 profesionales', desc: 'Encuentra al experto perfecto' },
+];
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -22,113 +29,208 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white dark:bg-gray-900">
-      {/* Left Side - Form */}
-      <div className="flex-1 flex flex-col justify-center px-8 lg:px-16 py-12">
-        <div className="max-w-md w-full mx-auto">
+    <div className="min-h-screen flex bg-[#0f172a]">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex flex-1 relative overflow-hidden">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-500 to-orange-400" />
+        
+        {/* Pattern Overlay */}
+        <div className="absolute inset-0 opacity-10">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100" height="100" fill="url(#grid)"/>
+          </svg>
+        </div>
+
+        {/* Floating Shapes */}
+        <motion.div 
+          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-3xl backdrop-blur-sm"
+        />
+        <motion.div 
+          animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-32 left-16 w-24 h-24 bg-white/10 rounded-2xl backdrop-blur-sm"
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/3 left-1/4 w-16 h-16 bg-orange-300/30 rounded-full blur-xl"
+        />
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           {/* Logo */}
-          <div className="flex items-center gap-2 mb-12">
-            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-              <Home className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+              <Zap className="w-7 h-7 text-white" />
             </div>
-            <span className="text-xl font-semibold text-gray-900 dark:text-white">HomePlus</span>
+            <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              HomePlus
+            </span>
+          </div>
+
+          {/* Hero Text */}
+          <div className="max-w-md">
+            <h1 className="text-4xl font-bold leading-tight mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Tu hogar merece lo mejor
+            </h1>
+            <p className="text-lg text-white/80 mb-10">
+              Conectamos hogares con profesionales verificados. Soluciones rápidas, 
+              transparentes y sin complicaciones.
+            </p>
+
+            {/* Feature List */}
+            <div className="space-y-4">
+              {features.map((feature, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + i * 0.1 }}
+                  className="flex items-center gap-4"
+                >
+                  <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                    <feature.icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{feature.title}</p>
+                    <p className="text-sm text-white/60">{feature.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom */}
+          <p className="text-sm text-white/50">
+            © 2024 HomePlus. Todos los derechos reservados.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Side - Form */}
+      <div className="flex-1 flex flex-col justify-center px-8 lg:px-16 py-12 bg-white dark:bg-[#0f172a]">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-md w-full mx-auto"
+        >
+          {/* Mobile Logo */}
+          <div className="lg:hidden flex items-center gap-3 mb-10">
+            <div className="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/30">
+              <Zap className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              HomePlus
+            </span>
           </div>
 
           {/* Header */}
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Bienvenido</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Bienvenido de vuelta
+          </h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8">
-            Ingresa tus datos para continuar
+            Ingresa tus credenciales para continuar
           </p>
 
           {/* Tab Switcher */}
-          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 mb-8">
-            <button className="flex-1 py-2.5 px-4 rounded-lg bg-white dark:bg-gray-700 shadow-sm font-medium text-gray-900 dark:text-white transition-all">
+          <div className="flex bg-gray-100 dark:bg-gray-800/50 rounded-xl p-1.5 mb-8">
+            <button className="flex-1 py-2.5 px-4 rounded-lg bg-white dark:bg-gray-700 shadow-sm font-semibold text-gray-900 dark:text-white transition-all text-sm">
               Iniciar Sesión
             </button>
             <Link
               to="/register"
-              className="flex-1 py-2.5 px-4 rounded-lg font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all text-center"
+              className="flex-1 py-2.5 px-4 rounded-lg font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all text-center text-sm"
             >
-              Registrarse
+              Crear cuenta
             </Link>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm animate-fade-in">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-6 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-xl text-red-700 dark:text-red-400 text-sm"
+            >
               {error}
-              <button
-                onClick={clearError}
-                className="ml-2 underline hover:no-underline"
-              >
+              <button onClick={clearError} className="ml-2 underline hover:no-underline">
                 Cerrar
               </button>
-            </div>
+            </motion.div>
           )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Field */}
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <Mail className="w-5 h-5" />
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Correo electrónico
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="tu@email.com"
+                  required
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                />
               </div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Correo electrónico"
-                required
-                className="input-field pl-12"
-              />
-              {email && email.includes('@') && (
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-orange-500">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              )}
             </div>
 
-            {/* Password Field */}
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <Lock className="w-5 h-5" />
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Contraseña
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  minLength={8}
+                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Contraseña"
-                required
-                minLength={8}
-                className="input-field pl-12 pr-12"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
             </div>
 
             {/* Forgot Password */}
             <div className="flex justify-end">
               <button
                 type="button"
-                onClick={() => alert('Recuperación de contraseña enviada a tu email (Simulado)')}
-                className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+                onClick={() => alert('Función próximamente')}
+                className="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
               >
                 ¿Olvidaste tu contraseña?
               </button>
             </div>
 
-            {/* Submit Button */}
-            <button
+            {/* Submit */}
+            <motion.button
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               type="submit"
               disabled={isLoading}
-              className="w-full btn-primary py-3.5 flex items-center justify-center gap-2 text-base disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold py-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary-500/25 transition-all disabled:opacity-50"
             >
               {isLoading ? (
                 <>
@@ -136,9 +238,12 @@ export function LoginPage() {
                   Ingresando...
                 </>
               ) : (
-                'Continuar'
+                <>
+                  Continuar
+                  <ArrowRight className="w-5 h-5" />
+                </>
               )}
-            </button>
+            </motion.button>
           </form>
 
           {/* Divider */}
@@ -147,15 +252,17 @@ export function LoginPage() {
               <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">O continúa con</span>
+              <span className="px-4 bg-white dark:bg-[#0f172a] text-gray-500">O continúa con</span>
             </div>
           </div>
 
           {/* Social Login */}
-          <div className="flex gap-4 justify-center">
-            <button 
+          <div className="grid grid-cols-2 gap-3">
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => alert('Google Login: Próximamente')}
-              className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -163,47 +270,29 @@ export function LoginPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-            </button>
-            <button 
-              onClick={() => alert('Facebook Login: Próximamente')}
-              className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors text-blue-600 dark:text-blue-400"
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Google</span>
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => alert('Apple Login: Próximamente')}
+              className="flex items-center justify-center gap-2 py-3 px-4 bg-gray-900 dark:bg-white rounded-xl hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
             >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z"/>
+              <svg className="w-5 h-5 text-white dark:text-gray-900" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
               </svg>
-            </button>
+              <span className="text-sm font-medium text-white dark:text-gray-900">Apple</span>
+            </motion.button>
           </div>
 
-          {/* Footer */}
-          <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
-            Conecta con oficiantes de confianza para tus proyectos del hogar.
-            <br />
-            Calidad, transparencia y seguridad.
+          {/* Terms */}
+          <p className="mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
+            Al continuar, aceptas nuestros{' '}
+            <a href="#" className="text-primary-600 dark:text-primary-400 hover:underline">Términos de Servicio</a>
+            {' '}y{' '}
+            <a href="#" className="text-primary-600 dark:text-primary-400 hover:underline">Política de Privacidad</a>
           </p>
-        </div>
-      </div>
-
-      {/* Right Side - Visual */}
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-orange-100 via-orange-50 to-white dark:from-orange-900/20 dark:via-gray-800 dark:to-gray-900 items-center justify-center p-12 relative overflow-hidden">
-        {/* Decorative Elements */}
-        <div className="absolute top-20 right-20 w-32 h-32 bg-orange-200/50 dark:bg-orange-500/20 rounded-full blur-2xl"></div>
-        <div className="absolute bottom-20 left-20 w-40 h-40 bg-orange-300/40 dark:bg-orange-600/20 rounded-full blur-3xl"></div>
-        
-        {/* 3D Safe Box Illustration - Placeholder */}
-        <div className="relative">
-          <div className="w-64 h-64 bg-gradient-to-br from-orange-400 to-orange-600 rounded-3xl shadow-2xl transform rotate-12 flex items-center justify-center">
-            <div className="w-20 h-20 bg-orange-300 rounded-full flex items-center justify-center shadow-lg">
-              <div className="w-10 h-2 bg-orange-700 rounded-full"></div>
-              <div className="absolute w-16 h-16 border-4 border-orange-700 rounded-full"></div>
-            </div>
-          </div>
-          
-          {/* Floating Elements */}
-          <div className="absolute -top-8 -left-8 w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl shadow-xl flex items-center justify-center animate-bounce">
-            <Home className="w-8 h-8 text-orange-500" />
-          </div>
-          <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-orange-500 rounded-xl shadow-lg"></div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
