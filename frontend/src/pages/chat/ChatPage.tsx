@@ -1,4 +1,3 @@
-// ChatPage component
 import { useEffect, useState, useRef } from 'react';
 import { 
   MessageSquare, 
@@ -13,6 +12,7 @@ import {
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useAuthStore } from '../../app/stores';
+import { useLocation } from 'react-router-dom';
 import { socketService } from '../../infra/realtime';
 
 interface Message {
@@ -49,13 +49,14 @@ interface Conversation {
       lastName: string;
     };
   };
-  messages?: Message[]; // Optional because backend might not send it
-  lastMessage?: Message | null; // Backend sends this
+  messages?: Message[];
+  lastMessage?: Message | null;
   updatedAt: string;
 }
 
 export function ChatPage() {
   const { user } = useAuthStore();
+  const location = useLocation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -68,18 +69,39 @@ export function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Load conversations and handled initial selection from state
   useEffect(() => {
-    loadConversations();
+    loadConversations().then((loadedConvs) => {
+      const stateBookingId = (location.state as any)?.bookingId;
+      if (stateBookingId && loadedConvs.length > 0) {
+        const targetConv = loadedConvs.find(c => c.bookingId === stateBookingId);
+        if (targetConv) {
+          setSelectedConversation(targetConv);
+        }
+      }
+    });
   }, []);
 
-  // Real-time message subscription
+  const loadConversations = async (): Promise<Conversation[]> => {
+    try {
+      const response = await httpClient.get('/chat/conversations');
+      const data = response.data || [];
+      setConversations(data);
+      return data;
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+      return [];
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const unsubscribeMessage = socketService.on('newMessage', (message: Message) => {
       if (message.conversationId === selectedConversation?.id) {
         setMessages((prev) => [...prev, message]);
         scrollToBottom();
       }
-      // Update conversation list
       setConversations((prev) => 
         prev.map((conv) => 
           conv.id === message.conversationId 
@@ -114,7 +136,6 @@ export function ChatPage() {
     };
   }, [selectedConversation?.id, user?.id]);
 
-  // Join/leave conversation room
   useEffect(() => {
     if (selectedConversation) {
       socketService.joinConversation(selectedConversation.id);
@@ -127,17 +148,6 @@ export function ChatPage() {
       }
     };
   }, [selectedConversation?.id]);
-
-  const loadConversations = async () => {
-    try {
-      const response = await httpClient.get('/chat/conversations');
-      setConversations(response.data || []);
-    } catch (error) {
-      console.error('Error loading conversations:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const loadMessages = async (conversationId: string) => {
     setIsLoadingMessages(true);
@@ -161,7 +171,6 @@ export function ChatPage() {
   const getOtherParticipant = (conversation: Conversation) => {
     if (!conversation?.booking) return { firstName: 'Usuario', lastName: 'Desconocido' };
     const isProvider = user?.role === 'PROVIDER';
-    // If provider, return client. If client, return provider.
     const participant = isProvider ? conversation.booking.client : conversation.booking.provider;
     return participant || { firstName: 'Usuario', lastName: 'Desconocido' };
   };
@@ -175,20 +184,16 @@ export function ChatPage() {
     const date = new Date(dateString);
     const today = new Date();
     const isToday = date.toDateString() === today.toDateString();
-    
     if (isToday) return 'Hoy';
-    
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     if (date.toDateString() === yesterday.toDateString()) return 'Ayer';
-    
     return date.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation || isSending) return;
-
     setIsSending(true);
     try {
       await socketService.sendMessage(selectedConversation.id, newMessage.trim());
@@ -202,13 +207,10 @@ export function ChatPage() {
 
   const handleTyping = () => {
     if (!selectedConversation) return;
-
     socketService.sendTyping(selectedConversation.id, true);
-
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-
     typingTimeoutRef.current = setTimeout(() => {
       socketService.sendTyping(selectedConversation.id, false);
     }, 2000);
@@ -233,11 +235,9 @@ export function ChatPage() {
   return (
     <div className="animate-fade-in h-[calc(100vh-180px)] min-h-[500px]">
       <div className="flex h-full gap-4 lg:gap-6">
-        {/* Conversations List - Hidden on mobile when conversation is selected */}
         <div className={`w-full lg:w-80 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden ${
           selectedConversation ? 'hidden lg:flex' : 'flex'
         }`}>
-          {/* Header */}
           <div className="p-4 border-b border-gray-100">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">Mensajes</h2>
             <div className="relative">
@@ -252,7 +252,6 @@ export function ChatPage() {
             </div>
           </div>
 
-          {/* Conversation List */}
           <div className="flex-1 overflow-y-auto">
             {filteredConversations.length === 0 ? (
               <div className="p-6 text-center">
@@ -297,19 +296,14 @@ export function ChatPage() {
           </div>
         </div>
 
-        {/* Chat Area */}
         <div className={`flex-1 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden ${
           selectedConversation ? 'flex' : 'hidden lg:flex'
         }`}>
           {selectedConversation ? (
             <>
-              {/* Chat Header */}
               <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => setSelectedConversation(null)}
-                    className="lg:hidden p-1 hover:bg-gray-100 rounded-lg"
-                  >
+                  <button onClick={() => setSelectedConversation(null)} className="lg:hidden p-1 hover:bg-gray-100 rounded-lg">
                     <ArrowLeft className="w-5 h-5 text-gray-600" />
                   </button>
                   <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-medium">
@@ -326,49 +320,43 @@ export function ChatPage() {
                   </div>
                 </div>
                 <div className="hidden sm:flex items-center gap-2">
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                  <button 
+                    onClick={() => alert('Llamadas de voz: Próximamente')}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
                     <Phone className="w-5 h-5 text-gray-500" />
                   </button>
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                  <button 
+                    onClick={() => alert('Video llamadas: Próximamente')}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
                     <Video className="w-5 h-5 text-gray-500" />
                   </button>
-                  <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                  <button 
+                    onClick={() => alert('Opciones adicionales: Próximamente')}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
                     <MoreVertical className="w-5 h-5 text-gray-500" />
                   </button>
                 </div>
               </div>
 
-              {/* Messages Area */}
               <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
                 {isLoadingMessages ? (
-                  <div className="flex items-center justify-center h-full">
-                    <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
-                  </div>
+                  <div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 text-orange-500 animate-spin" /></div>
                 ) : messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                    <MessageSquare className="w-12 h-12 text-gray-300 mb-3" />
-                    <p className="text-sm">Comienza la conversación</p>
+                    <MessageSquare className="w-12 h-12 text-gray-300 mb-3" /><p className="text-sm">Comienza la conversación</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {messages.map((message) => {
                       const isOwn = message.senderId === user?.id;
                       return (
-                        <div
-                          key={message.id}
-                          className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div
-                            className={`max-w-[75%] rounded-2xl px-4 py-2 ${
-                              isOwn
-                                ? 'bg-orange-500 text-white rounded-br-sm'
-                                : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'
-                            }`}
-                          >
+                        <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+                          <div className={`max-w-[75%] rounded-2xl px-4 py-2 ${isOwn ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'}`}>
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                            <p className={`text-xs mt-1 ${isOwn ? 'text-orange-100' : 'text-gray-400'}`}>
-                              {formatTime(message.createdAt)}
-                            </p>
+                            <p className={`text-xs mt-1 ${isOwn ? 'text-orange-100' : 'text-gray-400'}`}>{formatTime(message.createdAt)}</p>
                           </div>
                         </div>
                       );
@@ -389,32 +377,24 @@ export function ChatPage() {
                 )}
               </div>
 
-              {/* Message Input */}
               <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-100">
                 <div className="flex items-center gap-3">
-                  <button type="button" className="p-2 hover:bg-gray-100 rounded-lg transition-colors hidden sm:block">
+                  <button 
+                    type="button" 
+                    onClick={() => alert('Envío de imágenes: Próximamente')}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors hidden sm:block"
+                  >
                     <ImageIcon className="w-5 h-5 text-gray-500" />
                   </button>
                   <input
                     type="text"
                     value={newMessage}
-                    onChange={(e) => {
-                      setNewMessage(e.target.value);
-                      handleTyping();
-                    }}
+                    onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
                     placeholder="Escribe un mensaje..."
                     className="flex-1 px-4 py-3 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
-                  <button 
-                    type="submit"
-                    disabled={!newMessage.trim() || isSending}
-                    className="p-3 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded-xl transition-colors"
-                  >
-                    {isSending ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Send className="w-5 h-5" />
-                    )}
+                  <button type="submit" disabled={!newMessage.trim() || isSending} className="p-3 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded-xl transition-colors">
+                    {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                   </button>
                 </div>
               </form>

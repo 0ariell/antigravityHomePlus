@@ -9,6 +9,7 @@ import { ServicesPage, ServiceDetailPage } from './pages/services';
 import { BookingsPage } from './pages/bookings';
 import { ChatPage } from './pages/chat';
 import { MyServicesPage } from './pages/my-services';
+import { MyRequestsPage } from './pages/requests/MyRequestsPage';
 import { SettingsPage } from './pages/settings';
 import { HelpPage } from './pages/help';
 
@@ -44,6 +45,7 @@ function App() {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/:id" element={<ServiceDetailPage />} />
           <Route path="/bookings" element={<BookingsPage />} />
+          <Route path="/my-requests" element={<MyRequestsPage />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/my-services" element={<MyServicesPage />} />
           <Route path="/settings" element={<SettingsPage />} />

@@ -215,9 +215,19 @@ export function RegisterPage() {
 
               <p className="mt-6 text-center text-xs text-gray-500">
                 Al registrarte, aceptas nuestros{' '}
-                <a href="#" className="text-orange-600 hover:underline">Términos de Servicio</a>
+                <button 
+                  onClick={() => alert('Términos de Servicio: Próximamente')}
+                  className="text-orange-600 hover:underline"
+                >
+                  Términos de Servicio
+                </button>
                 {' '}y{' '}
-                <a href="#" className="text-orange-600 hover:underline">Política de Privacidad</a>
+                <button 
+                  onClick={() => alert('Política de Privacidad: Próximamente')}
+                  className="text-orange-600 hover:underline"
+                >
+                  Política de Privacidad
+                </button>
               </p>
             </>
           )}

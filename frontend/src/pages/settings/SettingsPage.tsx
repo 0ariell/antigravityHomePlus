@@ -107,7 +107,10 @@ export function SettingsPage() {
                 <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                   {formData.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                 </div>
-                <button className="btn-secondary flex items-center gap-2">
+                <button 
+                  onClick={() => alert('Carga de avatar: Próximamente')}
+                  className="btn-secondary flex items-center gap-2"
+                >
                   <Camera className="w-4 h-4" />
                   Cambiar foto
                 </button>
@@ -253,7 +256,10 @@ export function SettingsPage() {
               <h2 className="text-lg font-semibold text-gray-900 mb-6">Seguridad</h2>
               
               <div className="space-y-4">
-                <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <button 
+                  onClick={() => alert('Cambio de contraseña: Próximamente')}
+                  className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
                   <div className="flex items-center gap-3">
                     <Lock className="w-5 h-5 text-gray-500" />
                     <div className="text-left">
@@ -264,7 +270,10 @@ export function SettingsPage() {
                   <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
 
-                <button className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <button 
+                  onClick={() => alert('Gestión de sesiones: Próximamente')}
+                  className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
                   <div className="flex items-center gap-3">
                     <Globe className="w-5 h-5 text-gray-500" />
                     <div className="text-left">
@@ -299,7 +308,12 @@ export function SettingsPage() {
                 <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No hay métodos de pago</h3>
                 <p className="text-gray-500 mb-6">Agrega un método de pago para realizar transacciones</p>
-                <button className="btn-primary">Agregar método de pago</button>
+                <button 
+                  onClick={() => alert('Agregar método de pago: Próximamente')}
+                  className="btn-primary"
+                >
+                  Agregar método de pago
+                </button>
               </div>
             </div>
           )}

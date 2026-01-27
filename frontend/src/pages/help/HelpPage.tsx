@@ -95,6 +95,7 @@ export function HelpPage() {
           return (
             <button
               key={i}
+              onClick={() => document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth' })}
               className="card p-6 text-left card-hover"
             >
               <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
@@ -109,7 +110,7 @@ export function HelpPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* FAQ Section */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2" id="faq-section">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Preguntas Frecuentes</h2>
           
           {/* Category Filter */}

@@ -12,7 +12,8 @@ import {
   X,
   Sun,
   Moon,
-  Power
+  Power,
+  ClipboardList
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useState, useEffect } from 'react';
@@ -25,7 +26,6 @@ export function DashboardLayout() {
   const { user, logout, loadUser } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check localStorage first, then system preference
     const stored = localStorage.getItem('theme');
     if (stored) return stored === 'dark';
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -33,7 +33,6 @@ export function DashboardLayout() {
   const [togglingOnline, setTogglingOnline] = useState(false);
 
   useEffect(() => {
-    // Apply dark mode class on mount
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
@@ -45,7 +44,6 @@ export function DashboardLayout() {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
     localStorage.setItem('theme', newMode ? 'dark' : 'light');
-    // document.documentElement.classList.toggle('dark'); // REMOVED: useEffect handles this
   };
 
   const toggleOnline = async () => {
@@ -80,6 +78,7 @@ export function DashboardLayout() {
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: Search, label: 'Buscar Servicios', path: '/services', hide: isProvider },
     { icon: Briefcase, label: 'Mis Servicios', path: '/my-services', hide: !isProvider },
+    { icon: ClipboardList, label: 'Mis Pedidos', path: '/my-requests', hide: isProvider },
     { icon: Calendar, label: 'Reservas', path: '/bookings' },
     { icon: MessageSquare, label: 'Mensajes', path: '/chat' },
   ];
@@ -126,17 +125,15 @@ export function DashboardLayout() {
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
-        {/* Logo */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
               <Home className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-semibold text-gray-900">HomePlus</span>
+            <span className="text-xl font-semibold text-gray-900 dark:text-white">HomePlus</span>
           </div>
         </div>
 
-        {/* Menu Section */}
         <nav className="flex-1 p-4 space-y-1">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider px-4 mb-2">
             Menú
@@ -147,7 +144,7 @@ export function DashboardLayout() {
               <NavItem key={item.path} {...item} />
             ))}
 
-          <div className="my-6 border-t border-gray-100" />
+          <div className="my-6 border-t border-gray-100 dark:border-gray-700" />
 
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider px-4 mb-2">
             General
@@ -157,25 +154,10 @@ export function DashboardLayout() {
           ))}
         </nav>
 
-        {/* App Download Card */}
-        <div className="p-4">
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-4">
-            <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-3">
-              <Home className="w-6 h-6 text-white" />
-            </div>
-            <h4 className="font-semibold text-gray-900 mb-1">Descarga la App</h4>
-            <p className="text-sm text-gray-600 mb-3">Gestiona desde cualquier lugar</p>
-            <button className="w-full btn-primary py-2 text-sm">
-              Descargar
-            </button>
-          </div>
-        </div>
-
-        {/* Logout */}
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4 border-t border-gray-100 dark:border-gray-700">
           <button
             onClick={handleLogout}
-            className="sidebar-item w-full text-red-600 hover:bg-red-50 hover:text-red-700"
+            className="sidebar-item w-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 hover:text-red-700"
           >
             <LogOut className="w-5 h-5" />
             <span>Cerrar Sesión</span>
@@ -183,30 +165,21 @@ export function DashboardLayout() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4 flex-1 max-w-xl">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar..."
-                className="w-full pl-12 pr-4 py-2.5 bg-gray-100 dark:bg-gray-700 dark:text-white border-none rounded-xl focus:bg-white dark:focus:bg-gray-600 focus:ring-2 focus:ring-orange-500 transition-all"
-              />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-gray-400 text-sm">
-                <span className="px-1.5 py-0.5 bg-gray-200 rounded text-xs">⌘</span>
-                <span className="px-1.5 py-0.5 bg-gray-200 rounded text-xs">F</span>
-              </div>
-            </div>
+             <div className="relative flex-1">
+               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+               <input
+                 type="text"
+                 placeholder="Buscar..."
+                 className="w-full pl-12 pr-4 py-2.5 bg-gray-100 dark:bg-gray-700 dark:text-white border-none rounded-xl focus:bg-white dark:focus:bg-gray-600 focus:ring-2 focus:ring-orange-500 transition-all"
+               />
+             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <button 
-              onClick={toggleTheme}
-              className="p-2 rounded-xl text-gray-400 hover:text-orange-500 transition-colors"
-            >
+            <button onClick={toggleTheme} className="p-2 rounded-xl text-gray-400 hover:text-orange-500 transition-colors">
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
@@ -224,33 +197,26 @@ export function DashboardLayout() {
                 <span className="hidden sm:inline">{user.isOnline ? 'En línea' : 'Offline'}</span>
               </button>
             )}
-            {/* Notifications */}
+            
             <NotificationsDropdown />
 
-            {/* Messages */}
-            <button className="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
-              <MessageSquare className="w-5 h-5 text-gray-600" />
-            </button>
-
-            {/* User Avatar */}
-            <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">
-                  {user?.firstName || 'Usuario'} {user?.lastName || ''}
+            <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-700">
+              <div className="hidden sm:block text-right">
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {user?.firstName} {user?.lastName}
                 </p>
-                <p className="text-xs text-gray-500">
-                  {user?.role === 'PROVIDER' ? 'Profesional' : 'Cliente'}
+                <p className="text-xs text-gray-500 lowercase">
+                  {user?.role}
                 </p>
               </div>
               <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-medium">
-                {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
+                {user?.firstName?.[0] || 'U'}
               </div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-6 overflow-auto bg-gray-50 dark:bg-gray-900">
           <Outlet />
         </main>
       </div>

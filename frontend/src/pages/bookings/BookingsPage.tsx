@@ -102,15 +102,7 @@ export function BookingsPage() {
   };
 
   const goToChat = async (bookingId: string) => {
-    try {
-      const response = await httpClient.get(`/chat/booking/${bookingId}`);
-      if (response.data?.id) {
-        navigate('/chat');
-      }
-    } catch (error) {
-      // Create conversation if doesn't exist
-      navigate('/chat');
-    }
+    navigate('/chat', { state: { bookingId } });
   };
 
   const openAcceptModal = (booking: Booking) => {

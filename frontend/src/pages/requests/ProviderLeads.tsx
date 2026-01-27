@@ -12,7 +12,6 @@ export function ProviderLeads() {
   const [quoteDesc, setQuoteDesc] = useState('');
   const [sendingQuote, setSendingQuote] = useState(false);
   
-  // View states
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [isGlobal, setIsGlobal] = useState(false);
 
@@ -52,19 +51,18 @@ export function ProviderLeads() {
         console.error(error);
         alert('Error al enviar cotización');
     } finally {
-        setSendingQuote(false);
+      setSendingQuote(false);
     }
   };
 
   const openQuoteForm = (requestId: string) => {
     setSelectedRequest(requestId);
     setViewMode('list');
-    // Scroll to the request might be good but for now simple toggle
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="space-y-6">
-      {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Oportunidades Disponibles</h2>
@@ -97,7 +95,6 @@ export function ProviderLeads() {
         </div>
       </div>
 
-      {/* Global Filter Toggle */}
       <div className="flex items-center justify-between p-4 bg-orange-50 dark:bg-orange-900/10 rounded-2xl border border-orange-100 dark:border-orange-900/20">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
@@ -145,7 +142,7 @@ export function ProviderLeads() {
             const isSelected = selectedRequest === req.id;
 
             return (
-                <div key={req.id} className={`card p-6 transition-all ${isSelected ? 'ring-2 ring-orange-500 bg-orange-50/30' : 'dark:bg-gray-800 dark:border-gray-700'}`}>
+                <div key={req.id} id={req.id} className={`card p-6 transition-all ${isSelected ? 'ring-2 ring-orange-500 bg-orange-50/30' : 'dark:bg-gray-800 dark:border-gray-700'}`}>
                     <div className="flex justify-between items-start mb-4">
                         <div>
                             <span className="inline-block px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-xs font-semibold rounded-full mb-2 uppercase tracking-wider">
@@ -226,7 +223,7 @@ export function ProviderLeads() {
                                             disabled={sendingQuote || !quotePrice}
                                             className="btn-primary flex-1 flex justify-center items-center gap-2 py-3 font-semibold shadow-lg shadow-orange-500/20"
                                         >
-                                            {sendingQuote ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
+                                            {sendingQuote ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-5 h-5" />}
                                             Confirmar Presupuesto
                                         </button>
                                     </div>
@@ -242,6 +239,3 @@ export function ProviderLeads() {
     </div>
   );
 }
-
-// Missing CheckCircle import, adding simple icon mock or import
-
