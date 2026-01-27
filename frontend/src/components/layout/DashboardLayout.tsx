@@ -13,7 +13,6 @@ import {
   Sun,
   Moon,
   Power,
-  ClipboardList
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useState, useEffect } from 'react';
@@ -78,8 +77,7 @@ export function DashboardLayout() {
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
     { icon: Search, label: 'Buscar Servicios', path: '/services', hide: isProvider },
     { icon: Briefcase, label: 'Mis Servicios', path: '/my-services', hide: !isProvider },
-    { icon: ClipboardList, label: 'Mis Pedidos', path: '/my-requests', hide: isProvider },
-    { icon: Calendar, label: 'Reservas', path: '/bookings' },
+    { icon: Calendar, label: 'Mis Trabajos', path: '/my-jobs' },
     { icon: MessageSquare, label: 'Mensajes', path: '/chat' },
   ];
 

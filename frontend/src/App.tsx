@@ -6,10 +6,10 @@ import { DashboardLayout } from './components/layout';
 import { LoginPage, RegisterPage } from './pages/auth';
 import { DashboardPage } from './pages/dashboard';
 import { ServicesPage, ServiceDetailPage } from './pages/services';
-import { BookingsPage } from './pages/bookings';
+import { MyJobsPage } from './pages/jobs';
 import { ChatPage } from './pages/chat';
 import { MyServicesPage } from './pages/my-services';
-import { MyRequestsPage } from './pages/requests/MyRequestsPage';
+// MyRequestsPage removed - functionality moved to MyJobsPage
 import { SettingsPage } from './pages/settings';
 import { HelpPage } from './pages/help';
 
@@ -44,8 +44,9 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/:id" element={<ServiceDetailPage />} />
-          <Route path="/bookings" element={<BookingsPage />} />
-          <Route path="/my-requests" element={<MyRequestsPage />} />
+          <Route path="/my-jobs" element={<MyJobsPage />} />
+          <Route path="/bookings" element={<Navigate to="/my-jobs" />} />
+          <Route path="/my-requests" element={<Navigate to="/my-jobs" />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/my-services" element={<MyServicesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
