@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, Loader2, Wrench, UserCircle, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '../../app/stores';
+import { BrandLogo } from '../../components/ui/BrandLogo';
 
 type UserRole = 'CLIENT' | 'PROVIDER';
 
@@ -71,8 +72,8 @@ export function RegisterPage() {
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="HomePlus" className="h-36 w-auto" />
+          <div className="mb-8">
+            <BrandLogo variant="auth" className="justify-start" />
           </div>
 
           {/* Dynamic Content */}
@@ -152,8 +153,8 @@ export function RegisterPage() {
           className="max-w-md w-full mx-auto"
         >
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-10">
-            <img src="/logo.png" alt="HomePlus" className="h-24 w-auto" />
+          <div className="lg:hidden mb-10">
+            <BrandLogo variant="mobile" />
           </div>
 
           <AnimatePresence mode="wait">

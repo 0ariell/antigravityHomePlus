@@ -20,6 +20,7 @@ import { httpClient } from '../../infra/http';
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../app/stores';
 import { NotificationsDropdown } from '../notifications';
+import { BrandLogo } from '../ui/BrandLogo';
 import { socketService } from '../../infra/realtime';
 
 export function DashboardLayout() {
@@ -170,10 +171,8 @@ export function DashboardLayout() {
         }`}
       >
         {/* Brand Header */}
-        <div className="p-4 flex justify-center">
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="HomePlus" className="h-28 w-auto max-w-full object-contain" />
-          </div>
+        <div className="flex flex-col items-center justify-center py-6 border-b border-gray-100 dark:border-gray-700/50">
+          <BrandLogo variant="sidebar" />
         </div>
 
         {/* User Quick Card */}
