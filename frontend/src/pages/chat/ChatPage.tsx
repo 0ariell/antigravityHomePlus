@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageSquare, 
   Send, 
@@ -8,7 +9,11 @@ import {
   MoreVertical,
   Loader2,
   ArrowLeft,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Smile,
+  Check,
+  CheckCheck,
+  Zap
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useAuthStore } from '../../app/stores';
@@ -226,192 +231,305 @@ export function ChatPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 text-primary-500 animate-spin mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400">Cargando conversaciones...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="animate-fade-in h-[calc(100vh-180px)] min-h-[500px]">
-      <div className="flex h-full gap-4 lg:gap-6">
-        {/* Conversations List */}
-        <div className={`w-full lg:w-80 flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden ${
-          selectedConversation ? 'hidden lg:flex' : 'flex'
-        }`}>
-          <div className="p-4 border-b border-gray-100 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Mensajes</h2>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="h-[calc(100vh-140px)] min-h-[500px]"
+    >
+      <div className="flex h-full gap-0 lg:gap-6">
+        {/* Conversations Sidebar */}
+        <motion.div 
+          initial={{ x: -20 }}
+          animate={{ x: 0 }}
+          className={`w-full lg:w-96 flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm ${
+            selectedConversation ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
+          {/* Header */}
+          <div className="p-5 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                Mensajes
+              </h2>
+              <span className="px-2.5 py-1 bg-primary-100 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400 text-xs font-semibold rounded-full">
+                {conversations.length}
+              </span>
+            </div>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar conversación..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
               />
             </div>
           </div>
 
+          {/* Conversations List */}
           <div className="flex-1 overflow-y-auto">
             {filteredConversations.length === 0 ? (
-              <div className="p-6 text-center">
-                <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                <p className="text-sm text-gray-500 dark:text-gray-400">No hay conversaciones</p>
+              <div className="p-8 text-center">
+                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="w-8 h-8 text-gray-300 dark:text-gray-500" />
+                </div>
+                <h3 className="font-medium text-gray-900 dark:text-white mb-1">Sin conversaciones</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Las conversaciones con profesionales aparecerán aquí
+                </p>
               </div>
             ) : (
-              filteredConversations.map((conv) => {
-                const other = getOtherParticipant(conv);
-                const isSelected = selectedConversation?.id === conv.id;
-                const lastMessage = conv.lastMessage || (conv.messages?.length ? conv.messages[conv.messages.length - 1] : null);
+              <div className="divide-y divide-gray-50 dark:divide-gray-700/50">
+                {filteredConversations.map((conv) => {
+                  const other = getOtherParticipant(conv);
+                  const isSelected = selectedConversation?.id === conv.id;
+                  const lastMessage = conv.lastMessage || (conv.messages?.length ? conv.messages[conv.messages.length - 1] : null);
 
-                return (
-                  <button
-                    key={conv.id}
-                    onClick={() => setSelectedConversation(conv)}
-                    className={`w-full p-4 flex items-start gap-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-50 dark:border-gray-700 ${
-                      isSelected ? 'bg-orange-50 dark:bg-orange-900/20 border-l-2 border-l-orange-500' : ''
-                    }`}
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-medium flex-shrink-0">
-                      {other.firstName?.[0] || 'U'}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-gray-900 dark:text-white truncate">
-                          {other.firstName} {other.lastName}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {lastMessage ? formatDate(lastMessage.createdAt) : ''}
-                        </span>
+                  return (
+                    <motion.button
+                      key={conv.id}
+                      whileHover={{ backgroundColor: 'rgba(0,0,0,0.02)' }}
+                      onClick={() => setSelectedConversation(conv)}
+                      className={`w-full p-4 flex items-start gap-4 text-left transition-all ${
+                        isSelected 
+                          ? 'bg-primary-50 dark:bg-primary-500/10 border-l-4 border-l-primary-500' 
+                          : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                      }`}
+                    >
+                      <div className="relative">
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+                          {other.firstName?.[0] || 'U'}
+                        </div>
+                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{conv.booking?.service?.title || 'Servicio'}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                        {lastMessage?.content || 'Sin mensajes'}
-                      </p>
-                    </div>
-                  </button>
-                );
-              })
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-semibold text-gray-900 dark:text-white truncate">
+                            {other.firstName} {other.lastName}
+                          </span>
+                          <span className="text-xs text-gray-400 flex-shrink-0">
+                            {lastMessage ? formatDate(lastMessage.createdAt) : ''}
+                          </span>
+                        </div>
+                        <p className="text-xs text-primary-600 dark:text-primary-400 font-medium mb-1 truncate">
+                          {conv.booking?.service?.title || 'Servicio'}
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                          {lastMessage?.content || 'Sin mensajes aún'}
+                        </p>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Chat Area */}
-        <div className={`flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden ${
+        <div className={`flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm ${
           selectedConversation ? 'flex' : 'hidden lg:flex'
         }`}>
           {selectedConversation ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <button onClick={() => setSelectedConversation(null)} className="lg:hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                    <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-                  </button>
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-medium">
-                    {getOtherParticipant(selectedConversation).firstName?.[0] || 'U'}
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <button 
+                      onClick={() => setSelectedConversation(null)} 
+                      className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                    </button>
+                    <div className="relative">
+                      <div className="w-11 h-11 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
+                        {getOtherParticipant(selectedConversation).firstName?.[0] || 'U'}
+                      </div>
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                        {getOtherParticipant(selectedConversation).firstName}{' '}
+                        {getOtherParticipant(selectedConversation).lastName}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {selectedConversation.booking?.service?.title || 'Servicio'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
-                      {getOtherParticipant(selectedConversation).firstName}{' '}
-                      {getOtherParticipant(selectedConversation).lastName}
-                    </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {selectedConversation.booking?.service?.title || 'Servicio'}
-                    </p>
+                  <div className="flex items-center gap-1">
+                    <button 
+                      onClick={() => alert('Llamadas: Próximamente')}
+                      className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                    >
+                      <Phone className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    </button>
+                    <button 
+                      onClick={() => alert('Video: Próximamente')}
+                      className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                    >
+                      <Video className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    </button>
+                    <button className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                      <MoreVertical className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    </button>
                   </div>
-                </div>
-                <div className="hidden sm:flex items-center gap-2">
-                  <button 
-                    onClick={() => alert('Llamadas de voz: Próximamente')}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    <Phone className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                  </button>
-                  <button 
-                    onClick={() => alert('Video llamadas: Próximamente')}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    <Video className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                  </button>
-                  <button 
-                    onClick={() => alert('Opciones adicionales: Próximamente')}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                  >
-                    <MoreVertical className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                  </button>
                 </div>
               </div>
 
-              {/* Messages Area */}
-              <div className="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+              {/* Messages */}
+              <div className="flex-1 p-4 lg:p-6 overflow-y-auto bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-gray-800">
                 {isLoadingMessages ? (
-                  <div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 text-orange-500 animate-spin" /></div>
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+                  </div>
                 ) : messages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-                    <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" /><p className="text-sm">Comienza la conversación</p>
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="w-20 h-20 bg-primary-100 dark:bg-primary-500/20 rounded-full flex items-center justify-center mb-4">
+                      <Zap className="w-10 h-10 text-primary-500" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      ¡Iniciá la conversación!
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                      Coordiná los detalles del trabajo directamente con el profesional
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {messages.map((message) => {
+                    {messages.map((message, index) => {
                       const isOwn = message.senderId === user?.id;
+                      const showAvatar = !isOwn && (index === 0 || messages[index - 1]?.senderId !== message.senderId);
+                      
                       return (
-                        <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[75%] rounded-2xl px-4 py-2 ${isOwn ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-bl-sm'}`}>
-                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                            <p className={`text-xs mt-1 ${isOwn ? 'text-orange-100' : 'text-gray-400'}`}>{formatTime(message.createdAt)}</p>
+                        <motion.div 
+                          key={message.id} 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}
+                        >
+                          {!isOwn && (
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0 ${
+                              showAvatar 
+                                ? 'bg-gradient-to-br from-gray-400 to-gray-500' 
+                                : 'invisible'
+                            }`}>
+                              {message.sender.firstName?.[0] || 'U'}
+                            </div>
+                          )}
+                          <div className={`max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
+                            <div className={`rounded-2xl px-4 py-3 ${
+                              isOwn 
+                                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-br-md shadow-lg shadow-primary-500/20' 
+                                : 'bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
+                            }`}>
+                              <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                            </div>
+                            <div className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start pl-1'}`}>
+                              <span className={`text-[10px] ${isOwn ? 'text-gray-400' : 'text-gray-400'}`}>
+                                {formatTime(message.createdAt)}
+                              </span>
+                              {isOwn && (
+                                message.readAt 
+                                  ? <CheckCheck className="w-3 h-3 text-primary-500" />
+                                  : <Check className="w-3 h-3 text-gray-400" />
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        </motion.div>
                       );
                     })}
-                    {typingUsers.size > 0 && (
-                      <div className="flex justify-start">
-                        <div className="bg-gray-200 dark:bg-gray-700 rounded-2xl px-4 py-2">
-                          <div className="flex gap-1">
-                            <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" />
-                            <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                            <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                    
+                    {/* Typing Indicator */}
+                    <AnimatePresence>
+                      {typingUsers.size > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="flex items-end gap-2"
+                        >
+                          <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs">
+                            {getOtherParticipant(selectedConversation).firstName?.[0] || 'U'}
                           </div>
-                        </div>
-                      </div>
-                    )}
+                          <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-3 rounded-bl-md">
+                            <div className="flex gap-1">
+                              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                              <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                     <div ref={messagesEndRef} />
                   </div>
                 )}
               </div>
 
               {/* Message Input */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-100 dark:border-gray-700">
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
                 <div className="flex items-center gap-3">
                   <button 
-                    type="button" 
-                    onClick={() => alert('Envío de imágenes: Próximamente')}
-                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors hidden sm:block"
+                    type="button"
+                    onClick={() => alert('Adjuntos: Próximamente')}
+                    className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors hidden sm:flex"
                   >
                     <ImageIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   </button>
-                  <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
-                    placeholder="Escribe un mensaje..."
-                    className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                  <button type="submit" disabled={!newMessage.trim() || isSending} className="p-3 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-xl transition-colors">
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      value={newMessage}
+                      onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
+                      placeholder="Escribe un mensaje..."
+                      className="w-full px-5 py-3.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 rounded-2xl pr-12 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                    />
+                    <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                      <Smile className="w-5 h-5 text-gray-400" />
+                    </button>
+                  </div>
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    type="submit" 
+                    disabled={!newMessage.trim() || isSending} 
+                    className="p-3.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 disabled:from-gray-300 disabled:to-gray-300 dark:disabled:from-gray-600 dark:disabled:to-gray-600 text-white rounded-xl shadow-lg shadow-primary-500/25 disabled:shadow-none transition-all"
+                  >
                     {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                  </button>
+                  </motion.button>
                 </div>
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
-              <MessageSquare className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Tus mensajes</h3>
-              <p className="text-sm">Selecciona una conversación para comenzar</p>
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+              <div className="w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-500/20 dark:to-primary-500/10 rounded-full flex items-center justify-center mb-6">
+                <MessageSquare className="w-12 h-12 text-primary-500" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                Tus mensajes
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 max-w-sm">
+                Seleccioná una conversación para ver los mensajes y coordinar con el profesional
+              </p>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
