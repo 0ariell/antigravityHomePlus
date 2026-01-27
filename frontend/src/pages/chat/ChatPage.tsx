@@ -233,7 +233,7 @@ export function ChatPage() {
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <Loader2 className="w-10 h-10 text-primary-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400">Cargando conversaciones...</p>
+          <p className="text-gray-400">Cargando conversaciones...</p>
         </div>
       </div>
     );
@@ -250,28 +250,28 @@ export function ChatPage() {
         <motion.div 
           initial={{ x: -20 }}
           animate={{ x: 0 }}
-          className={`w-full lg:w-96 flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm ${
+          className={`w-full lg:w-96 flex flex-col bg-gray-800/50 rounded-2xl border border-gray-700/50 overflow-hidden shadow-sm ${
             selectedConversation ? 'hidden lg:flex' : 'flex'
           }`}
         >
           {/* Header */}
-          <div className="p-5 border-b border-gray-100 dark:border-gray-700">
+          <div className="p-5 border-b border-gray-700/50">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <h2 className="text-xl font-bold text-white">
                 Mensajes
               </h2>
-              <span className="px-2.5 py-1 bg-primary-100 dark:bg-primary-500/20 text-primary-600 dark:text-primary-400 text-xs font-semibold rounded-full">
+              <span className="px-2.5 py-1 bg-primary-500/20 text-primary-400 text-xs font-semibold rounded-full">
                 {conversations.length}
               </span>
             </div>
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar conversación..."
-                className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                className="w-full pl-11 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
               />
             </div>
           </div>
@@ -280,16 +280,16 @@ export function ChatPage() {
           <div className="flex-1 overflow-y-auto">
             {filteredConversations.length === 0 ? (
               <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MessageSquare className="w-8 h-8 text-gray-300 dark:text-gray-500" />
+                <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="w-8 h-8 text-gray-500" />
                 </div>
-                <h3 className="font-medium text-gray-900 dark:text-white mb-1">Sin conversaciones</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <h3 className="font-medium text-white mb-1">Sin conversaciones</h3>
+                <p className="text-sm text-gray-400">
                   Las conversaciones con profesionales aparecerán aquí
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-50 dark:divide-gray-700/50">
+              <div className="divide-y divide-gray-700/50">
                 {filteredConversations.map((conv) => {
                   const other = getOtherParticipant(conv);
                   const isSelected = selectedConversation?.id === conv.id;
@@ -298,33 +298,33 @@ export function ChatPage() {
                   return (
                     <motion.button
                       key={conv.id}
-                      whileHover={{ backgroundColor: 'rgba(0,0,0,0.02)' }}
+                      whileHover={{ backgroundColor: 'rgba(255,255,255,0.02)' }}
                       onClick={() => setSelectedConversation(conv)}
                       className={`w-full p-4 flex items-start gap-4 text-left transition-all ${
                         isSelected 
-                          ? 'bg-primary-50 dark:bg-primary-500/10 border-l-4 border-l-primary-500' 
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                          ? 'bg-primary-500/10 border-l-4 border-l-primary-500' 
+                          : 'hover:bg-gray-700/30'
                       }`}
                     >
                       <div className="relative">
                         <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                           {other.firstName?.[0] || 'U'}
                         </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
+                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-800" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold text-gray-900 dark:text-white truncate">
+                          <span className="font-semibold text-white truncate">
                             {other.firstName} {other.lastName}
                           </span>
                           <span className="text-xs text-gray-400 flex-shrink-0">
                             {lastMessage ? formatDate(lastMessage.createdAt) : ''}
                           </span>
                         </div>
-                        <p className="text-xs text-primary-600 dark:text-primary-400 font-medium mb-1 truncate">
+                        <p className="text-xs text-primary-400 font-medium mb-1 truncate">
                           {conv.booking?.service?.title || 'Servicio'}
                         </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                        <p className="text-sm text-gray-400 truncate">
                           {lastMessage?.content || 'Sin mensajes aún'}
                         </p>
                       </div>
@@ -337,35 +337,35 @@ export function ChatPage() {
         </motion.div>
 
         {/* Chat Area */}
-        <div className={`flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm ${
+        <div className={`flex-1 flex flex-col bg-gray-800/50 rounded-2xl border border-gray-700/50 overflow-hidden shadow-sm ${
           selectedConversation ? 'flex' : 'hidden lg:flex'
         }`}>
           {selectedConversation ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+              <div className="p-4 border-b border-gray-700/50 bg-gray-800/80 backdrop-blur-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <button 
                       onClick={() => setSelectedConversation(null)} 
-                      className="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                      className="lg:hidden p-2 hover:bg-gray-700 rounded-xl transition-colors"
                     >
-                      <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                      <ArrowLeft className="w-5 h-5 text-gray-300" />
                     </button>
                     <div className="relative">
                       <div className="w-11 h-11 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                         {getOtherParticipant(selectedConversation).firstName?.[0] || 'U'}
                       </div>
-                      <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-gray-800" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-white">
+                      <h3 className="font-semibold text-white">
                         {getOtherParticipant(selectedConversation).firstName}{' '}
                         {getOtherParticipant(selectedConversation).lastName}
                       </h3>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-gray-400">
                           {selectedConversation.booking?.service?.title || 'Servicio'}
                         </p>
                       </div>
@@ -374,38 +374,38 @@ export function ChatPage() {
                   <div className="flex items-center gap-1">
                     <button 
                       onClick={() => alert('Llamadas: Próximamente')}
-                      className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                      className="p-2.5 hover:bg-gray-700 rounded-xl transition-colors"
                     >
-                      <Phone className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <Phone className="w-5 h-5 text-gray-400" />
                     </button>
                     <button 
                       onClick={() => alert('Video: Próximamente')}
-                      className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                      className="p-2.5 hover:bg-gray-700 rounded-xl transition-colors"
                     >
-                      <Video className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <Video className="w-5 h-5 text-gray-400" />
                     </button>
-                    <button className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
-                      <MoreVertical className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    <button className="p-2.5 hover:bg-gray-700 rounded-xl transition-colors">
+                      <MoreVertical className="w-5 h-5 text-gray-400" />
                     </button>
                   </div>
                 </div>
               </div>
 
               {/* Messages */}
-              <div className="flex-1 p-4 lg:p-6 overflow-y-auto bg-gradient-to-b from-gray-50 to-white dark:from-gray-900/50 dark:to-gray-800">
+              <div className="flex-1 p-4 lg:p-6 overflow-y-auto bg-gradient-to-b from-gray-900/50 to-gray-800">
                 {isLoadingMessages ? (
                   <div className="flex items-center justify-center h-full">
                     <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center">
-                    <div className="w-20 h-20 bg-primary-100 dark:bg-primary-500/20 rounded-full flex items-center justify-center mb-4">
+                    <div className="w-20 h-20 bg-primary-500/20 rounded-full flex items-center justify-center mb-4">
                       <Zap className="w-10 h-10 text-primary-500" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-lg font-semibold text-white mb-2">
                       ¡Iniciá la conversación!
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                    <p className="text-sm text-gray-400 max-w-xs">
                       Coordiná los detalles del trabajo directamente con el profesional
                     </p>
                   </div>
@@ -434,8 +434,8 @@ export function ChatPage() {
                           <div className={`max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
                             <div className={`rounded-2xl px-4 py-3 ${
                               isOwn 
-                                ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-br-md shadow-lg shadow-primary-500/20' 
-                                : 'bg-white dark:bg-gray-700 border border-gray-100 dark:border-gray-600 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
+                                ? 'bg-gradient-to-r from-primary-500 to-orange-500 text-white rounded-br-md shadow-lg shadow-primary-500/20' 
+                                : 'bg-gray-700 border border-gray-600 text-white rounded-bl-md shadow-sm'
                             }`}>
                               <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                             </div>
@@ -466,7 +466,7 @@ export function ChatPage() {
                           <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs">
                             {getOtherParticipant(selectedConversation).firstName?.[0] || 'U'}
                           </div>
-                          <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl px-4 py-3 rounded-bl-md">
+                          <div className="bg-gray-700 rounded-2xl px-4 py-3 rounded-bl-md">
                             <div className="flex gap-1">
                               <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
                               <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
@@ -482,14 +482,14 @@ export function ChatPage() {
               </div>
 
               {/* Message Input */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700/50 bg-gray-800">
                 <div className="flex items-center gap-3">
                   <button 
                     type="button"
                     onClick={() => alert('Adjuntos: Próximamente')}
-                    className="p-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors hidden sm:flex"
+                    className="p-2.5 hover:bg-gray-700 rounded-xl transition-colors hidden sm:flex"
                   >
-                    <ImageIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    <ImageIcon className="w-5 h-5 text-gray-400" />
                   </button>
                   <div className="flex-1 relative">
                     <input
@@ -497,9 +497,9 @@ export function ChatPage() {
                       value={newMessage}
                       onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
                       placeholder="Escribe un mensaje..."
-                      className="w-full px-5 py-3.5 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-400 rounded-2xl pr-12 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                      className="w-full px-5 py-3.5 bg-gray-700/50 border border-gray-600 text-white placeholder-gray-400 rounded-2xl pr-12 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
                     />
-                    <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
+                    <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-600 rounded-lg transition-colors">
                       <Smile className="w-5 h-5 text-gray-400" />
                     </button>
                   </div>
@@ -508,7 +508,7 @@ export function ChatPage() {
                     whileTap={{ scale: 0.95 }}
                     type="submit" 
                     disabled={!newMessage.trim() || isSending} 
-                    className="p-3.5 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 disabled:from-gray-300 disabled:to-gray-300 dark:disabled:from-gray-600 dark:disabled:to-gray-600 text-white rounded-xl shadow-lg shadow-primary-500/25 disabled:shadow-none transition-all"
+                    className="p-3.5 bg-gradient-to-r from-primary-500 to-orange-500 hover:from-primary-600 hover:to-orange-600 disabled:from-gray-600 disabled:to-gray-600 text-white rounded-xl shadow-lg shadow-primary-500/25 disabled:shadow-none transition-all"
                   >
                     {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                   </motion.button>
@@ -517,13 +517,13 @@ export function ChatPage() {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-              <div className="w-24 h-24 bg-gradient-to-br from-primary-100 to-primary-50 dark:from-primary-500/20 dark:to-primary-500/10 rounded-full flex items-center justify-center mb-6">
+              <div className="w-24 h-24 bg-gradient-to-br from-primary-500/20 to-primary-500/10 rounded-full flex items-center justify-center mb-6">
                 <MessageSquare className="w-12 h-12 text-primary-500" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <h3 className="text-xl font-semibold text-white mb-2">
                 Tus mensajes
               </h3>
-              <p className="text-gray-500 dark:text-gray-400 max-w-sm">
+              <p className="text-gray-400 max-w-sm">
                 Seleccioná una conversación para ver los mensajes y coordinar con el profesional
               </p>
             </div>

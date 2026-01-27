@@ -52,47 +52,47 @@
 /* Custom Utilities Layer */
 @layer utilities {
   .glass {
-    @apply bg-white/80 backdrop-blur-md border border-white/20;
+    @apply bg-gray-900/50 backdrop-blur-xl border border-gray-800;
   }
 
   .glass-dark {
-    @apply bg-gray-900/80 backdrop-blur-md border border-white/10;
+    @apply bg-gray-900/80 backdrop-blur-xl border border-gray-800;
   }
 
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700/50;
+    @apply bg-gray-900/50 backdrop-blur-sm rounded-2xl border border-gray-800;
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+    @apply transition-all duration-300 hover:bg-gray-800/70 hover:-translate-y-1;
   }
 
   .btn-primary {
-    @apply bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-3 px-6 rounded-xl border-none cursor-pointer transition-all duration-200 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg;
+    @apply bg-gradient-to-br from-primary-500 to-orange-500 text-white font-semibold py-3 px-6 rounded-xl border-none cursor-pointer transition-all duration-200 hover:from-primary-600 hover:to-orange-600 hover:shadow-lg hover:shadow-primary-500/20;
   }
 
   .btn-secondary {
-    @apply bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-xl border border-gray-200 cursor-pointer transition-all duration-200 hover:bg-gray-200 hover:border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600;
+    @apply bg-gray-800 text-gray-200 font-semibold py-3 px-6 rounded-xl border border-gray-700 cursor-pointer transition-all duration-200 hover:bg-gray-700;
   }
 
   .input-field {
-    @apply w-full py-3 px-4 border border-gray-200 rounded-xl text-base transition-all duration-200 bg-white focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
+    @apply w-full py-3 px-4 border border-gray-700 rounded-xl text-base transition-all duration-200 bg-gray-800/50 text-white placeholder-gray-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20;
   }
 
   .sidebar-item {
-    @apply flex items-center gap-3 py-3 px-4 rounded-xl text-gray-600 font-medium transition-all duration-200 cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700/50 dark:hover:text-white;
+    @apply flex items-center gap-3 py-3 px-4 rounded-xl text-gray-400 font-medium transition-all duration-200 cursor-pointer hover:bg-gray-800/50 hover:text-white;
   }
 
   .sidebar-item.active {
-    @apply bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400;
+    @apply bg-primary-500/10 text-primary-400;
   }
 
   .stat-card {
-    @apply bg-white rounded-2xl p-5 border border-gray-100 dark:bg-gray-800 dark:border-gray-700/50;
+    @apply bg-gray-900/50 rounded-2xl p-5 border border-gray-800;
   }
 
   .stat-card-primary {
-    @apply bg-gradient-to-br from-primary-500 to-primary-600 text-white border-none shadow-lg;
+    @apply bg-gradient-to-br from-primary-500 to-orange-500 text-white border-none shadow-lg shadow-primary-500/20;
   }
 
   .badge {

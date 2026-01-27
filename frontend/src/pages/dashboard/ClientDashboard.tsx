@@ -35,17 +35,17 @@ interface TopProvider {
   category: string;
   avgRating: number;
   totalReviews: number;
-  zone: string; // Add zone to interface
+  zone: string;
   avatarUrl?: string;
   isOnline?: boolean;
 }
 
 const QUICK_CATEGORIES = [
-  { id: 'plomeria', label: 'Plomería', icon: Droplet, color: 'from-blue-500 to-blue-600', bgLight: 'bg-blue-50 dark:bg-blue-900/20' },
-  { id: 'electricidad', label: 'Electricidad', icon: Zap, color: 'from-yellow-500 to-yellow-600', bgLight: 'bg-yellow-50 dark:bg-yellow-900/20' },
-  { id: 'pintura', label: 'Pintura', icon: PaintBucket, color: 'from-pink-500 to-pink-600', bgLight: 'bg-pink-50 dark:bg-pink-900/20' },
-  { id: 'reparaciones', label: 'Reparaciones', icon: Wrench, color: 'from-gray-500 to-gray-600', bgLight: 'bg-gray-100 dark:bg-gray-800' },
-  { id: 'construccion', label: 'Construcción', icon: Home, color: 'from-orange-500 to-orange-600', bgLight: 'bg-orange-50 dark:bg-orange-900/20' },
+  { id: 'plomeria', label: 'Plomería', icon: Droplet, color: 'from-blue-500 to-blue-600' },
+  { id: 'electricidad', label: 'Electricidad', icon: Zap, color: 'from-yellow-500 to-yellow-600' },
+  { id: 'pintura', label: 'Pintura', icon: PaintBucket, color: 'from-pink-500 to-pink-600' },
+  { id: 'reparaciones', label: 'Reparaciones', icon: Wrench, color: 'from-gray-500 to-gray-600' },
+  { id: 'construccion', label: 'Construcción', icon: Home, color: 'from-orange-500 to-orange-600' },
 ];
 
 export function ClientDashboard() {
@@ -58,7 +58,7 @@ export function ClientDashboard() {
     completedJobs: 0
   });
   const [topProviders, setTopProviders] = useState<TopProvider[]>([]);
-  const [activeJobs, setActiveJobs] = useState<any[]>([]); // Using any for flexibility with booking structure
+  const [activeJobs, setActiveJobs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -78,17 +78,14 @@ export function ClientDashboard() {
       const requests = requestsRes.data || [];
       const providers = providersRes.data || [];
 
-      // Calculate stats
       const activeRequests = requests.filter((r: any) => r.status === 'OPEN').length;
       const pendingQuotes = requests.reduce((acc: number, r: any) => acc + (r._count?.quotes || 0), 0);
       const jobsInProgress = bookings.filter((b: any) => ['ACCEPTED', 'IN_PROGRESS'].includes(b.status)).length;
       const completedJobs = bookings.filter((b: any) => b.status === 'COMPLETED').length;
 
       setStats({ activeRequests, pendingQuotes, jobsInProgress, completedJobs });
-
       setTopProviders(providers.slice(0, 4));
 
-      // Active jobs
       const active = bookings
         .filter((b: any) => ['ACCEPTED', 'IN_PROGRESS'].includes(b.status))
         .slice(0, 2);
@@ -110,16 +107,16 @@ export function ClientDashboard() {
   }) => (
     <button 
       onClick={onClick}
-      className={`card p-5 text-left hover:shadow-xl transition-all hover:-translate-y-1 relative overflow-hidden group ${onClick ? 'cursor-pointer' : ''}`}
+      className={`card p-5 text-left hover:-translate-y-1 transition-all relative overflow-hidden group ${onClick ? 'cursor-pointer' : ''}`}
     >
       <div className={`absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br ${color} opacity-10 rounded-full group-hover:scale-110 transition-transform`} />
       <div className="flex items-center justify-between mb-3 relative">
-        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg shadow-gray-200 dark:shadow-none`}>
+        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
           <Icon className="w-6 h-6 text-white" />
         </div>
-        <span className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{value}</span>
+        <span className="text-3xl font-bold text-white tracking-tight">{value}</span>
       </div>
-      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 relative">{label}</p>
+      <p className="text-sm font-medium text-gray-400 relative">{label}</p>
     </button>
   );
 
@@ -128,13 +125,13 @@ export function ClientDashboard() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <div className="skeleton h-8 w-48" />
-            <div className="skeleton h-4 w-64" />
+            <div className="h-8 w-48 bg-gray-800 rounded-lg animate-pulse" />
+            <div className="h-4 w-64 bg-gray-800 rounded animate-pulse" />
           </div>
-          <div className="skeleton h-10 w-40 rounded-xl" />
+          <div className="h-10 w-40 bg-gray-800 rounded-xl animate-pulse" />
         </div>
         <SkeletonStats />
-        <div className="skeleton h-48 w-full rounded-2xl" />
+        <div className="h-48 w-full bg-gray-800 rounded-2xl animate-pulse" />
       </div>
     );
   }
@@ -149,17 +146,17 @@ export function ClientDashboard() {
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="heading-2 text-gray-900 dark:text-white flex items-center gap-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-2">
             Hola, {user?.firstName}
             <Sparkles className="w-6 h-6 text-primary-500" />
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-gray-400 mt-1">
             ¿Qué necesitas solucionar hoy?
           </p>
         </div>
         <button
           onClick={() => navigate('/services')}
-          className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2"
+          className="px-6 py-3 bg-gradient-to-r from-primary-500 to-orange-500 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-primary-500/20 transition-all flex items-center gap-2"
         >
           <Search className="w-4 h-4" />
           Buscar Profesionales
@@ -199,8 +196,8 @@ export function ClientDashboard() {
       </div>
 
       {/* Quick Actions */}
-      <div className="card p-8 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+      <div className="card p-8">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
           <Zap className="w-5 h-5 text-amber-500" />
           ¿Qué estás buscando?
         </h2>
@@ -211,12 +208,12 @@ export function ClientDashboard() {
               <button
                 key={cat.id}
                 onClick={() => navigate(`/services?category=${cat.label}`)}
-                className={`${cat.bgLight} p-6 rounded-2xl text-center hover:scale-105 transition-transform group border border-transparent hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-lg`}
+                className="bg-gray-800/50 p-6 rounded-2xl text-center hover:scale-105 transition-transform group border border-gray-700/50 hover:border-gray-600"
               >
-                <div className={`w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br ${cat.color} flex items-center justify-center mb-3 group-hover:shadow-lg transition-shadow shadow-sm`}>
+                <div className={`w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br ${cat.color} flex items-center justify-center mb-3 group-hover:shadow-lg transition-shadow`}>
                   <Icon className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{cat.label}</span>
+                <span className="text-sm font-bold text-gray-300">{cat.label}</span>
               </button>
             );
           })}
@@ -227,22 +224,22 @@ export function ClientDashboard() {
         {/* Active Jobs */}
         <div className="lg:col-span-2 space-y-6">
            <div className="flex items-center justify-between">
-            <h2 className="heading-3 text-gray-900 dark:text-white">Trabajos en curso</h2>
+            <h2 className="text-xl font-bold text-white">Trabajos en curso</h2>
             <button 
               onClick={() => navigate('/my-jobs')}
-              className="text-primary-600 dark:text-primary-400 font-bold text-sm hover:underline flex items-center gap-1"
+              className="text-primary-400 font-bold text-sm hover:underline flex items-center gap-1"
             >
               Ver todos <ChevronRight className="w-4 h-4" />
             </button>
           </div>
           
           {activeJobs.length === 0 ? (
-            <div className="card p-8 text-center bg-gray-50 dark:bg-gray-800/50 border-dashed">
-              <div className="w-16 h-16 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <Clock className="w-8 h-8 text-gray-300 dark:text-gray-500" />
+            <div className="card p-8 text-center border-dashed">
+              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Clock className="w-8 h-8 text-gray-600" />
               </div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white">No tienes trabajos en curso</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Los trabajos aceptados aparecerán aquí.</p>
+              <h3 className="text-lg font-bold text-white">No tienes trabajos en curso</h3>
+              <p className="text-gray-500 text-sm mt-1">Los trabajos aceptados aparecerán aquí.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -271,8 +268,8 @@ export function ClientDashboard() {
         {/* Top Providers */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="heading-3 text-gray-900 dark:text-white">Profesionales Top</h2>
-            <button className="text-primary-600 dark:text-primary-400 font-bold text-sm hover:underline flex items-center gap-1">
+            <h2 className="text-xl font-bold text-white">Profesionales Top</h2>
+            <button className="text-primary-400 font-bold text-sm hover:underline flex items-center gap-1">
               Ver más <ChevronRight className="w-4 h-4" />
             </button>
           </div>

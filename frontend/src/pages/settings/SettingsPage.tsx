@@ -76,7 +76,7 @@ export function SettingsPage() {
       type="button"
       onClick={() => onChange(!enabled)}
       className={`relative w-12 h-6 rounded-full transition-colors ${
-        enabled ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
+        enabled ? 'bg-primary-500' : 'bg-gray-600'
       }`}
     >
       <motion.div
@@ -96,8 +96,8 @@ export function SettingsPage() {
     >
       {/* Header */}
       <div className="mb-8">
-        <h1 className="heading-2 text-gray-900 dark:text-white">Configuración</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Gestiona tu cuenta y preferencias</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-white">Configuración</h1>
+        <p className="text-gray-400 mt-1">Gestiona tu cuenta y preferencias</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -114,18 +114,18 @@ export function SettingsPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-left transition-all ${
                     isActive
-                      ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/20'
-                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                      ? 'bg-gradient-to-r from-primary-500 to-orange-500 text-white shadow-lg shadow-primary-500/20'
+                      : 'text-gray-400 hover:bg-gray-800/50'
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    isActive ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-700'
+                    isActive ? 'bg-white/20' : 'bg-gray-800'
                   }`}>
-                    <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500 dark:text-gray-400'}`} />
+                    <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500'}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <span className="font-semibold block">{tab.label}</span>
-                    <span className={`text-xs ${isActive ? 'text-white/70' : 'text-gray-400'}`}>
+                    <span className={`text-xs ${isActive ? 'text-white/70' : 'text-gray-500'}`}>
                       {tab.description}
                     </span>
                   </div>
@@ -147,7 +147,7 @@ export function SettingsPage() {
                 className="card overflow-hidden"
               >
                 {/* Profile Header */}
-                <div className="p-6 bg-gradient-to-r from-primary-500 to-primary-600 text-white">
+                <div className="p-6 bg-gradient-to-r from-primary-500 to-orange-500 text-white">
                   <div className="flex flex-col sm:flex-row items-center gap-6">
                     <div className="relative">
                       <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-3xl font-bold shadow-lg">
@@ -184,85 +184,85 @@ export function SettingsPage() {
                 <div className="p-6 space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Nombre</label>
                       <input
                         type="text"
                         value={formData.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Apellido</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Apellido</label>
                       <input
                         type="text"
                         value={formData.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                        className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
                       <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                         <input
                           type="email"
                           value={user?.email || ''}
-                          className="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-gray-600/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                          className="w-full pl-12 pr-4 py-3 bg-gray-800/30 border border-gray-700 rounded-xl text-gray-500 cursor-not-allowed"
                           disabled
                         />
                       </div>
-                      <p className="text-xs text-gray-400 mt-1.5">El email no puede ser modificado</p>
+                      <p className="text-xs text-gray-500 mt-1.5">El email no puede ser modificado</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Teléfono</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Teléfono</label>
                       <div className="relative">
-                        <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                         <input
                           type="tel"
                           value={formData.phone}
                           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                           placeholder="+54 11 1234-5678"
-                          className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                          className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Zona</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Zona</label>
                       <div className="relative">
-                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                         <input
                           type="text"
                           value={formData.zone}
                           onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
                           placeholder="CABA, Buenos Aires"
-                          className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                          className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
                         />
                       </div>
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Biografía</label>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Biografía</label>
                       <div className="relative">
-                        <Edit3 className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+                        <Edit3 className="absolute left-4 top-4 w-5 h-5 text-gray-500" />
                         <textarea
                           value={formData.bio}
                           onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                           placeholder="Cuéntanos sobre ti..."
                           rows={3}
-                          className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all resize-none"
+                          className="w-full pl-12 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all resize-none outline-none"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row items-center gap-4 justify-end pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex flex-col sm:flex-row items-center gap-4 justify-end pt-4 border-t border-gray-800">
                     <AnimatePresence>
                       {saveSuccess && (
                         <motion.span 
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}
-                          className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm font-medium"
+                          className="flex items-center gap-2 text-green-400 text-sm font-medium"
                         >
                           <Check className="w-4 h-4" />
                           Cambios guardados
@@ -274,7 +274,7 @@ export function SettingsPage() {
                       whileTap={{ scale: 0.98 }}
                       onClick={handleSave}
                       disabled={isSaving}
-                      className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary-500/25 disabled:opacity-50 transition-all"
+                      className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-primary-500 to-orange-500 hover:from-primary-600 hover:to-orange-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary-500/20 disabled:opacity-50 transition-all"
                     >
                       {isSaving ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -296,14 +296,14 @@ export function SettingsPage() {
                 exit={{ opacity: 0, y: -10 }}
                 className="card p-6"
               >
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <h2 className="text-xl font-semibold text-white mb-6">
                   Preferencias de Notificaciones
                 </h2>
                 
                 <div className="space-y-8">
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                      <Bell className="w-5 h-5 text-primary-500" />
+                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                      <Bell className="w-5 h-5 text-primary-400" />
                       Canales
                     </h3>
                     <div className="space-y-3">
@@ -312,10 +312,10 @@ export function SettingsPage() {
                         { key: 'push', label: 'Notificaciones push', desc: 'Alertas en tiempo real' },
                         { key: 'sms', label: 'Notificaciones por SMS', desc: 'Mensajes de texto importantes' },
                       ].map((item) => (
-                        <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                        <div key={item.key} className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl">
                           <div>
-                            <span className="font-medium text-gray-900 dark:text-white">{item.label}</span>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{item.desc}</p>
+                            <span className="font-medium text-white">{item.label}</span>
+                            <p className="text-sm text-gray-500">{item.desc}</p>
                           </div>
                           <Toggle 
                             enabled={notifications[item.key as keyof typeof notifications] as boolean}
@@ -327,8 +327,8 @@ export function SettingsPage() {
                   </div>
 
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                      <Mail className="w-5 h-5 text-primary-500" />
+                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                      <Mail className="w-5 h-5 text-primary-400" />
                       Tipos de notificación
                     </h3>
                     <div className="space-y-3">
@@ -337,10 +337,10 @@ export function SettingsPage() {
                         { key: 'messages', label: 'Mensajes nuevos', desc: 'Cuando recibís un mensaje' },
                         { key: 'promotions', label: 'Promociones', desc: 'Ofertas y novedades de HomePlus' },
                       ].map((item) => (
-                        <div key={item.key} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                        <div key={item.key} className="flex items-center justify-between p-4 bg-gray-800/50 rounded-xl">
                           <div>
-                            <span className="font-medium text-gray-900 dark:text-white">{item.label}</span>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{item.desc}</p>
+                            <span className="font-medium text-white">{item.label}</span>
+                            <p className="text-sm text-gray-500">{item.desc}</p>
                           </div>
                           <Toggle 
                             enabled={notifications[item.key as keyof typeof notifications] as boolean}
@@ -362,54 +362,54 @@ export function SettingsPage() {
                 exit={{ opacity: 0, y: -10 }}
                 className="card p-6"
               >
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <h2 className="text-xl font-semibold text-white mb-6">
                   Seguridad
                 </h2>
                 
                 <div className="space-y-3">
                   <button 
                     onClick={() => alert('Cambio de contraseña: Próximamente')}
-                    className="w-full flex items-center justify-between p-5 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+                    className="w-full flex items-center justify-between p-5 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary-100 dark:bg-primary-500/20 rounded-xl flex items-center justify-center">
-                        <Lock className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                      <div className="w-12 h-12 bg-primary-500/10 rounded-xl flex items-center justify-center">
+                        <Lock className="w-6 h-6 text-primary-400" />
                       </div>
                       <div className="text-left">
-                        <p className="font-semibold text-gray-900 dark:text-white">Cambiar contraseña</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Actualizala regularmente por seguridad</p>
+                        <p className="font-semibold text-white">Cambiar contraseña</p>
+                        <p className="text-sm text-gray-500">Actualizala regularmente por seguridad</p>
                       </div>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight className="w-5 h-5 text-gray-600 group-hover:translate-x-1 transition-transform" />
                   </button>
 
                   <button 
                     onClick={() => alert('Gestión de sesiones: Próximamente')}
-                    className="w-full flex items-center justify-between p-5 bg-gray-50 dark:bg-gray-700/50 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+                    className="w-full flex items-center justify-between p-5 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-blue-100 dark:bg-blue-500/20 rounded-xl flex items-center justify-center">
-                        <Globe className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                      <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                        <Globe className="w-6 h-6 text-blue-400" />
                       </div>
                       <div className="text-left">
-                        <p className="font-semibold text-gray-900 dark:text-white">Sesiones activas</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Gestioná tus dispositivos conectados</p>
+                        <p className="font-semibold text-white">Sesiones activas</p>
+                        <p className="text-sm text-gray-500">Gestioná tus dispositivos conectados</p>
                       </div>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight className="w-5 h-5 text-gray-600 group-hover:translate-x-1 transition-transform" />
                   </button>
 
                   <button 
                     onClick={() => logout()}
-                    className="w-full flex items-center justify-between p-5 bg-red-50 dark:bg-red-500/10 rounded-xl hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors group"
+                    className="w-full flex items-center justify-between p-5 bg-red-500/10 rounded-xl hover:bg-red-500/20 transition-colors group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-red-100 dark:bg-red-500/20 rounded-xl flex items-center justify-center">
-                        <LogOut className="w-6 h-6 text-red-600 dark:text-red-400" />
+                      <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center">
+                        <LogOut className="w-6 h-6 text-red-400" />
                       </div>
                       <div className="text-left">
-                        <p className="font-semibold text-red-600 dark:text-red-400">Cerrar sesión</p>
-                        <p className="text-sm text-red-500/80 dark:text-red-400/70">Salir de tu cuenta</p>
+                        <p className="font-semibold text-red-400">Cerrar sesión</p>
+                        <p className="text-sm text-red-400/70">Salir de tu cuenta</p>
                       </div>
                     </div>
                   </button>
@@ -425,25 +425,25 @@ export function SettingsPage() {
                 exit={{ opacity: 0, y: -10 }}
                 className="card p-6"
               >
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <h2 className="text-xl font-semibold text-white mb-6">
                   Métodos de Pago
                 </h2>
                 
                 <div className="text-center py-12">
-                  <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <CreditCard className="w-10 h-10 text-gray-300 dark:text-gray-500" />
+                  <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CreditCard className="w-10 h-10 text-gray-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-lg font-semibold text-white mb-2">
                     Sin métodos de pago
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
+                  <p className="text-gray-500 mb-8 max-w-sm mx-auto">
                     Agregá un método de pago para realizar transacciones de forma segura
                   </p>
                   <motion.button 
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => alert('Agregar método de pago: Próximamente')}
-                    className="px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl flex items-center gap-2 mx-auto shadow-lg shadow-primary-500/25"
+                    className="px-6 py-3 bg-gradient-to-r from-primary-500 to-orange-500 text-white font-semibold rounded-xl flex items-center gap-2 mx-auto shadow-lg shadow-primary-500/20"
                   >
                     <Plus className="w-5 h-5" />
                     Agregar método de pago

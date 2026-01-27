@@ -11,8 +11,6 @@ import {
   Briefcase,
   Menu,
   X,
-  Sun,
-  Moon,
   Power,
   ChevronRight,
 } from 'lucide-react';
@@ -27,26 +25,7 @@ export function DashboardLayout() {
   const navigate = useNavigate();
   const { user, logout, loadUser } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored) return stored === 'dark';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
   const [togglingOnline, setTogglingOnline] = useState(false);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
-  const toggleTheme = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    localStorage.setItem('theme', newMode ? 'dark' : 'light');
-  };
 
   const toggleOnline = async () => {
     if (!user) return;
@@ -95,8 +74,8 @@ export function DashboardLayout() {
       className={({ isActive }) =>
         `group flex items-center gap-3 py-3 px-4 rounded-xl transition-all duration-200 ${
           isActive 
-            ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg shadow-primary-500/25' 
-            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white'
+            ? 'bg-gradient-to-r from-primary-500 to-orange-500 text-white shadow-lg shadow-primary-500/20' 
+            : 'text-gray-400 hover:bg-gray-800/50 hover:text-white'
         }`
       }
     >
@@ -105,19 +84,19 @@ export function DashboardLayout() {
           <div className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${
             isActive 
               ? 'bg-white/20' 
-              : 'bg-gray-100 dark:bg-gray-700 group-hover:bg-primary-100 dark:group-hover:bg-primary-900/30'
+              : 'bg-gray-800 group-hover:bg-gray-700'
           }`}>
-            <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400'}`} />
+            <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-primary-400'}`} />
           </div>
           <div className="flex-1 min-w-0">
             <span className="font-medium">{label}</span>
             {description && (
-              <p className={`text-xs truncate ${isActive ? 'text-white/70' : 'text-gray-400'}`}>
+              <p className={`text-xs truncate ${isActive ? 'text-white/70' : 'text-gray-600'}`}>
                 {description}
               </p>
             )}
           </div>
-          <ChevronRight className={`w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'text-white/70' : 'text-gray-400'}`} />
+          <ChevronRight className={`w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity ${isActive ? 'text-white/70' : 'text-gray-600'}`} />
         </>
       )}
     </NavLink>
@@ -130,8 +109,8 @@ export function DashboardLayout() {
       className={({ isActive }) =>
         `flex items-center gap-3 py-2.5 px-4 rounded-lg text-sm transition-all ${
           isActive 
-            ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-500/10' 
-            : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700/30'
+            ? 'text-primary-400 bg-primary-500/10' 
+            : 'text-gray-500 hover:text-white hover:bg-gray-800/50'
         }`
       }
     >
@@ -141,14 +120,14 @@ export function DashboardLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#0f172a] flex">
+    <div className="min-h-screen bg-[#0a0a0f] text-white flex">
       {/* Mobile Menu Button */}
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2.5 bg-gray-900 rounded-xl shadow-lg border border-gray-800"
       >
-        {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        {sidebarOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
       </motion.button>
 
       {/* Sidebar Overlay */}
@@ -158,7 +137,7 @@ export function DashboardLayout() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="lg:hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -166,26 +145,26 @@ export function DashboardLayout() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-72 bg-white dark:bg-gray-800/95 dark:backdrop-blur-xl border-r border-gray-200/80 dark:border-gray-700/50 flex flex-col transform transition-transform lg:transform-none ${
+        className={`fixed lg:static inset-y-0 left-0 z-40 w-72 bg-gray-900/95 backdrop-blur-xl border-r border-gray-800 flex flex-col transform transition-transform lg:transform-none ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         {/* Brand Header */}
-        <div className="flex flex-col items-center justify-center py-6 border-b border-gray-100 dark:border-gray-700/50">
-          <BrandLogo variant="sidebar" />
+        <div className="flex flex-col items-center justify-center py-6 border-b border-gray-800">
+          <BrandLogo variant="sidebar" className="filter brightness-0 invert" />
         </div>
 
         {/* User Quick Card */}
-        <div className="mx-4 mb-4 p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700/50">
+        <div className="mx-4 my-4 p-4 bg-gray-800/50 rounded-xl border border-gray-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
               {user?.firstName?.[0] || 'U'}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 dark:text-white truncate">
+              <p className="font-medium text-white truncate">
                 {user?.firstName} {user?.lastName}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+              <p className="text-xs text-gray-500 capitalize">
                 {user?.role === 'PROVIDER' ? 'Profesional' : 'Cliente'}
               </p>
             </div>
@@ -194,7 +173,7 @@ export function DashboardLayout() {
 
         {/* Navigation */}
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-4 mb-3">
+          <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest px-4 mb-3">
             Navegación
           </p>
           {menuItems
@@ -203,9 +182,9 @@ export function DashboardLayout() {
               <NavItem key={item.path} {...item} />
             ))}
 
-          <div className="my-6 mx-4 border-t border-gray-100 dark:border-gray-700/50" />
+          <div className="my-6 mx-4 border-t border-gray-800" />
 
-          <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-4 mb-2">
+          <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-widest px-4 mb-2">
             Sistema
           </p>
           {generalItems.map((item) => (
@@ -214,20 +193,11 @@ export function DashboardLayout() {
         </nav>
 
         {/* Bottom Actions */}
-        <div className="p-4 space-y-2 border-t border-gray-100 dark:border-gray-700/50">
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="w-full flex items-center gap-3 py-2.5 px-4 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700/30 transition-colors"
-          >
-            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            <span>{isDarkMode ? 'Modo claro' : 'Modo oscuro'}</span>
-          </button>
-          
+        <div className="p-4 space-y-2 border-t border-gray-800">
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 py-2.5 px-4 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+            className="w-full flex items-center gap-3 py-2.5 px-4 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             <span>Cerrar sesión</span>
@@ -238,16 +208,16 @@ export function DashboardLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 px-4 sm:px-6 py-3">
+        <header className="sticky top-0 z-30 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-gray-800/50 px-4 sm:px-6 py-3">
           <div className="flex items-center justify-between gap-4">
             {/* Search Bar */}
             <div className="flex-1 max-w-lg ml-12 lg:ml-0">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input
                   type="text"
                   placeholder="Buscar servicios, profesionales..."
-                  className="w-full pl-11 pr-4 py-2.5 bg-gray-100/80 dark:bg-gray-700/50 text-gray-900 dark:text-white border border-transparent rounded-xl text-sm placeholder-gray-400 focus:bg-white dark:focus:bg-gray-700 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
+                  className="w-full pl-11 pr-4 py-2.5 bg-gray-900/50 text-white border border-gray-800 rounded-xl text-sm placeholder-gray-500 focus:bg-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
                 />
               </div>
             </div>
@@ -262,11 +232,11 @@ export function DashboardLayout() {
                   disabled={togglingOnline}
                   className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all ${
                     user?.isOnline 
-                      ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/25'
-                      : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/20'
+                      : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                   }`}
                 >
-                  <div className={`w-2 h-2 rounded-full ${user?.isOnline ? 'bg-white animate-pulse' : 'bg-gray-400'}`} />
+                  <div className={`w-2 h-2 rounded-full ${user?.isOnline ? 'bg-white animate-pulse' : 'bg-gray-500'}`} />
                   <span className="hidden sm:inline">{user?.isOnline ? 'Disponible' : 'No disponible'}</span>
                   <Power className="w-4 h-4 sm:hidden" />
                 </motion.button>
@@ -276,7 +246,7 @@ export function DashboardLayout() {
               <NotificationsDropdown />
 
               {/* User Avatar (Mobile) */}
-              <div className="lg:hidden w-9 h-9 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
+              <div className="lg:hidden w-9 h-9 bg-gradient-to-br from-primary-400 to-orange-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
                 {user?.firstName?.[0] || 'U'}
               </div>
             </div>

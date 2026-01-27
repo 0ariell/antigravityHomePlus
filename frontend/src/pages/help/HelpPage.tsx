@@ -58,7 +58,7 @@ const FAQ_ITEMS: FAQItem[] = [
 ];
 
 const CATEGORIES = [
-  { id: 'all', label: 'Todos', icon: Zap, color: 'from-primary-500 to-primary-600' },
+  { id: 'all', label: 'Todos', icon: Zap, color: 'from-primary-500 to-orange-500' },
   { id: 'General', label: 'General', icon: FileText, color: 'from-blue-500 to-blue-600' },
   { id: 'Reservas', label: 'Reservas', icon: Clock, color: 'from-green-500 to-green-600' },
   { id: 'Pagos', label: 'Pagos', icon: CreditCard, color: 'from-purple-500 to-purple-600' },
@@ -111,7 +111,7 @@ export function HelpPage() {
             <Headphones className="w-10 h-10 text-white" />
           </motion.div>
           
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 font-display">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
             ¿En qué podemos ayudarte?
           </h1>
           <p className="text-white/80 text-lg mb-8">
@@ -126,7 +126,7 @@ export function HelpPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar en preguntas frecuentes..."
-              className="w-full pl-12 pr-4 py-4 bg-white dark:bg-gray-800 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 shadow-xl focus:outline-none focus:ring-4 focus:ring-white/30"
+              className="w-full pl-12 pr-4 py-4 bg-gray-900 rounded-2xl text-white placeholder-gray-500 shadow-xl focus:outline-none focus:ring-4 focus:ring-white/30"
             />
           </div>
         </div>
@@ -147,15 +147,15 @@ export function HelpPage() {
               className={`relative p-4 rounded-2xl text-left transition-all duration-300 group overflow-hidden ${
                 isActive 
                   ? 'bg-gradient-to-br ' + cat.color + ' text-white shadow-lg scale-[1.02]' 
-                  : 'bg-white dark:bg-gray-800 hover:shadow-md border border-gray-100 dark:border-gray-700'
+                  : 'bg-gray-800/50 hover:bg-gray-800 border border-gray-700/50'
               }`}
             >
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-colors ${
-                isActive ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-700'
+                isActive ? 'bg-white/20' : 'bg-gray-700'
               }`}>
-                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400'}`} />
               </div>
-              <span className={`font-semibold text-sm ${isActive ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+              <span className={`font-semibold text-sm ${isActive ? 'text-white' : 'text-white'}`}>
                 {cat.label}
               </span>
             </motion.button>
@@ -167,16 +167,16 @@ export function HelpPage() {
         {/* FAQ Section */}
         <div className="lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Preguntas Frecuentes</h2>
-            <span className="text-sm text-gray-500 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+            <h2 className="text-xl font-bold text-white">Preguntas Frecuentes</h2>
+            <span className="text-sm text-gray-500 bg-gray-800 px-3 py-1 rounded-full">
               {filteredFAQ.length} resultados
             </span>
           </div>
           
           {filteredFAQ.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center border border-gray-100 dark:border-gray-700">
-              <HelpCircle className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Sin resultados</h3>
+            <div className="bg-gray-800/50 rounded-2xl p-12 text-center border border-gray-700">
+              <HelpCircle className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+              <h3 className="font-semibold text-white mb-2">Sin resultados</h3>
               <p className="text-gray-500">Intenta con otra búsqueda o categoría</p>
             </div>
           ) : (
@@ -189,23 +189,23 @@ export function HelpPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ delay: index * 0.03 }}
-                    className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 shadow-sm"
+                    className="bg-gray-800/50 rounded-2xl overflow-hidden border border-gray-700"
                   >
                     <button
                       onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
-                      className="w-full p-5 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      className="w-full p-5 flex items-center justify-between text-left hover:bg-gray-800 transition-colors"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-primary-50 dark:bg-primary-900/20 rounded-xl flex items-center justify-center shrink-0">
-                          <HelpCircle className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                        <div className="w-10 h-10 bg-primary-500/10 rounded-xl flex items-center justify-center shrink-0">
+                          <HelpCircle className="w-5 h-5 text-primary-400" />
                         </div>
-                        <span className="font-medium text-gray-900 dark:text-white">{item.question}</span>
+                        <span className="font-medium text-white">{item.question}</span>
                       </div>
                       <motion.div
                         animate={{ rotate: expandedIndex === index ? 180 : 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                        <ChevronDown className="w-5 h-5 text-gray-500" />
                       </motion.div>
                     </button>
                     
@@ -218,7 +218,7 @@ export function HelpPage() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="px-5 pb-5 pt-0 ml-14 text-gray-600 dark:text-gray-300 leading-relaxed border-t border-gray-100 dark:border-gray-700 pt-4">
+                          <div className="px-5 pb-5 pt-0 ml-14 text-gray-400 leading-relaxed border-t border-gray-700 pt-4">
                             {item.answer}
                           </div>
                         </motion.div>
@@ -234,7 +234,7 @@ export function HelpPage() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Contact */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 text-white relative overflow-hidden">
+          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-6 text-white relative overflow-hidden border border-gray-700">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10"></div>
             
             <div className="relative z-10">
@@ -243,21 +243,21 @@ export function HelpPage() {
                   <Users className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-bold font-display">Soporte 24/7</h3>
+                  <h3 className="font-bold">Soporte 24/7</h3>
                   <p className="text-sm text-gray-400">Estamos para ayudarte</p>
                 </div>
               </div>
 
               <div className="space-y-3 mb-6">
-                <a href="mailto:soporte@homeplus.com" className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors">
+                <a href="mailto:soporte@homeplus.com" className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
                   <Mail className="w-4 h-4" />
                   <span className="text-sm">soporte@homeplus.com</span>
                 </a>
-                <a href="tel:+541112345678" className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors">
+                <a href="tel:+541112345678" className="flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
                   <Phone className="w-4 h-4" />
                   <span className="text-sm">+54 11 1234-5678</span>
                 </a>
-                <div className="flex items-center gap-3 text-gray-300">
+                <div className="flex items-center gap-3 text-gray-400">
                   <MessageCircle className="w-4 h-4" />
                   <span className="text-sm">Chat en vivo (9-18hs)</span>
                 </div>
@@ -266,9 +266,9 @@ export function HelpPage() {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm">
-            <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Send className="w-5 h-5 text-primary-500" />
+          <div className="bg-gray-800/50 rounded-3xl p-6 border border-gray-700">
+            <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+              <Send className="w-5 h-5 text-primary-400" />
               Enviar mensaje
             </h3>
             
@@ -278,16 +278,16 @@ export function HelpPage() {
                 animate={{ scale: 1, opacity: 1 }}
                 className="text-center py-8"
               >
-                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Zap className="w-8 h-8 text-green-600 dark:text-green-400" />
+                <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Zap className="w-8 h-8 text-green-400" />
                 </div>
-                <h4 className="font-semibold text-gray-900 dark:text-white mb-1">¡Mensaje enviado!</h4>
+                <h4 className="font-semibold text-white mb-1">¡Mensaje enviado!</h4>
                 <p className="text-sm text-gray-500">Te responderemos pronto</p>
               </motion.div>
             ) : (
               <form onSubmit={handleSendMessage} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Asunto</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Asunto</label>
                   <input
                     type="text"
                     value={contactForm.subject}
@@ -298,7 +298,7 @@ export function HelpPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mensaje</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Mensaje</label>
                   <textarea
                     value={contactForm.message}
                     onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Sparkles, Droplet, Zap, PaintBucket, Hammer, Wrench, Key, Flower, Shield } from 'lucide-react';
 import { httpClient } from '../../infra/http';
-import { SkeletonCard } from '../../ui';
 import { ServiceCard } from '../../ui/components/cards/ServiceCard';
 
 interface Service {
@@ -79,14 +78,14 @@ export function ServicesPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-primary-500 text-sm font-medium mb-1">
+          <div className="flex items-center gap-2 text-primary-400 text-sm font-medium mb-1">
             <Shield className="w-4 h-4" />
             Profesionales verificados
           </div>
-          <h1 className="heading-2 text-gray-900 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
             Encontrá al experto ideal
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-gray-400 mt-1">
             {filteredServices.length} profesionales disponibles
           </p>
         </div>
@@ -98,13 +97,13 @@ export function ServicesPage() {
         <div className="relative group">
           <div className="absolute inset-0 bg-primary-500/5 rounded-2xl blur-xl group-hover:bg-primary-500/10 transition-colors" />
           <div className="relative">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-primary-500 transition-colors" />
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-hover:text-primary-400 transition-colors" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="¿Qué servicio estás buscando?"
-              className="w-full pl-14 pr-4 py-5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all shadow-sm text-lg"
+              className="w-full pl-14 pr-4 py-5 bg-gray-900/50 border border-gray-800 rounded-2xl text-white placeholder-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all text-lg outline-none"
             />
           </div>
         </div>
@@ -122,8 +121,8 @@ export function ServicesPage() {
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`flex-shrink-0 relative group overflow-hidden px-6 py-3 rounded-2xl transition-all ${
                   isActive
-                    ? 'shadow-lg shadow-primary-500/25'
-                    : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/50 hover:border-gray-200'
+                    ? 'shadow-lg shadow-primary-500/20'
+                    : 'bg-gray-800/50 border border-gray-700/50 hover:border-gray-600'
                 }`}
               >
                 {isActive && (
@@ -131,8 +130,8 @@ export function ServicesPage() {
                 )}
                 
                 <div className="relative flex items-center gap-2">
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500 dark:text-gray-400 group-hover:text-primary-500'}`} />
-                  <span className={`font-medium whitespace-nowrap ${isActive ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500 group-hover:text-primary-400'}`} />
+                  <span className={`font-medium whitespace-nowrap ${isActive ? 'text-white' : 'text-gray-400'}`}>
                     {cat.label}
                   </span>
                 </div>
@@ -146,27 +145,31 @@ export function ServicesPage() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <SkeletonCard key={i} />
+            <div key={i} className="card p-6 animate-pulse">
+              <div className="h-40 bg-gray-800 rounded-xl mb-4" />
+              <div className="h-4 bg-gray-800 rounded w-3/4 mb-2" />
+              <div className="h-4 bg-gray-800 rounded w-1/2" />
+            </div>
           ))}
         </div>
       ) : filteredServices.length === 0 ? (
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center py-20 bg-gray-50 dark:bg-gray-800/50 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700"
+          className="text-center py-20 bg-gray-800/30 rounded-3xl border border-dashed border-gray-700"
         >
-          <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
-            <Search className="w-10 h-10 text-gray-300 dark:text-gray-600" />
+          <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Search className="w-10 h-10 text-gray-600" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+          <h3 className="text-xl font-bold text-white mb-2">
             No encontramos resultados
           </h3>
-          <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+          <p className="text-gray-500 max-w-sm mx-auto">
             Intenta buscando con otros términos o selecciona "Todos" para ver los servicios disponibles.
           </p>
           <button 
             onClick={() => { setSearchQuery(''); setSelectedCategory('Todos'); }}
-            className="mt-6 px-6 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            className="mt-6 px-6 py-2 bg-gray-800 border border-gray-700 rounded-full text-sm font-medium hover:bg-gray-700 transition-colors text-gray-300"
           >
             Limpiar filtros
           </button>

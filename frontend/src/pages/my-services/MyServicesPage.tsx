@@ -179,8 +179,8 @@ export function MyServicesPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-display">Mis Servicios</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Gestiona y optimiza tu catálogo de servicios</p>
+          <h1 className="text-3xl font-bold text-white font-display">Mis Servicios</h1>
+          <p className="text-gray-400 mt-1">Gestiona y optimiza tu catálogo de servicios</p>
         </div>
         <motion.button 
           whileHover={{ scale: 1.02 }}
@@ -195,38 +195,38 @@ export function MyServicesPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700">
+        <div className="bg-gray-800 rounded-2xl p-5 border border-gray-700">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            <div className="w-12 h-12 bg-primary-900/30 rounded-xl flex items-center justify-center">
+              <Briefcase className="w-6 h-6 text-primary-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Total Servicios</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalServices}</p>
+              <p className="text-sm text-gray-400">Total Servicios</p>
+              <p className="text-2xl font-bold text-white">{totalServices}</p>
             </div>
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700">
+        <div className="bg-gray-800 rounded-2xl p-5 border border-gray-700">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="w-12 h-12 bg-green-900/30 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-green-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Activos</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{activeServices}</p>
+              <p className="text-sm text-gray-400">Activos</p>
+              <p className="text-2xl font-bold text-white">{activeServices}</p>
             </div>
           </div>
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 border border-gray-100 dark:border-gray-700">
+        <div className="bg-gray-800 rounded-2xl p-5 border border-gray-700">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
-              <Star className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+            <div className="w-12 h-12 bg-amber-900/30 rounded-xl flex items-center justify-center">
+              <Star className="w-6 h-6 text-amber-400" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Rating Promedio</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{avgRating.toFixed(1)}</p>
+              <p className="text-sm text-gray-400">Rating Promedio</p>
+              <p className="text-2xl font-bold text-white">{avgRating.toFixed(1)}</p>
             </div>
           </div>
         </div>
@@ -237,13 +237,13 @@ export function MyServicesPage() {
         <motion.div 
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-white dark:bg-gray-800 rounded-3xl p-12 text-center border border-gray-100 dark:border-gray-700"
+          className="bg-gray-800 rounded-3xl p-12 text-center border border-gray-700"
         >
-          <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Briefcase className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+          <div className="w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Briefcase className="w-10 h-10 text-gray-500" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No tienes servicios</h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">
+          <h3 className="text-xl font-bold text-white mb-2">No tienes servicios</h3>
+          <p className="text-gray-400 mb-8 max-w-sm mx-auto">
             Crea tu primer servicio para comenzar a recibir solicitudes de clientes
           </p>
           <button 
@@ -264,15 +264,15 @@ export function MyServicesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: i * 0.05 }}
-                className="group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:shadow-gray-200/50 dark:hover:shadow-none transition-all duration-300"
+                className="group bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:shadow-xl hover:shadow-gray-900/50 transition-all duration-300"
               >
                 {/* Image / Placeholder */}
-                <div className="relative h-40 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600">
+                <div className="relative h-40 bg-gradient-to-br from-gray-700 to-gray-600">
                   {service.images && service.images[0] ? (
                     <img src={service.images[0]} alt={service.title} className="w-full h-full object-cover" />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <ImageIcon className="w-12 h-12 text-gray-300 dark:text-gray-500" />
+                      <ImageIcon className="w-12 h-12 text-gray-500" />
                     </div>
                   )}
                   
@@ -280,7 +280,7 @@ export function MyServicesPage() {
                   <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
                     service.isActive 
                       ? 'bg-green-500 text-white' 
-                      : 'bg-gray-800/80 text-white'
+                      : 'bg-gray-900/80 text-white'
                   }`}>
                     {service.isActive ? (
                       <>
@@ -296,7 +296,7 @@ export function MyServicesPage() {
                   </div>
                   
                   {/* Category Badge */}
-                  <div className="absolute top-3 right-3 px-3 py-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full text-xs font-bold text-gray-700 dark:text-gray-200">
+                  <div className="absolute top-3 right-3 px-3 py-1 bg-gray-800/90 backdrop-blur-sm rounded-full text-xs font-bold text-gray-200">
                     {service.category}
                   </div>
                 </div>
@@ -304,7 +304,7 @@ export function MyServicesPage() {
                 {/* Content */}
                 <div className="p-5">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold text-gray-900 dark:text-white line-clamp-1 group-hover:text-primary-600 transition-colors">
+                    <h3 className="font-bold text-white line-clamp-1 group-hover:text-primary-400 transition-colors">
                       {service.title}
                     </h3>
                     <div className="flex items-center gap-1 text-amber-500">
@@ -313,18 +313,18 @@ export function MyServicesPage() {
                     </div>
                   </div>
                   
-                  <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">
+                  <p className="text-sm text-gray-400 line-clamp-2 mb-4">
                     {service.description}
                   </p>
 
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center gap-1.5 text-sm text-gray-400">
                       <MapPin className="w-4 h-4" />
                       <span className="truncate max-w-[120px]">{service.zone}</span>
                     </div>
                     
                     {service.priceBase && (
-                      <div className="flex items-center gap-1 text-primary-600 dark:text-primary-400 font-bold">
+                      <div className="flex items-center gap-1 text-primary-400 font-bold">
                         <DollarSign className="w-4 h-4" />
                         <span>{service.priceBase}/{service.priceUnit}</span>
                       </div>
@@ -332,10 +332,10 @@ export function MyServicesPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+                  <div className="flex items-center gap-2 pt-4 border-t border-gray-700">
                     <button 
                       onClick={() => handleOpenModal(service)}
-                      className="flex-1 py-2.5 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors"
+                      className="flex-1 py-2.5 px-4 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors"
                     >
                       <Edit2 className="w-4 h-4" />
                       Editar
@@ -344,8 +344,8 @@ export function MyServicesPage() {
                       onClick={() => toggleServiceStatus(service)}
                       className={`p-2.5 rounded-xl transition-colors ${
                         service.isActive 
-                          ? 'bg-gray-100 dark:bg-gray-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-gray-600 dark:text-gray-300 hover:text-amber-600' 
-                          : 'bg-green-50 dark:bg-green-900/20 hover:bg-green-100 text-green-600'
+                          ? 'bg-gray-700 hover:bg-amber-900/20 text-gray-300 hover:text-amber-500' 
+                          : 'bg-green-900/20 hover:bg-green-900/30 text-green-500'
                       }`}
                       title={service.isActive ? 'Pausar' : 'Activar'}
                     >
@@ -353,7 +353,7 @@ export function MyServicesPage() {
                     </button>
                     <button 
                       onClick={() => setDeleteConfirm(service.id)}
-                      className="p-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-600 dark:text-gray-300 hover:text-red-600 rounded-xl transition-colors"
+                      className="p-2.5 bg-gray-700 hover:bg-red-900/20 text-gray-300 hover:text-red-500 rounded-xl transition-colors"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
@@ -373,25 +373,25 @@ export function MyServicesPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl"
+              className="bg-gray-800 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700"
             >
-              <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800">
+              <div className="p-6 border-b border-gray-700 flex items-center justify-between bg-gray-800">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                  <div className="w-10 h-10 bg-primary-900/30 rounded-xl flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-primary-400" />
                   </div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                  <h2 className="text-xl font-bold text-white">
                     {editingService ? 'Editar Servicio' : 'Nuevo Servicio'}
                   </h2>
                 </div>
-                <button onClick={handleCloseModal} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors">
+                <button onClick={handleCloseModal} className="p-2 hover:bg-gray-700 rounded-xl transition-colors">
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-5">
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Título</label>
+                  <label className="block text-sm font-bold text-white mb-2">Título</label>
                   <input
                     type="text"
                     value={formData.title}
@@ -403,7 +403,7 @@ export function MyServicesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Descripción</label>
+                  <label className="block text-sm font-bold text-white mb-2">Descripción</label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -416,7 +416,7 @@ export function MyServicesPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Categoría</label>
+                    <label className="block text-sm font-bold text-white mb-2">Categoría</label>
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -431,7 +431,7 @@ export function MyServicesPage() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Zona</label>
+                    <label className="block text-sm font-bold text-white mb-2">Zona</label>
                     <input
                       type="text"
                       value={formData.zone}
@@ -445,7 +445,7 @@ export function MyServicesPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Precio base</label>
+                    <label className="block text-sm font-bold text-white mb-2">Precio base</label>
                     <input
                       type="number"
                       value={formData.priceBase}
@@ -457,7 +457,7 @@ export function MyServicesPage() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-bold text-gray-900 dark:text-white mb-2">Por</label>
+                    <label className="block text-sm font-bold text-white mb-2">Por</label>
                     <select
                       value={formData.priceUnit}
                       onChange={(e) => setFormData({ ...formData, priceUnit: e.target.value })}
@@ -474,7 +474,7 @@ export function MyServicesPage() {
                   <button 
                     type="button" 
                     onClick={handleCloseModal} 
-                    className="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors"
+                    className="flex-1 py-3 px-4 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-xl font-medium transition-colors"
                   >
                     Cancelar
                   </button>
@@ -501,17 +501,17 @@ export function MyServicesPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl"
+              className="bg-gray-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-gray-700"
             >
-              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8 text-red-600 dark:text-red-400" />
+              <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-8 h-8 text-red-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white text-center mb-2">¿Eliminar servicio?</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-center mb-6">Esta acción no se puede deshacer.</p>
+              <h3 className="text-xl font-bold text-white text-center mb-2">¿Eliminar servicio?</h3>
+              <p className="text-gray-400 text-center mb-6">Esta acción no se puede deshacer.</p>
               <div className="flex gap-3">
                 <button 
                   onClick={() => setDeleteConfirm(null)} 
-                  className="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors"
+                  className="flex-1 py-3 px-4 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-xl font-medium transition-colors"
                 >
                   Cancelar
                 </button>
