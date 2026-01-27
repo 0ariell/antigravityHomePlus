@@ -43,13 +43,13 @@ interface Booking {
   };
 }
 
-const STATUS_CONFIG: Record<string, { label: string; class: string; icon: any }> = {
-  PENDING: { label: 'Pendiente', class: 'bg-gray-100 text-gray-700', icon: Clock },
-  ACCEPTED: { label: 'Aceptado', class: 'bg-blue-100 text-blue-700', icon: CheckCircle },
-  IN_PROGRESS: { label: 'En Progreso', class: 'bg-orange-100 text-orange-700', icon: Clock },
-  COMPLETED: { label: 'Completado', class: 'bg-green-100 text-green-700', icon: CheckCircle },
-  CANCELLED: { label: 'Cancelado', class: 'bg-red-100 text-red-700', icon: X },
-  REJECTED: { label: 'Rechazado', class: 'bg-red-100 text-red-700', icon: X },
+const STATUS_CONFIG: Record<string, { label: string; class: string; darkClass: string; icon: any }> = {
+  PENDING: { label: 'Pendiente', class: 'bg-gray-100 text-gray-700', darkClass: 'dark:bg-gray-700 dark:text-gray-300', icon: Clock },
+  ACCEPTED: { label: 'Aceptado', class: 'bg-blue-100 text-blue-700', darkClass: 'dark:bg-blue-900/30 dark:text-blue-400', icon: CheckCircle },
+  IN_PROGRESS: { label: 'En Progreso', class: 'bg-orange-100 text-orange-700', darkClass: 'dark:bg-orange-900/30 dark:text-orange-400', icon: Clock },
+  COMPLETED: { label: 'Completado', class: 'bg-green-100 text-green-700', darkClass: 'dark:bg-green-900/30 dark:text-green-400', icon: CheckCircle },
+  CANCELLED: { label: 'Cancelado', class: 'bg-red-100 text-red-700', darkClass: 'dark:bg-red-900/30 dark:text-red-400', icon: X },
+  REJECTED: { label: 'Rechazado', class: 'bg-red-100 text-red-700', darkClass: 'dark:bg-red-900/30 dark:text-red-400', icon: X },
 };
 
 export function BookingsPage() {
@@ -133,8 +133,6 @@ export function BookingsPage() {
     }
   };
 
-
-
   const filteredBookings = selectedStatus === 'all' 
     ? bookings 
     : bookings.filter(b => b.status === selectedStatus);
@@ -168,8 +166,8 @@ export function BookingsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mis Reservas</h1>
-          <p className="text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mis Reservas</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
             {isProvider ? 'Gestiona las solicitudes de tus clientes' : 'Historial de servicios solicitados'}
           </p>
         </div>
@@ -184,7 +182,7 @@ export function BookingsPage() {
             className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               selectedStatus === filter.value
                 ? 'bg-orange-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             {filter.label}
@@ -195,9 +193,9 @@ export function BookingsPage() {
       {/* Bookings List */}
       {filteredBookings.length === 0 ? (
         <div className="card p-12 text-center">
-          <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No hay reservas</h3>
-          <p className="text-gray-500">
+          <Calendar className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay reservas</h3>
+          <p className="text-gray-500 dark:text-gray-400">
             {selectedStatus === 'all' 
               ? 'No tienes reservas aún' 
               : `No hay reservas con estado "${statusFilters.find(f => f.value === selectedStatus)?.label}"`}
@@ -214,27 +212,27 @@ export function BookingsPage() {
               <div key={booking.id} className="card p-4 sm:p-5">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                   {/* Service Icon */}
-                  <div className="hidden sm:flex w-12 h-12 bg-orange-100 rounded-xl items-center justify-center flex-shrink-0">
-                    <Calendar className="w-6 h-6 text-orange-600" />
+                  <div className="hidden sm:flex w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl items-center justify-center flex-shrink-0">
+                    <Calendar className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-semibold text-gray-900 dark:text-white">
                         {booking.service?.title || 'Servicio'}
                       </h3>
-                      <span className={`badge ${statusConfig?.class || 'bg-gray-100 text-gray-700'} flex items-center gap-1`}>
+                      <span className={`badge ${statusConfig?.class || 'bg-gray-100 text-gray-700'} ${statusConfig?.darkClass || ''} flex items-center gap-1`}>
                         <StatusIcon className="w-3 h-3" />
                         {statusConfig?.label || booking.status}
                       </span>
                     </div>
 
-                    <p className="text-sm text-gray-500 line-clamp-2 mb-3">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">
                       {booking.description}
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-4">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400 mb-4">
                       <span className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
                         {formatDate(booking.createdAt)}
@@ -247,7 +245,7 @@ export function BookingsPage() {
                         <span className="flex items-center gap-2">
                           <span>Profesional: {booking.provider?.firstName} {booking.provider?.lastName}</span>
                           {booking.provider?.avgRating !== undefined && booking.provider.avgRating > 0 && (
-                            <span className="flex items-center gap-1 text-yellow-600">
+                            <span className="flex items-center gap-1 text-yellow-600 dark:text-yellow-400">
                               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                               {booking.provider.avgRating.toFixed(1)}
                             </span>
@@ -255,14 +253,14 @@ export function BookingsPage() {
                         </span>
                       )}
                       {booking.quotedPrice && (
-                        <span className="font-medium text-orange-600">
+                        <span className="font-medium text-orange-600 dark:text-orange-400">
                           ${booking.quotedPrice}
                         </span>
                       )}
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-100">
+                    <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
                       {/* Provider Actions */}
                       {isProvider && booking.status === 'PENDING' && (
                         <>
@@ -277,7 +275,7 @@ export function BookingsPage() {
                           <button
                             onClick={() => updateBookingStatus(booking.id, 'REJECTED')}
                             disabled={isActionLoading}
-                            className="btn-secondary text-sm py-2 px-3 flex items-center gap-1 text-red-600 hover:bg-red-50"
+                            className="btn-secondary text-sm py-2 px-3 flex items-center gap-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                           >
                             <X className="w-4 h-4" />
                             Rechazar
@@ -311,7 +309,7 @@ export function BookingsPage() {
                         <button
                           onClick={() => updateBookingStatus(booking.id, 'CANCELLED')}
                           disabled={isActionLoading}
-                          className="btn-secondary text-sm py-2 px-3 flex items-center gap-1 text-red-600 hover:bg-red-50"
+                          className="btn-secondary text-sm py-2 px-3 flex items-center gap-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                         >
                           <X className="w-4 h-4" />
                           Cancelar
@@ -351,28 +349,28 @@ export function BookingsPage() {
 
       {/* Accept Modal */}
       {showAcceptModal && acceptingBooking && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md">
-            <div className="p-6 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">Aceptar Solicitud</h2>
-              <p className="text-sm text-gray-500 mt-1">{acceptingBooking.service?.title}</p>
+        <div className="modal-overlay">
+          <div className="modal w-full max-w-md">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Aceptar Solicitud</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{acceptingBooking.service?.title}</p>
             </div>
 
             <div className="p-6 space-y-4">
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Detalles del cliente:</h4>
-                <p className="text-sm text-gray-600">{acceptingBooking.description}</p>
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Detalles del cliente:</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{acceptingBooking.description}</p>
                 {acceptingBooking.address && (
-                  <p className="text-sm text-gray-500 mt-1">📍 {acceptingBooking.address}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">📍 {acceptingBooking.address}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Presupuesto estimado (opcional)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
                   <input
                     type="number"
                     value={quotedPrice}
@@ -381,11 +379,11 @@ export function BookingsPage() {
                     placeholder="0.00"
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-1">Puedes dejarlo vacío y acordar después por chat</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Puedes dejarlo vacío y acordar después por chat</p>
               </div>
             </div>
 
-            <div className="p-6 border-t border-gray-100 flex gap-3">
+            <div className="p-6 border-t border-gray-100 dark:border-gray-700 flex gap-3">
               <button
                 onClick={() => setShowAcceptModal(false)}
                 className="flex-1 btn-secondary"

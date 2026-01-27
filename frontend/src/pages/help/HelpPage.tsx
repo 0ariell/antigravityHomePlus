@@ -77,11 +77,11 @@ export function HelpPage() {
     <div className="animate-fade-in">
       {/* Header */}
       <div className="text-center mb-12">
-        <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <HelpCircle className="w-8 h-8 text-orange-600" />
+        <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <HelpCircle className="w-8 h-8 text-orange-600 dark:text-orange-400" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Centro de Ayuda</h1>
-        <p className="text-gray-500">¿En qué podemos ayudarte hoy?</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Centro de Ayuda</h1>
+        <p className="text-gray-500 dark:text-gray-400">¿En qué podemos ayudarte hoy?</p>
       </div>
 
       {/* Quick Links */}
@@ -98,11 +98,11 @@ export function HelpPage() {
               onClick={() => document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth' })}
               className="card p-6 text-left card-hover"
             >
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
-                <Icon className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center mb-4">
+                <Icon className="w-6 h-6 text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-1">{item.label}</h3>
-              <p className="text-sm text-gray-500">{item.description}</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">{item.label}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
             </button>
           );
         })}
@@ -111,7 +111,7 @@ export function HelpPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* FAQ Section */}
         <div className="lg:col-span-2" id="faq-section">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Preguntas Frecuentes</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preguntas Frecuentes</h2>
           
           {/* Category Filter */}
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
@@ -122,7 +122,7 @@ export function HelpPage() {
                 className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                   selectedCategory === cat
                     ? 'bg-orange-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 {cat}
@@ -136,17 +136,17 @@ export function HelpPage() {
               <div key={index} className="card overflow-hidden">
                 <button
                   onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
-                  className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+                  className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <span className="font-medium text-gray-900">{item.question}</span>
+                  <span className="font-medium text-gray-900 dark:text-white">{item.question}</span>
                   {expandedIndex === index ? (
-                    <ChevronUp className="w-5 h-5 text-gray-500" />
+                    <ChevronUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-500" />
+                    <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   )}
                 </button>
                 {expandedIndex === index && (
-                  <div className="px-4 pb-4 text-gray-600 border-t border-gray-100 pt-3">
+                  <div className="px-4 pb-4 text-gray-600 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700 pt-3">
                     {item.answer}
                   </div>
                 )}
@@ -157,19 +157,19 @@ export function HelpPage() {
 
         {/* Contact Section */}
         <div>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Contáctanos</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Contáctanos</h2>
           
           <div className="card p-6 mb-6">
             <div className="space-y-4">
-              <a href="mailto:soporte@homeplus.com" className="flex items-center gap-3 text-gray-600 hover:text-orange-600 transition-colors">
+              <a href="mailto:soporte@homeplus.com" className="flex items-center gap-3 text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
                 <Mail className="w-5 h-5" />
                 <span>soporte@homeplus.com</span>
               </a>
-              <a href="tel:+541112345678" className="flex items-center gap-3 text-gray-600 hover:text-orange-600 transition-colors">
+              <a href="tel:+541112345678" className="flex items-center gap-3 text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
                 <Phone className="w-5 h-5" />
                 <span>+54 11 1234-5678</span>
               </a>
-              <div className="flex items-center gap-3 text-gray-600">
+              <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
                 <MessageCircle className="w-5 h-5" />
                 <span>Chat en vivo (9-18hs)</span>
               </div>
@@ -177,10 +177,10 @@ export function HelpPage() {
           </div>
 
           <div className="card p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Enviar mensaje</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Enviar mensaje</h3>
             <form onSubmit={handleSendMessage} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Asunto</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Asunto</label>
                 <input
                   type="text"
                   value={contactForm.subject}
@@ -191,7 +191,7 @@ export function HelpPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mensaje</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mensaje</label>
                 <textarea
                   value={contactForm.message}
                   onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}

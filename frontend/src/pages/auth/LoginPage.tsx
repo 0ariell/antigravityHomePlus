@@ -22,7 +22,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-white dark:bg-gray-900">
       {/* Left Side - Form */}
       <div className="flex-1 flex flex-col justify-center px-8 lg:px-16 py-12">
         <div className="max-w-md w-full mx-auto">
@@ -31,23 +31,23 @@ export function LoginPage() {
             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
               <Home className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-semibold text-gray-900">HomePlus</span>
+            <span className="text-xl font-semibold text-gray-900 dark:text-white">HomePlus</span>
           </div>
 
           {/* Header */}
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Bienvenido</h1>
-          <p className="text-gray-500 mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Bienvenido</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">
             Ingresa tus datos para continuar
           </p>
 
           {/* Tab Switcher */}
-          <div className="flex bg-gray-100 rounded-xl p-1 mb-8">
-            <button className="flex-1 py-2.5 px-4 rounded-lg bg-white shadow-sm font-medium text-gray-900 transition-all">
+          <div className="flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 mb-8">
+            <button className="flex-1 py-2.5 px-4 rounded-lg bg-white dark:bg-gray-700 shadow-sm font-medium text-gray-900 dark:text-white transition-all">
               Iniciar Sesión
             </button>
             <Link
               to="/register"
-              className="flex-1 py-2.5 px-4 rounded-lg font-medium text-gray-500 hover:text-gray-700 transition-all text-center"
+              className="flex-1 py-2.5 px-4 rounded-lg font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-all text-center"
             >
               Registrarse
             </Link>
@@ -55,7 +55,7 @@ export function LoginPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm animate-fade-in">
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm animate-fade-in">
               {error}
               <button
                 onClick={clearError}
@@ -107,7 +107,7 @@ export function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -144,10 +144,10 @@ export function LoginPage() {
           {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200"></div>
+              <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">O continúa con</span>
+              <span className="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">O continúa con</span>
             </div>
           </div>
 
@@ -155,7 +155,7 @@ export function LoginPage() {
           <div className="flex gap-4 justify-center">
             <button 
               onClick={() => alert('Google Login: Próximamente')}
-              className="w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -166,7 +166,7 @@ export function LoginPage() {
             </button>
             <button 
               onClick={() => alert('Facebook Login: Próximamente')}
-              className="w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors text-blue-600 dark:text-blue-400"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.477 2 2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.129 22 16.99 22 12c0-5.523-4.477-10-10-10z"/>
@@ -175,7 +175,7 @@ export function LoginPage() {
           </div>
 
           {/* Footer */}
-          <p className="mt-8 text-center text-sm text-gray-500">
+          <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
             Conecta con oficiantes de confianza para tus proyectos del hogar.
             <br />
             Calidad, transparencia y seguridad.
@@ -184,10 +184,10 @@ export function LoginPage() {
       </div>
 
       {/* Right Side - Visual */}
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-orange-100 via-orange-50 to-white items-center justify-center p-12 relative overflow-hidden">
+      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-orange-100 via-orange-50 to-white dark:from-orange-900/20 dark:via-gray-800 dark:to-gray-900 items-center justify-center p-12 relative overflow-hidden">
         {/* Decorative Elements */}
-        <div className="absolute top-20 right-20 w-32 h-32 bg-orange-200/50 rounded-full blur-2xl"></div>
-        <div className="absolute bottom-20 left-20 w-40 h-40 bg-orange-300/40 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 right-20 w-32 h-32 bg-orange-200/50 dark:bg-orange-500/20 rounded-full blur-2xl"></div>
+        <div className="absolute bottom-20 left-20 w-40 h-40 bg-orange-300/40 dark:bg-orange-600/20 rounded-full blur-3xl"></div>
         
         {/* 3D Safe Box Illustration - Placeholder */}
         <div className="relative">
@@ -199,7 +199,7 @@ export function LoginPage() {
           </div>
           
           {/* Floating Elements */}
-          <div className="absolute -top-8 -left-8 w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center animate-bounce">
+          <div className="absolute -top-8 -left-8 w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl shadow-xl flex items-center justify-center animate-bounce">
             <Home className="w-8 h-8 text-orange-500" />
           </div>
           <div className="absolute -bottom-4 -right-4 w-12 h-12 bg-orange-500 rounded-xl shadow-lg"></div>

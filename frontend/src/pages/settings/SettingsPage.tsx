@@ -68,8 +68,8 @@ export function SettingsPage() {
     <div className="animate-fade-in">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Configuración</h1>
-        <p className="text-gray-500 mt-1">Gestiona tu cuenta y preferencias</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Configuración</h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">Gestiona tu cuenta y preferencias</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -84,8 +84,8 @@ export function SettingsPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors whitespace-nowrap ${
                     activeTab === tab.id
-                      ? 'bg-orange-50 text-orange-700'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                   }`}
                 >
                   <Icon className="w-5 h-5 flex-shrink-0" />
@@ -100,7 +100,7 @@ export function SettingsPage() {
         <div className="flex-1">
           {activeTab === 'profile' && (
             <div className="card p-4 lg:p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Información Personal</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Información Personal</h2>
               
               {/* Avatar */}
               <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
@@ -119,7 +119,7 @@ export function SettingsPage() {
               {/* Form */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
                   <input
                     type="text"
                     value={formData.firstName}
@@ -128,7 +128,7 @@ export function SettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Apellido</label>
                   <input
                     type="text"
                     value={formData.lastName}
@@ -137,17 +137,17 @@ export function SettingsPage() {
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                   <input
                     type="email"
                     value={user?.email || ''}
-                    className="input-field bg-gray-50"
+                    className="input-field bg-gray-50 dark:bg-gray-600 cursor-not-allowed"
                     disabled
                   />
-                  <p className="text-xs text-gray-500 mt-1">El email no puede ser modificado</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">El email no puede ser modificado</p>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
                   <input
                     type="tel"
                     value={formData.phone}
@@ -157,7 +157,7 @@ export function SettingsPage() {
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Zona</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Zona</label>
                   <input
                     type="text"
                     value={formData.zone}
@@ -167,7 +167,7 @@ export function SettingsPage() {
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Biografía</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Biografía</label>
                   <textarea
                     value={formData.bio}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
@@ -180,7 +180,7 @@ export function SettingsPage() {
 
               <div className="mt-6 flex flex-col sm:flex-row items-center gap-4 justify-end">
                 {saveSuccess && (
-                  <span className="flex items-center gap-1 text-green-600 text-sm">
+                  <span className="flex items-center gap-1 text-green-600 dark:text-green-400 text-sm">
                     <Check className="w-4 h-4" />
                     Cambios guardados
                   </span>
@@ -203,19 +203,19 @@ export function SettingsPage() {
 
           {activeTab === 'notifications' && (
             <div className="card p-4 lg:p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Preferencias de Notificaciones</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Preferencias de Notificaciones</h2>
               
               <div className="space-y-6">
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-4">Canales</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white mb-4">Canales</h3>
                   <div className="space-y-3">
                     {[
                       { key: 'email', label: 'Notificaciones por email' },
                       { key: 'push', label: 'Notificaciones push' },
                       { key: 'sms', label: 'Notificaciones por SMS' },
                     ].map((item) => (
-                      <label key={item.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer">
-                        <span className="text-gray-700">{item.label}</span>
+                      <label key={item.key} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer">
+                        <span className="text-gray-700 dark:text-gray-200">{item.label}</span>
                         <input
                           type="checkbox"
                           checked={notifications[item.key as keyof typeof notifications]}
@@ -228,15 +228,15 @@ export function SettingsPage() {
                 </div>
 
                 <div>
-                  <h3 className="font-medium text-gray-900 mb-4">Tipos de notificación</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white mb-4">Tipos de notificación</h3>
                   <div className="space-y-3">
                     {[
                       { key: 'newBooking', label: 'Nuevas reservas' },
                       { key: 'messages', label: 'Mensajes nuevos' },
                       { key: 'promotions', label: 'Promociones y novedades' },
                     ].map((item) => (
-                      <label key={item.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer">
-                        <span className="text-gray-700">{item.label}</span>
+                      <label key={item.key} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer">
+                        <span className="text-gray-700 dark:text-gray-200">{item.label}</span>
                         <input
                           type="checkbox"
                           checked={notifications[item.key as keyof typeof notifications]}
@@ -253,18 +253,18 @@ export function SettingsPage() {
 
           {activeTab === 'security' && (
             <div className="card p-4 lg:p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Seguridad</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Seguridad</h2>
               
               <div className="space-y-4">
                 <button 
                   onClick={() => alert('Cambio de contraseña: Próximamente')}
-                  className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <Lock className="w-5 h-5 text-gray-500" />
+                    <Lock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Cambiar contraseña</p>
-                      <p className="text-sm text-gray-500">Actualiza tu contraseña regularmente</p>
+                      <p className="font-medium text-gray-900 dark:text-white">Cambiar contraseña</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Actualiza tu contraseña regularmente</p>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-gray-400" />
@@ -272,13 +272,13 @@ export function SettingsPage() {
 
                 <button 
                   onClick={() => alert('Gestión de sesiones: Próximamente')}
-                  className="w-full flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-gray-500" />
+                    <Globe className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                     <div className="text-left">
-                      <p className="font-medium text-gray-900">Sesiones activas</p>
-                      <p className="text-sm text-gray-500">Gestiona tus dispositivos conectados</p>
+                      <p className="font-medium text-gray-900 dark:text-white">Sesiones activas</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Gestiona tus dispositivos conectados</p>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-gray-400" />
@@ -286,13 +286,13 @@ export function SettingsPage() {
 
                 <button 
                   onClick={() => logout()}
-                  className="w-full flex items-center justify-between p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                  className="w-full flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <LogOut className="w-5 h-5 text-red-600" />
+                    <LogOut className="w-5 h-5 text-red-600 dark:text-red-400" />
                     <div className="text-left">
-                      <p className="font-medium text-red-600">Cerrar sesión</p>
-                      <p className="text-sm text-red-500">Salir de tu cuenta</p>
+                      <p className="font-medium text-red-600 dark:text-red-400">Cerrar sesión</p>
+                      <p className="text-sm text-red-500 dark:text-red-400/80">Salir de tu cuenta</p>
                     </div>
                   </div>
                 </button>
@@ -302,12 +302,12 @@ export function SettingsPage() {
 
           {activeTab === 'payments' && (
             <div className="card p-4 lg:p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Métodos de Pago</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Métodos de Pago</h2>
               
               <div className="text-center py-8 lg:py-12">
-                <CreditCard className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No hay métodos de pago</h3>
-                <p className="text-gray-500 mb-6">Agrega un método de pago para realizar transacciones</p>
+                <CreditCard className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay métodos de pago</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-6">Agrega un método de pago para realizar transacciones</p>
                 <button 
                   onClick={() => alert('Agregar método de pago: Próximamente')}
                   className="btn-primary"

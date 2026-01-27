@@ -69,7 +69,6 @@ export function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load conversations and handled initial selection from state
   useEffect(() => {
     loadConversations().then((loadedConvs) => {
       const stateBookingId = (location.state as any)?.bookingId;
@@ -235,11 +234,12 @@ export function ChatPage() {
   return (
     <div className="animate-fade-in h-[calc(100vh-180px)] min-h-[500px]">
       <div className="flex h-full gap-4 lg:gap-6">
-        <div className={`w-full lg:w-80 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden ${
+        {/* Conversations List */}
+        <div className={`w-full lg:w-80 flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden ${
           selectedConversation ? 'hidden lg:flex' : 'flex'
         }`}>
-          <div className="p-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">Mensajes</h2>
+          <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Mensajes</h2>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
@@ -247,7 +247,7 @@ export function ChatPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar conversación..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
           </div>
@@ -255,8 +255,8 @@ export function ChatPage() {
           <div className="flex-1 overflow-y-auto">
             {filteredConversations.length === 0 ? (
               <div className="p-6 text-center">
-                <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-500">No hay conversaciones</p>
+                <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-sm text-gray-500 dark:text-gray-400">No hay conversaciones</p>
               </div>
             ) : (
               filteredConversations.map((conv) => {
@@ -268,8 +268,8 @@ export function ChatPage() {
                   <button
                     key={conv.id}
                     onClick={() => setSelectedConversation(conv)}
-                    className={`w-full p-4 flex items-start gap-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-50 ${
-                      isSelected ? 'bg-orange-50 border-l-2 border-l-orange-500' : ''
+                    className={`w-full p-4 flex items-start gap-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-50 dark:border-gray-700 ${
+                      isSelected ? 'bg-orange-50 dark:bg-orange-900/20 border-l-2 border-l-orange-500' : ''
                     }`}
                   >
                     <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-medium flex-shrink-0">
@@ -277,15 +277,15 @@ export function ChatPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-gray-900 truncate">
+                        <span className="font-medium text-gray-900 dark:text-white truncate">
                           {other.firstName} {other.lastName}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
                           {lastMessage ? formatDate(lastMessage.createdAt) : ''}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 mb-1">{conv.booking?.service?.title || 'Servicio'}</p>
-                      <p className="text-sm text-gray-500 truncate">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{conv.booking?.service?.title || 'Servicio'}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
                         {lastMessage?.content || 'Sin mensajes'}
                       </p>
                     </div>
@@ -296,25 +296,27 @@ export function ChatPage() {
           </div>
         </div>
 
-        <div className={`flex-1 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden ${
+        {/* Chat Area */}
+        <div className={`flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden ${
           selectedConversation ? 'flex' : 'hidden lg:flex'
         }`}>
           {selectedConversation ? (
             <>
-              <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+              {/* Chat Header */}
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <button onClick={() => setSelectedConversation(null)} className="lg:hidden p-1 hover:bg-gray-100 rounded-lg">
-                    <ArrowLeft className="w-5 h-5 text-gray-600" />
+                  <button onClick={() => setSelectedConversation(null)} className="lg:hidden p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                    <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                   </button>
                   <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-medium">
                     {getOtherParticipant(selectedConversation).firstName?.[0] || 'U'}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">
                       {getOtherParticipant(selectedConversation).firstName}{' '}
                       {getOtherParticipant(selectedConversation).lastName}
                     </h3>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {selectedConversation.booking?.service?.title || 'Servicio'}
                     </p>
                   </div>
@@ -322,31 +324,32 @@ export function ChatPage() {
                 <div className="hidden sm:flex items-center gap-2">
                   <button 
                     onClick={() => alert('Llamadas de voz: Próximamente')}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
-                    <Phone className="w-5 h-5 text-gray-500" />
+                    <Phone className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   </button>
                   <button 
                     onClick={() => alert('Video llamadas: Próximamente')}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
-                    <Video className="w-5 h-5 text-gray-500" />
+                    <Video className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   </button>
                   <button 
                     onClick={() => alert('Opciones adicionales: Próximamente')}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
-                    <MoreVertical className="w-5 h-5 text-gray-500" />
+                    <MoreVertical className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   </button>
                 </div>
               </div>
 
-              <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+              {/* Messages Area */}
+              <div className="flex-1 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900">
                 {isLoadingMessages ? (
                   <div className="flex items-center justify-center h-full"><Loader2 className="w-6 h-6 text-orange-500 animate-spin" /></div>
                 ) : messages.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                    <MessageSquare className="w-12 h-12 text-gray-300 mb-3" /><p className="text-sm">Comienza la conversación</p>
+                  <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                    <MessageSquare className="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3" /><p className="text-sm">Comienza la conversación</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -354,7 +357,7 @@ export function ChatPage() {
                       const isOwn = message.senderId === user?.id;
                       return (
                         <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[75%] rounded-2xl px-4 py-2 ${isOwn ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'}`}>
+                          <div className={`max-w-[75%] rounded-2xl px-4 py-2 ${isOwn ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-bl-sm'}`}>
                             <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                             <p className={`text-xs mt-1 ${isOwn ? 'text-orange-100' : 'text-gray-400'}`}>{formatTime(message.createdAt)}</p>
                           </div>
@@ -363,7 +366,7 @@ export function ChatPage() {
                     })}
                     {typingUsers.size > 0 && (
                       <div className="flex justify-start">
-                        <div className="bg-gray-200 rounded-2xl px-4 py-2">
+                        <div className="bg-gray-200 dark:bg-gray-700 rounded-2xl px-4 py-2">
                           <div className="flex gap-1">
                             <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" />
                             <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
@@ -377,32 +380,33 @@ export function ChatPage() {
                 )}
               </div>
 
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-100">
+              {/* Message Input */}
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-100 dark:border-gray-700">
                 <div className="flex items-center gap-3">
                   <button 
                     type="button" 
                     onClick={() => alert('Envío de imágenes: Próximamente')}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors hidden sm:block"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors hidden sm:block"
                   >
-                    <ImageIcon className="w-5 h-5 text-gray-500" />
+                    <ImageIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   </button>
                   <input
                     type="text"
                     value={newMessage}
                     onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
                     placeholder="Escribe un mensaje..."
-                    className="flex-1 px-4 py-3 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
-                  <button type="submit" disabled={!newMessage.trim() || isSending} className="p-3 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white rounded-xl transition-colors">
+                  <button type="submit" disabled={!newMessage.trim() || isSending} className="p-3 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white rounded-xl transition-colors">
                     {isSending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                   </button>
                 </div>
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
-              <MessageSquare className="w-16 h-16 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Tus mensajes</h3>
+            <div className="flex-1 flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+              <MessageSquare className="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Tus mensajes</h3>
               <p className="text-sm">Selecciona una conversación para comenzar</p>
             </div>
           )}

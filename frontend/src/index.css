@@ -90,7 +90,7 @@
   }
 
   .sidebar-item.active {
-    @apply bg-primary-50 text-primary-700;
+    @apply bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-400;
   }
 
   .stat-card {
@@ -106,15 +106,23 @@
   }
 
   .badge-success {
-    @apply bg-primary-100 text-primary-700;
+    @apply bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400;
   }
 
   .badge-warning {
-    @apply bg-amber-100 text-amber-800;
+    @apply bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400;
   }
 
   .badge-pending {
-    @apply bg-gray-100 text-gray-600;
+    @apply bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300;
+  }
+
+  .modal {
+    @apply bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-xl;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4;
   }
 }
 

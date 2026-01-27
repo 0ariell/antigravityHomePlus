@@ -72,8 +72,8 @@ export function ServicesPage() {
     <div className="animate-fade-in">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Buscar Servicios</h1>
-        <p className="text-gray-500 mt-1">Encuentra profesionales cerca de ti</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Buscar Servicios</h1>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">Encuentra profesionales cerca de ti</p>
       </div>
 
       {/* Filters Bar */}
@@ -105,16 +105,16 @@ export function ServicesPage() {
           </select>
 
           {/* View Mode Toggle */}
-          <div className="flex border border-gray-200 rounded-lg overflow-hidden">
+          <div className="flex border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2.5 ${viewMode === 'grid' ? 'bg-orange-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              className={`p-2.5 ${viewMode === 'grid' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'}`}
             >
               <Grid className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2.5 ${viewMode === 'list' ? 'bg-orange-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
+              className={`p-2.5 ${viewMode === 'list' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'}`}
             >
               <List className="w-5 h-5" />
             </button>
@@ -130,7 +130,7 @@ export function ServicesPage() {
               className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                   selectedCategory === cat
                   ? 'bg-orange-500 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
               {cat}
@@ -146,9 +146,9 @@ export function ServicesPage() {
         </div>
       ) : filteredServices.length === 0 ? (
         <div className="text-center py-20">
-          <Search className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron servicios</h3>
-          <p className="text-gray-500">Prueba con otros filtros o categorías</p>
+          <Search className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No se encontraron servicios</h3>
+          <p className="text-gray-500 dark:text-gray-400">Prueba con otros filtros o categorías</p>
         </div>
       ) : (
         <div
@@ -166,7 +166,7 @@ export function ServicesPage() {
             >
               {/* Image */}
               <div
-                className={`bg-gradient-to-br from-orange-100 to-orange-200 ${
+                className={`bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-800/20 ${
                   viewMode === 'list' ? 'w-48 h-32' : 'h-40'
                 }`}
               >
@@ -189,31 +189,31 @@ export function ServicesPage() {
                   <span className="badge badge-success">{service.category}</span>
                   <div className="flex items-center gap-1 text-yellow-500">
                     <Star className="w-4 h-4 fill-current" />
-                    <span className="text-sm text-gray-700">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
                       {service.avgRating.toFixed(1)} ({service.totalReviews})
                     </span>
                   </div>
                 </div>
 
-                <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{service.title}</h3>
-                <p className="text-sm text-gray-500 line-clamp-2 mb-3">{service.description}</p>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1 line-clamp-1">{service.title}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{service.description}</p>
 
-                <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-3">
                   <MapPin className="w-4 h-4" />
                   <span>{service.zone}</span>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
                       {service.provider.firstName?.[0] || 'P'}
                     </div>
-                    <span className="text-sm text-gray-700">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
                       {service.provider.firstName} {service.provider.lastName?.[0]}.
                     </span>
                   </div>
                   {service.priceBase && (
-                    <span className="font-semibold text-orange-600">
+                    <span className="font-semibold text-orange-600 dark:text-orange-400">
                       ${service.priceBase} {service.priceUnit && `/ ${service.priceUnit}`}
                     </span>
                   )}
