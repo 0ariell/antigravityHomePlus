@@ -12,6 +12,7 @@ import { MyServicesPage } from './pages/my-services';
 // MyRequestsPage removed - functionality moved to MyJobsPage
 import { SettingsPage } from './pages/settings';
 import { HelpPage } from './pages/help';
+import { ProfilePage } from './pages/profile/ProfilePage';
 
 function App() {
   const { loadUser, isAuthenticated } = useAuthStore();
@@ -44,6 +45,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/:id" element={<ServiceDetailPage />} />
+          <Route path="/profile/:id" element={<ProfilePage />} />
           <Route path="/my-jobs" element={<MyJobsPage />} />
           <Route path="/bookings" element={<Navigate to="/my-jobs" />} />
           <Route path="/my-requests" element={<Navigate to="/my-jobs" />} />

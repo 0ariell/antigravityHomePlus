@@ -207,6 +207,7 @@ export class AuthService {
         trades: true,
         avgRating: true,
         totalReviews: true,
+        portfolioUrls: true,
         createdAt: true,
         reviewsReceived: {
           orderBy: { createdAt: 'desc' },
