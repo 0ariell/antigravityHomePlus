@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   Zap, 
   Droplet, 
@@ -13,7 +14,6 @@ import {
   FileText,
   CheckCircle,
   ArrowRight,
-  Loader2,
   Bell,
   Briefcase,
   ChevronRight,
@@ -23,6 +23,7 @@ import {
 import { httpClient } from '../../infra/http';
 import { useAuthStore } from '../../app/stores';
 import { RequestWizard } from '../requests/RequestWizard';
+import { SkeletonStats } from '../../ui';
 
 interface DashboardStats {
   activeRequests: number;
@@ -200,20 +201,33 @@ export function ClientDashboard() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="skeleton h-8 w-48" />
+            <div className="skeleton h-4 w-64" />
+          </div>
+          <div className="skeleton h-10 w-40 rounded-xl" />
+        </div>
+        <SkeletonStats />
+        <div className="skeleton h-48 w-full rounded-2xl" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <motion.div 
+      className="space-y-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <h1 className="heading-2 text-gray-900 dark:text-white flex items-center gap-2">
             Hola, {user?.firstName}
-            <Sparkles className="w-6 h-6 text-orange-500" />
+            <Sparkles className="w-6 h-6 text-primary-500" />
           </h1>
           <p className="text-gray-500 dark:text-gray-400">
             ¿Qué necesitas solucionar hoy?
@@ -455,6 +469,6 @@ export function ClientDashboard() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

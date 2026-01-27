@@ -4,16 +4,7 @@
 @variant dark (.dark &);
 
 @theme {
-  /* ========================================
-     HOMEPLUS DESIGN SYSTEM v2.0
-     Premium Production-Ready Tokens
-     ======================================== */
-  
-  /* === Typography === */
-  --font-family-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
-  /* === Primary Colors - Orange Brand === */
+  /* Primary Colors - Orange Brand */
   --color-primary-50: #fff7ed;
   --color-primary-100: #ffedd5;
   --color-primary-200: #fed7aa;
@@ -25,20 +16,7 @@
   --color-primary-800: #9a3412;
   --color-primary-900: #7c2d12;
 
-  /* === Semantic Surface Colors === */
-  --color-surface-light: #ffffff;
-  --color-surface-muted: #fafafa;
-  --color-surface-dark: #0f172a;      /* Premium deep blue instead of black */
-  --color-surface-dark-muted: #1e293b;
-  --color-surface-dark-elevated: #334155;
-  
-  /* === Semantic Text Colors === */
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
-  --color-text-inverse: #f8fafc;
-  
-  /* === Neutral Colors === */
+  /* Neutral Colors */
   --color-gray-50: #f8fafc;
   --color-gray-100: #f1f5f9;
   --color-gray-200: #e2e8f0;
@@ -50,17 +28,7 @@
   --color-gray-800: #1e293b;
   --color-gray-900: #0f172a;
 
-  /* === State Colors === */
-  --color-success: #10b981;
-  --color-success-light: #d1fae5;
-  --color-warning: #f59e0b;
-  --color-warning-light: #fef3c7;
-  --color-error: #ef4444;
-  --color-error-light: #fee2e2;
-  --color-info: #3b82f6;
-  --color-info-light: #dbeafe;
-
-  /* === Spacing Scale === */
+  /* Spacing Scale */
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
   --spacing-3: 0.75rem;
@@ -72,27 +40,17 @@
   --spacing-12: 3rem;
   --spacing-16: 4rem;
 
-  /* === Border Radius === */
+  /* Border Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
   --radius-full: 9999px;
-  
-  /* === Shadows === */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-glow: 0 0 20px rgb(249 115 22 / 0.3);
 }
 
-/* ==========================================
-   CUSTOM UTILITIES LAYER
-   ========================================== */
+/* Custom Utilities Layer */
 @layer utilities {
-  /* === Glass Effects === */
   .glass {
     @apply bg-white/80 backdrop-blur-md border border-white/20;
   }
@@ -101,7 +59,6 @@
     @apply bg-gray-900/80 backdrop-blur-md border border-white/10;
   }
 
-  /* === Cards === */
   .card {
     @apply bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800 dark:border-gray-700/50;
   }
@@ -109,66 +66,37 @@
   .card-hover {
     @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
   }
-  
-  .card-interactive {
-    @apply card card-hover cursor-pointer active:scale-[0.98];
-  }
 
-  /* === Buttons === */
   .btn-primary {
-    @apply bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-3 px-6 rounded-xl 
-           border-none cursor-pointer transition-all duration-200 
-           hover:from-primary-600 hover:to-primary-700 hover:shadow-lg hover:shadow-primary-500/25
-           active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-gradient-to-br from-primary-500 to-primary-600 text-white font-semibold py-3 px-6 rounded-xl border-none cursor-pointer transition-all duration-200 hover:from-primary-600 hover:to-primary-700 hover:shadow-lg;
   }
 
   .btn-secondary {
-    @apply bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-xl border border-gray-200 
-           cursor-pointer transition-all duration-200 
-           hover:bg-gray-200 hover:border-gray-300
-           dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600
-           active:scale-[0.98];
-  }
-  
-  .btn-ghost {
-    @apply bg-transparent text-gray-600 font-medium py-2 px-4 rounded-lg
-           transition-all duration-200 hover:bg-gray-100
-           dark:text-gray-400 dark:hover:bg-gray-800;
+    @apply bg-gray-100 text-gray-700 font-semibold py-3 px-6 rounded-xl border border-gray-200 cursor-pointer transition-all duration-200 hover:bg-gray-200 hover:border-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600;
   }
 
-  /* === Form Elements === */
   .input-field {
-    @apply w-full py-3.5 px-4 border border-gray-200 rounded-xl text-base 
-           transition-all duration-200 bg-white
-           focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10
-           dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400
-           dark:focus:border-primary-400;
+    @apply w-full py-3 px-4 border border-gray-200 rounded-xl text-base transition-all duration-200 bg-white focus:outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400;
   }
 
-  /* === Sidebar === */
   .sidebar-item {
-    @apply flex items-center gap-3 py-3 px-4 rounded-xl text-gray-600 font-medium 
-           transition-all duration-200 cursor-pointer 
-           hover:bg-gray-100 hover:text-gray-900 
-           dark:text-gray-300 dark:hover:bg-gray-700/50 dark:hover:text-white;
+    @apply flex items-center gap-3 py-3 px-4 rounded-xl text-gray-600 font-medium transition-all duration-200 cursor-pointer hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700/50 dark:hover:text-white;
   }
 
   .sidebar-item.active {
     @apply bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400;
   }
 
-  /* === Stat Cards === */
   .stat-card {
     @apply bg-white rounded-2xl p-5 border border-gray-100 dark:bg-gray-800 dark:border-gray-700/50;
   }
 
   .stat-card-primary {
-    @apply bg-gradient-to-br from-primary-500 to-primary-600 text-white border-none shadow-lg shadow-primary-500/20;
+    @apply bg-gradient-to-br from-primary-500 to-primary-600 text-white border-none shadow-lg;
   }
 
-  /* === Badges === */
   .badge {
-    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide;
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold;
   }
 
   .badge-success {
@@ -179,19 +107,10 @@
     @apply bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400;
   }
 
-  .badge-error {
-    @apply bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400;
-  }
-
-  .badge-info {
-    @apply bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400;
-  }
-
   .badge-pending {
     @apply bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300;
   }
 
-  /* === Modals === */
   .modal {
     @apply bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700/50 shadow-2xl;
   }
@@ -199,40 +118,15 @@
   .modal-overlay {
     @apply fixed inset-0 bg-black/60 dark:bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm;
   }
-  
-  /* === Typography Utilities === */
-  .text-display {
-    font-family: var(--font-family-display);
-  }
-  
-  .heading-1 {
-    font-family: var(--font-family-display);
-    @apply text-3xl md:text-4xl font-bold tracking-tight;
-  }
-  
-  .heading-2 {
-    font-family: var(--font-family-display);
-    @apply text-2xl md:text-3xl font-bold tracking-tight;
-  }
-  
-  .heading-3 {
-    font-family: var(--font-family-display);
-    @apply text-xl font-semibold;
-  }
 }
 
-/* ==========================================
-   BASE STYLES
-   ========================================== */
+/* Base Styles */
 @layer base {
   html {
-    font-family: var(--font-family-sans);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     @apply text-base antialiased bg-gray-50 text-gray-900;
-    scroll-behavior: smooth;
-    -webkit-tap-highlight-color: transparent;
   }
   
-  /* Premium Dark Mode - Deep Blue instead of pure black */
   html.dark {
     @apply text-gray-100;
     background-color: #0f172a;
@@ -246,24 +140,26 @@
     @apply min-h-screen;
   }
   
-  /* Display font for headings */
   h1, h2, h3 {
-    font-family: var(--font-family-display);
-  }
-  
-  /* Selection color */
-  ::selection {
-    @apply bg-primary-500/20 text-primary-900;
-  }
-  
-  html.dark ::selection {
-    @apply bg-primary-500/30 text-primary-100;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
-/* ==========================================
-   ANIMATIONS
-   ========================================== */
+/* Typography */
+.heading-2 {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .heading-2 {
+    font-size: 2.25rem;
+  }
+}
+
+/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -272,16 +168,6 @@
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes pulse-soft {
@@ -302,57 +188,16 @@
   animation: slideUp 300ms ease-out;
 }
 
-.animate-slide-down {
-  animation: slideDown 300ms ease-out;
-}
-
-.animate-scale-in {
-  animation: scaleIn 200ms ease-out;
-}
-
 .animate-pulse-soft {
   animation: pulse-soft 2s ease-in-out infinite;
 }
 
 /* Skeleton Loader */
 .skeleton {
-  @apply bg-gray-200 dark:bg-gray-700 rounded-lg;
-  background: linear-gradient(
-    90deg,
-    rgb(229 231 235) 0%,
-    rgb(243 244 246) 50%,
-    rgb(229 231 235) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  background-color: #e2e8f0;
+  border-radius: 0.5rem;
 }
 
 html.dark .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgb(55 65 81) 0%,
-    rgb(75 85 99) 50%,
-    rgb(55 65 81) 100%
-  );
-  background-size: 200% 100%;
-}
-
-/* ==========================================
-   SCROLLBAR STYLING
-   ========================================== */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-gray-500;
+  background-color: #374151;
 }
