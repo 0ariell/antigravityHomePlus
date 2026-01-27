@@ -13,6 +13,7 @@ import { MyServicesPage } from './pages/my-services';
 import { SettingsPage } from './pages/settings';
 import { HelpPage } from './pages/help';
 import { ProfilePage } from './pages/profile/ProfilePage';
+import { LandingPage } from './pages/landing';
 
 function App() {
   const { loadUser, isAuthenticated } = useAuthStore();
@@ -25,6 +26,10 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
+        <Route
+          path="/"
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <LandingPage />}
+        />
         <Route
           path="/login"
           element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />}
@@ -55,9 +60,8 @@ function App() {
           <Route path="/help" element={<HelpPage />} />
         </Route>
 
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/dashboard" />} />
-        <Route path="*" element={<Navigate to="/dashboard" />} />
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );
