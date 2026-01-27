@@ -170,9 +170,9 @@ export function DashboardLayout() {
         }`}
       >
         {/* Brand Header */}
-        <div className="p-6">
+        <div className="p-4 flex justify-center">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="HomePlus" className="h-12 w-auto" />
+            <img src="/logo.png" alt="HomePlus" className="h-28 w-auto max-w-full object-contain" />
           </div>
         </div>
 
