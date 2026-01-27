@@ -7,38 +7,25 @@ import {
   PaintBucket, 
   Wrench, 
   Home,
-  Star,
   Clock,
-  MessageSquare,
   TrendingUp,
   FileText,
   CheckCircle,
-  ArrowRight,
-  Bell,
-  Briefcase,
-  ChevronRight,
+  Search,
   Sparkles,
-  Search
+  ChevronRight
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useAuthStore } from '../../app/stores';
-import { RequestWizard } from '../requests/RequestWizard';
 import { SkeletonStats } from '../../ui';
+import { ProfessionalCard } from '../../ui/components/cards/ProfessionalCard';
+import { BookingCard } from '../../ui/components/cards/BookingCard';
 
 interface DashboardStats {
   activeRequests: number;
   pendingQuotes: number;
   jobsInProgress: number;
   completedJobs: number;
-}
-
-interface RecentActivity {
-  id: string;
-  type: 'quote' | 'message' | 'status';
-  title: string;
-  description: string;
-  time: string;
-  link?: string;
 }
 
 interface TopProvider {
@@ -48,15 +35,9 @@ interface TopProvider {
   category: string;
   avgRating: number;
   totalReviews: number;
-  zone: string;
-}
-
-interface ActiveJob {
-  id: string;
-  title: string;
-  status: string;
-  providerName: string;
-  updatedAt: string;
+  zone: string; // Add zone to interface
+  avatarUrl?: string;
+  isOnline?: boolean;
 }
 
 const QUICK_CATEGORIES = [
@@ -76,11 +57,9 @@ export function ClientDashboard() {
     jobsInProgress: 0,
     completedJobs: 0
   });
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [topProviders, setTopProviders] = useState<TopProvider[]>([]);
-  const [activeJobs, setActiveJobs] = useState<ActiveJob[]>([]);
+  const [activeJobs, setActiveJobs] = useState<any[]>([]); // Using any for flexibility with booking structure
   const [isLoading, setIsLoading] = useState(true);
-  const [showWizard, setShowWizard] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -89,7 +68,6 @@ export function ClientDashboard() {
   const loadDashboardData = async () => {
     setIsLoading(true);
     try {
-      // Load stats from bookings and requests
       const [bookingsRes, requestsRes, providersRes] = await Promise.all([
         httpClient.get('/bookings/my-bookings').catch(() => ({ data: [] })),
         httpClient.get('/service-requests/my-requests').catch(() => ({ data: [] })),
@@ -108,49 +86,12 @@ export function ClientDashboard() {
 
       setStats({ activeRequests, pendingQuotes, jobsInProgress, completedJobs });
 
-      // Build recent activity from real data
-      const activity: RecentActivity[] = [];
-      
-      // Add recent bookings activity
-      bookings.slice(0, 3).forEach((b: any) => {
-        if (b.status === 'ACCEPTED') {
-          activity.push({
-            id: b.id,
-            type: 'status',
-            title: `Solicitud aceptada`,
-            description: b.service?.title || 'Servicio',
-            time: formatTimeAgo(b.updatedAt),
-            link: '/my-jobs'
-          });
-        }
-      });
-
-      // Add pending quotes info
-      requests.filter((r: any) => r._count?.quotes > 0).slice(0, 2).forEach((r: any) => {
-        activity.push({
-          id: r.id,
-          type: 'quote',
-          title: `${r._count.quotes} presupuesto(s) recibido(s)`,
-          description: r.title,
-          time: formatTimeAgo(r.updatedAt || r.createdAt),
-          link: '/my-jobs'
-        });
-      });
-
-      setRecentActivity(activity);
       setTopProviders(providers.slice(0, 4));
 
       // Active jobs
       const active = bookings
         .filter((b: any) => ['ACCEPTED', 'IN_PROGRESS'].includes(b.status))
-        .slice(0, 3)
-        .map((b: any) => ({
-          id: b.id,
-          title: b.service?.title || 'Servicio Personalizado',
-          status: b.status,
-          providerName: `${b.provider?.firstName || 'Profesional'} ${b.provider?.lastName?.[0] || ''}.`,
-          updatedAt: formatTimeAgo(b.updatedAt)
-        }));
+        .slice(0, 2);
       setActiveJobs(active);
 
     } catch (error) {
@@ -158,24 +99,6 @@ export function ClientDashboard() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 60) return `hace ${diffMins}m`;
-    if (diffHours < 24) return `hace ${diffHours}h`;
-    return `hace ${diffDays}d`;
-  };
-
-  const handleCategoryClick = (_category: string) => {
-    // Show wizard - could pre-fill category via context or props in future
-    setShowWizard(true);
   };
 
   const StatCard = ({ icon: Icon, label, value, color, onClick }: { 
@@ -187,15 +110,16 @@ export function ClientDashboard() {
   }) => (
     <button 
       onClick={onClick}
-      className={`card p-5 text-left hover:shadow-md transition-all hover:-translate-y-0.5 ${onClick ? 'cursor-pointer' : ''}`}
+      className={`card p-5 text-left hover:shadow-xl transition-all hover:-translate-y-1 relative overflow-hidden group ${onClick ? 'cursor-pointer' : ''}`}
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center`}>
-          <Icon className="w-5 h-5 text-white" />
+      <div className={`absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br ${color} opacity-10 rounded-full group-hover:scale-110 transition-transform`} />
+      <div className="flex items-center justify-between mb-3 relative">
+        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg shadow-gray-200 dark:shadow-none`}>
+          <Icon className="w-6 h-6 text-white" />
         </div>
-        <span className="text-3xl font-bold text-gray-900 dark:text-white">{value}</span>
+        <span className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{value}</span>
       </div>
-      <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
+      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 relative">{label}</p>
     </button>
   );
 
@@ -229,13 +153,13 @@ export function ClientDashboard() {
             Hola, {user?.firstName}
             <Sparkles className="w-6 h-6 text-primary-500" />
           </h1>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
             ¿Qué necesitas solucionar hoy?
           </p>
         </div>
         <button
           onClick={() => navigate('/services')}
-          className="btn-secondary flex items-center gap-2"
+          className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2"
         >
           <Search className="w-4 h-4" />
           Buscar Profesionales
@@ -248,227 +172,129 @@ export function ClientDashboard() {
           icon={FileText} 
           label="Pedidos activos" 
           value={stats.activeRequests} 
-          color="from-blue-500 to-blue-600"
+          color="from-blue-500 to-indigo-600"
           onClick={() => navigate('/my-jobs')}
         />
         <StatCard 
           icon={TrendingUp} 
-          label="Presupuestos recibidos" 
+          label="Presupuestos" 
           value={stats.pendingQuotes} 
-          color="from-green-500 to-green-600"
+          color="from-emerald-500 to-teal-600"
           onClick={() => navigate('/my-jobs')}
         />
         <StatCard 
           icon={Clock} 
-          label="Trabajos en curso" 
+          label="En curso" 
           value={stats.jobsInProgress} 
-          color="from-orange-500 to-orange-600"
+          color="from-orange-500 to-amber-600"
           onClick={() => navigate('/my-jobs')}
         />
         <StatCard 
           icon={CheckCircle} 
           label="Completados" 
           value={stats.completedJobs} 
-          color="from-purple-500 to-purple-600"
+          color="from-purple-500 to-violet-600"
           onClick={() => navigate('/my-jobs')}
         />
       </div>
 
       {/* Quick Actions */}
-      <div className="card p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <Zap className="w-5 h-5 text-orange-500" />
-          Acceso Rápido
+      <div className="card p-8 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-800/50">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-amber-500" />
+          ¿Qué estás buscando?
         </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {QUICK_CATEGORIES.map(cat => {
             const Icon = cat.icon;
             return (
               <button
                 key={cat.id}
-                onClick={() => handleCategoryClick(cat.label)}
-                className={`${cat.bgLight} p-4 rounded-xl text-center hover:scale-105 transition-transform group`}
+                onClick={() => navigate(`/services?category=${cat.label}`)}
+                className={`${cat.bgLight} p-6 rounded-2xl text-center hover:scale-105 transition-transform group border border-transparent hover:border-gray-200 dark:hover:border-gray-700 hover:shadow-lg`}
               >
-                <div className={`w-12 h-12 mx-auto rounded-full bg-gradient-to-br ${cat.color} flex items-center justify-center mb-2 group-hover:shadow-lg transition-shadow`}>
-                  <Icon className="w-6 h-6 text-white" />
+                <div className={`w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br ${cat.color} flex items-center justify-center mb-3 group-hover:shadow-lg transition-shadow shadow-sm`}>
+                  <Icon className="w-7 h-7 text-white" />
                 </div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{cat.label}</span>
+                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{cat.label}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Main CTA Banner */}
-      <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 rounded-2xl p-6 md:p-8 text-white shadow-lg shadow-orange-500/30 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
-        
-        <div className="relative z-10">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            {showWizard ? 'Describe tu problema' : '¿Necesitas ayuda con algo?'}
-          </h2>
-          {!showWizard && (
-            <>
-              <p className="text-orange-100 text-lg mb-6 max-w-xl">
-                Publica tu problema y recibe múltiples presupuestos de profesionales verificados en minutos.
-              </p>
-              <button 
-                onClick={() => setShowWizard(true)}
-                className="bg-white text-orange-600 font-semibold py-3 px-6 rounded-xl hover:bg-orange-50 transition-colors flex items-center gap-2"
-              >
-                Crear Pedido
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Request Wizard (conditionally shown) */}
-      {showWizard && (
-        <div className="animate-fade-in">
-          <RequestWizard />
-        </div>
-      )}
-
-      {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Active Jobs */}
-        <div className="card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-orange-500" />
-              Trabajos Activos
-            </h2>
+        <div className="lg:col-span-2 space-y-6">
+           <div className="flex items-center justify-between">
+            <h2 className="heading-3 text-gray-900 dark:text-white">Trabajos en curso</h2>
             <button 
               onClick={() => navigate('/my-jobs')}
-              className="text-sm text-orange-500 hover:text-orange-600 font-medium flex items-center gap-1"
+              className="text-primary-600 dark:text-primary-400 font-bold text-sm hover:underline flex items-center gap-1"
             >
               Ver todos <ChevronRight className="w-4 h-4" />
             </button>
           </div>
           
           {activeJobs.length === 0 ? (
-            <div className="text-center py-8 text-gray-400 dark:text-gray-500">
-              <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>No tenés trabajos en curso</p>
+            <div className="card p-8 text-center bg-gray-50 dark:bg-gray-800/50 border-dashed">
+              <div className="w-16 h-16 bg-white dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                <Clock className="w-8 h-8 text-gray-300 dark:text-gray-500" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">No tienes trabajos en curso</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Los trabajos aceptados aparecerán aquí.</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {activeJobs.map(job => (
-                <button
+            <div className="space-y-4">
+              {activeJobs.map((job) => (
+                <BookingCard
                   key={job.id}
-                  onClick={() => navigate('/my-jobs')}
-                  className="w-full p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center justify-between"
-                >
-                  <div>
-                    <h4 className="font-medium text-gray-900 dark:text-white">{job.title}</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{job.providerName}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
-                      job.status === 'IN_PROGRESS' 
-                        ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
-                        : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                    }`}>
-                      {job.status === 'IN_PROGRESS' ? 'En progreso' : 'Aceptado'}
-                    </span>
-                    <p className="text-xs text-gray-400 mt-1">{job.updatedAt}</p>
-                  </div>
-                </button>
+                  id={job.id}
+                  title={job.service?.title || 'Servicio Personalizado'}
+                  description={job.description}
+                  status={job.status}
+                  date={new Date(job.createdAt).toLocaleDateString()}
+                  price={job.quotedPrice}
+                  counterParty={{
+                    name: `${job.provider?.firstName} ${job.provider?.lastName}`,
+                    role: 'Provider',
+                    avatar: job.provider?.avatarUrl,
+                    rating: job.provider?.avgRating
+                  }}
+                  onChat={() => navigate('/chat', { state: { bookingId: job.id } })}
+                />
               ))}
             </div>
           )}
         </div>
 
-        {/* Recent Activity */}
-        <div className="card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Bell className="w-5 h-5 text-orange-500" />
-              Actividad Reciente
-            </h2>
-          </div>
-
-          {recentActivity.length === 0 ? (
-            <div className="text-center py-8 text-gray-400 dark:text-gray-500">
-              <Bell className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p>Sin actividad reciente</p>
-              <p className="text-sm">Cuando recibas presupuestos o mensajes, aparecerán aquí</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {recentActivity.map(activity => (
-                <button
-                  key={activity.id}
-                  onClick={() => activity.link && navigate(activity.link)}
-                  className="w-full p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-left hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-start gap-3"
-                >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    activity.type === 'quote' 
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                      : activity.type === 'message'
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
-                      : 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400'
-                  }`}>
-                    {activity.type === 'quote' && <TrendingUp className="w-5 h-5" />}
-                    {activity.type === 'message' && <MessageSquare className="w-5 h-5" />}
-                    {activity.type === 'status' && <CheckCircle className="w-5 h-5" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-900 dark:text-white">{activity.title}</h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{activity.description}</p>
-                  </div>
-                  <span className="text-xs text-gray-400 flex-shrink-0">{activity.time}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Top Providers */}
-      {topProviders.length > 0 && (
-        <div className="card p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-500" />
-              Profesionales Destacados
-            </h2>
-            <button 
-              onClick={() => navigate('/services')}
-              className="text-sm text-orange-500 hover:text-orange-600 font-medium flex items-center gap-1"
-            >
+        {/* Top Providers */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="heading-3 text-gray-900 dark:text-white">Profesionales Top</h2>
+            <button className="text-primary-600 dark:text-primary-400 font-bold text-sm hover:underline flex items-center gap-1">
               Ver más <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {topProviders.map(provider => (
-              <div 
+          <div className="space-y-4">
+            {topProviders.map((provider) => (
+              <ProfessionalCard
                 key={provider.id}
-                className="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-center hover:shadow-md transition-all"
-              >
-                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white text-xl font-bold mb-3">
-                  {provider.firstName?.[0] || 'P'}
-                </div>
-                <h4 className="font-medium text-gray-900 dark:text-white">
-                  {provider.firstName} {provider.lastName?.[0]}.
-                </h4>
-                <p className="text-sm text-orange-500 font-medium">{provider.category}</p>
-                <div className="flex items-center justify-center gap-1 mt-2">
-                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {provider.avgRating?.toFixed(1) || 'Nuevo'}
-                  </span>
-                  <span className="text-xs text-gray-400">({provider.totalReviews || 0})</span>
-                </div>
-              </div>
+                id={provider.id}
+                firstName={provider.firstName}
+                lastName={provider.lastName}
+                category={provider.category}
+                rating={provider.avgRating}
+                reviews={provider.totalReviews}
+                zone={provider.zone || 'Buenos Aires'}
+                avatarUrl={provider.avatarUrl}
+                isOnline={provider.isOnline}
+              />
             ))}
           </div>
         </div>
-      )}
+      </div>
     </motion.div>
   );
 }
