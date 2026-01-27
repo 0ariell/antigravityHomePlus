@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Loader2, Zap, ArrowRight, Shield, Star, Users } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2, ArrowRight, Shield, Star, Users } from 'lucide-react';
 import { useAuthStore } from '../../app/stores';
 
 const features = [
@@ -68,12 +68,7 @@ export function LoginPage() {
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-              <Zap className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-2xl font-bold tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              HomePlus
-            </span>
+            <img src="/logo.png" alt="HomePlus" className="h-10 w-auto" />
           </div>
 
           {/* Hero Text */}
@@ -124,12 +119,7 @@ export function LoginPage() {
         >
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10">
-            <div className="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/30">
-              <Zap className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              HomePlus
-            </span>
+            <img src="/logo.png" alt="HomePlus" className="h-9 w-auto" />
           </div>
 
           {/* Header */}

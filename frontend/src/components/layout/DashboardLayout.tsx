@@ -14,7 +14,6 @@ import {
   Sun,
   Moon,
   Power,
-  Zap,
   ChevronRight,
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
@@ -173,18 +172,7 @@ export function DashboardLayout() {
         {/* Brand Header */}
         <div className="p-6">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-11 h-11 bg-gradient-to-br from-primary-500 via-primary-600 to-orange-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/30">
-                <Zap className="w-6 h-6 text-white" />
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                HomePlus
-              </h1>
-              <p className="text-xs text-gray-400">Profesionales verificados</p>
-            </div>
+            <img src="/logo.png" alt="HomePlus" className="h-9 w-auto" />
           </div>
         </div>
 
