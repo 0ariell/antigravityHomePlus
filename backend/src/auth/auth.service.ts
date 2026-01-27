@@ -235,4 +235,34 @@ export class AuthService {
 
     return user;
   }
+
+  async getTopProviders() {
+    const providers = await this.prisma.user.findMany({
+      where: {
+        role: 'PROVIDER',
+        isOnline: true,
+      },
+      orderBy: [
+        { avgRating: 'desc' },
+        { totalReviews: 'desc' },
+      ],
+      take: 8,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        avatarUrl: true,
+        zone: true,
+        trades: true,
+        avgRating: true,
+        totalReviews: true,
+      },
+    });
+
+    // Map trades to category for frontend display
+    return providers.map(p => ({
+      ...p,
+      category: p.trades?.[0] || 'Profesional',
+    }));
+  }
 }

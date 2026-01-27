@@ -40,6 +40,12 @@ export class AuthController {
     return { message: 'Logged out successfully' };
   }
 
+  @Get('users/top-providers')
+  @UseGuards(JwtAuthGuard)
+  async getTopProviders() {
+    return this.authService.getTopProviders();
+  }
+
   @Get('users/:id/public-profile')
   @UseGuards(JwtAuthGuard)
   async getPublicProfile(@Param('id') userId: string) {
