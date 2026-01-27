@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* Enable class-based dark mode for manual toggle */
-@variant dark (&.dark);
+@variant dark (.dark &);
 
 @theme {
   /* Primary Colors - Orange Brand */
