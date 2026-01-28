@@ -53,5 +53,10 @@ export const requestsService = {
   getAllOpen: async (): Promise<ServiceRequest[]> => {
     const response = await httpClient.get('/service-requests/all-open');
     return response.data;
+  },
+
+  getDirect: async (): Promise<ServiceRequest[]> => {
+    const response = await httpClient.get('/service-requests/direct');
+    return response.data;
   }
 };

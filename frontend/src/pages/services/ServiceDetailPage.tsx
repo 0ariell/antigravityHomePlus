@@ -1,136 +1,19 @@
-import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  ArrowLeft,
-  Star,
-  MapPin,
-  X,
-  Loader2,
-  CheckCircle,
-  Shield,
-  Clock,
-  ChevronRight,
-  MessageSquare
-} from 'lucide-react';
-import { httpClient } from '../../infra/http';
+import { ArrowLeft, Star, MapPin, Loader2, CheckCircle, Shield, Clock, ChevronRight, MessageSquare } from 'lucide-react';
 import { useAuthStore } from '../../app/stores';
-
-// Types
-interface ServiceDetail {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  zone: string;
-  priceBase: number | null;
-  priceUnit: string | null;
-  images: string[];
-  avgRating: number;
-  totalReviews: number;
-  isActive: boolean;
-  provider: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    avatarUrl: string | null;
-    avgRating: number;
-    totalReviews: number;
-    bio: string | null;
-  };
-}
-
-interface PublicProfile {
-  reviewsReceived: Array<{
-    id: string;
-    rating: number;
-    comment: string;
-    createdAt: string;
-    author: {
-      firstName: string;
-      lastName: string;
-      avatarUrl: string | null;
-    };
-  }>;
-}
+import { useServiceDetail } from '../../app/view-models/useServiceDetail';
+import { RequestModal } from '../../ui/components/bookings/RequestModal';
+import { useState } from 'react';
 
 export function ServiceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
+  const { service, providerProfile, isLoading } = useServiceDetail(id);
+  const [showRequestModal, setShowRequestModal] = useState(false);
 
-  const [service, setService] = useState<ServiceDetail | null>(null);
-  const [providerProfile, setProviderProfile] = useState<PublicProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showBookingModal, setShowBookingModal] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [bookingSuccess, setBookingSuccess] = useState(false);
-
-  // Booking Form State
-  const [bookingForm, setBookingForm] = useState({
-    description: '',
-    preferredDate: '',
-    address: '',
-    notes: '',
-  });
-
-  useEffect(() => {
-    if (id) {
-      loadData();
-    }
-  }, [id]);
-
-  const loadData = async () => {
-    try {
-      // 1. Load Service
-      const serviceRes = await httpClient.get(`/services/${id}`);
-      setService(serviceRes.data);
-
-      // 2. Load Provider Profile (for reviews/extra info)
-      if (serviceRes.data?.provider?.id) {
-        try {
-          const profileRes = await httpClient.get(`/auth/users/${serviceRes.data.provider.id}/public-profile`);
-          setProviderProfile(profileRes.data);
-        } catch (e) {
-          console.warn('Could not load provider profile', e);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading service:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleBookingSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!service) return;
-
-    setIsSubmitting(true);
-    try {
-      await httpClient.post('/bookings', {
-        serviceId: service.id,
-        description: bookingForm.description,
-        preferredDate: bookingForm.preferredDate || null,
-        address: bookingForm.address,
-        notes: bookingForm.notes || null,
-        images: [],
-      });
-      setBookingSuccess(true);
-      setTimeout(() => {
-        setShowBookingModal(false);
-        setBookingSuccess(false);
-        navigate('/bookings');
-      }, 2000);
-    } catch (error: any) {
-      console.error('Error creating booking:', error);
-      alert(error.response?.data?.message || 'Error al enviar solicitud');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const openBookingModal = () => {
+  const handleRequestClick = () => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
@@ -139,7 +22,7 @@ export function ServiceDetailPage() {
       alert('Solo los clientes pueden solicitar servicios');
       return;
     }
-    setShowBookingModal(true);
+    setShowRequestModal(true);
   };
 
   if (isLoading) {
@@ -273,7 +156,7 @@ export function ServiceDetailPage() {
               </section>
             )}
 
-            {/* Reviews (Provider level for now) */}
+            {/* Reviews Section */}
             <section>
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
                 Reseñas del Profesional
@@ -314,12 +197,6 @@ export function ServiceDetailPage() {
                     <p className="text-gray-500">Este profesional aún no tiene reseñas.</p>
                   </div>
                 )}
-                
-                {providerProfile?.reviewsReceived && providerProfile.reviewsReceived.length > 3 && (
-                   <Link to={`/profile/${service.provider.id}`} className="block text-center text-primary-400 font-semibold hover:underline mt-4">
-                     Ver todas las reseñas
-                   </Link>
-                )}
               </div>
             </section>
           </div>
@@ -347,16 +224,16 @@ export function ServiceDetailPage() {
                    </div>
                    <div className="flex items-center gap-3 text-sm text-gray-300">
                      <Clock className="w-5 h-5 text-gray-500" />
-                     <span>Respuesta en ~1 hora</span>
+                     <span>Respuesta rápida</span>
                    </div>
                    <div className="flex items-center gap-3 text-sm text-gray-300">
                      <Shield className="w-5 h-5 text-blue-500" />
-                     <span>Seguro de satisfacción</span>
+                     <span>Pago seguro</span>
                    </div>
                  </div>
 
                  <button
-                   onClick={openBookingModal}
+                   onClick={handleRequestClick}
                    disabled={!service.isActive}
                    className="w-full btn-primary py-4 text-lg font-bold shadow-lg shadow-primary-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-[1.02] active:scale-[0.98]"
                  >
@@ -364,11 +241,10 @@ export function ServiceDetailPage() {
                  </button>
                  
                  <p className="text-xs text-center text-gray-500 mt-4">
-                   No se te cobrará nada hasta que aceptes el presupuesto.
+                   Recibirás una cotización antes de confirmar la reserva.
                  </p>
                </div>
                
-               {/* Contact Card */}
                <div className="bg-gray-800/50 rounded-2xl p-4 flex items-center justify-between border border-gray-700">
                  <div className="flex items-center gap-3">
                    <MessageSquare className="w-5 h-5 text-gray-500" />
@@ -385,110 +261,13 @@ export function ServiceDetailPage() {
         </div>
       </div>
 
-      {/* Booking Modal (Preserved functionality, updated style) */}
-      {showBookingModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <motion.div 
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-800 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700"
-          >
-            {bookingSuccess ? (
-              <div className="p-12 text-center">
-                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle className="w-10 h-10 text-green-500" />
-                </div>
-                <h2 className="text-2xl font-bold text-white mb-2">¡Solicitud enviada!</h2>
-                <p className="text-gray-400 text-lg">
-                  {service.provider.firstName} revisará tu pedido y te responderá a la brevedad.
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="p-6 border-b border-gray-700 flex items-center justify-between bg-gray-800">
-                  <h2 className="text-xl font-bold text-white">Solicitar Servicio</h2>
-                  <button onClick={() => setShowBookingModal(false)} className="p-2 hover:bg-gray-700 rounded-full transition-colors">
-                    <X className="w-6 h-6 text-gray-500" />
-                  </button>
-                </div>
-
-                <form onSubmit={handleBookingSubmit} className="p-8 space-y-6">
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2">
-                      ¿Qué necesitas? *
-                    </label>
-                    <textarea
-                      value={bookingForm.description}
-                      onChange={(e) => setBookingForm({ ...bookingForm, description: e.target.value })}
-                      className="input-field min-h-[100px]"
-                      rows={4}
-                      required
-                      placeholder="Describe tu problema con el mayor detalle posible..."
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-bold text-white mb-2">
-                        ¿Cuándo?
-                      </label>
-                      <input
-                        type="datetime-local"
-                        value={bookingForm.preferredDate}
-                        onChange={(e) => setBookingForm({ ...bookingForm, preferredDate: e.target.value })}
-                        className="input-field"
-                      />
-                    </div>
-                     <div>
-                      <label className="block text-sm font-bold text-white mb-2">
-                        ¿Dónde? *
-                      </label>
-                      <input
-                        type="text"
-                        value={bookingForm.address}
-                        onChange={(e) => setBookingForm({ ...bookingForm, address: e.target.value })}
-                        className="input-field"
-                        required
-                        placeholder="Dirección o zona"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2">
-                      Notas adicionales
-                    </label>
-                    <textarea
-                      value={bookingForm.notes}
-                      onChange={(e) => setBookingForm({ ...bookingForm, notes: e.target.value })}
-                      className="input-field"
-                      rows={2}
-                      placeholder="Código de acceso, piso, timbre..."
-                    />
-                  </div>
-
-                  <div className="pt-4">
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full btn-primary py-3.5 text-lg font-bold flex items-center justify-center gap-2"
-                    >
-                      {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirmar Solicitud'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowBookingModal(false)}
-                      className="w-full mt-3 py-3 text-sm font-bold text-gray-500 hover:text-white transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </form>
-              </>
-            )}
-          </motion.div>
-        </div>
-      )}
+      <RequestModal 
+        isOpen={showRequestModal} 
+        onClose={() => setShowRequestModal(false)}
+        targetProviderId={service.provider.id} // Sending a DIRECT request
+        initialCategory={service.category}
+        initialZone={service.zone}
+      />
     </motion.div>
   );
 }

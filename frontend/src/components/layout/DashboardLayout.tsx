@@ -13,6 +13,8 @@ import {
   X,
   Power,
   ChevronRight,
+  Layers,
+  Globe,
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useState, useEffect } from 'react';
@@ -57,8 +59,15 @@ export function DashboardLayout() {
   const menuItems = [
     { icon: Home, label: 'Inicio', path: '/dashboard', description: 'Tu centro de control' },
     { icon: Search, label: 'Buscar', path: '/services', hide: isProvider, description: 'Encontrar profesionales' },
+    // Client specific
+    { icon: Layers, label: 'Mis Pedidos', path: '/my-requests', hide: isProvider, description: 'Solicitudes abiertas' },
+    
+    // Provider specific
+    { icon: Globe, label: 'Oportunidades', path: '/leads', hide: !isProvider, description: 'Encontrar trabajos' },
     { icon: Briefcase, label: 'Mis Servicios', path: '/my-services', hide: !isProvider, description: 'Gestionar servicios' },
-    { icon: Calendar, label: 'Trabajos', path: '/my-jobs', description: 'Ver pedidos y reservas' },
+    
+    // Common
+    { icon: Calendar, label: 'Reservas', path: '/my-jobs', description: 'Trabajos confirmados' },
     { icon: MessageSquare, label: 'Chat', path: '/chat', description: 'Conversaciones' },
   ];
 

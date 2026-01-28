@@ -9,7 +9,7 @@ import { ServicesPage, ServiceDetailPage } from './pages/services';
 import { MyJobsPage } from './pages/jobs';
 import { ChatPage } from './pages/chat';
 import { MyServicesPage } from './pages/my-services';
-// MyRequestsPage removed - functionality moved to MyJobsPage
+import { MyRequestsPage, ProviderLeads } from './pages/requests';
 import { SettingsPage } from './pages/settings';
 import { HelpPage } from './pages/help';
 import { ProfilePage } from './pages/profile/ProfilePage';
@@ -53,7 +53,11 @@ function App() {
           <Route path="/profile/:id" element={<ProfilePage />} />
           <Route path="/my-jobs" element={<MyJobsPage />} />
           <Route path="/bookings" element={<Navigate to="/my-jobs" />} />
-          <Route path="/my-requests" element={<Navigate to="/my-jobs" />} />
+          
+          {/* Request Flow */}
+          <Route path="/my-requests" element={<MyRequestsPage />} />
+          <Route path="/leads" element={<ProviderLeads />} />
+          
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/my-services" element={<MyServicesPage />} />
           <Route path="/settings" element={<SettingsPage />} />

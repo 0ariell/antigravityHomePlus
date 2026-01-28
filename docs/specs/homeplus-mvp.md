@@ -224,8 +224,51 @@ Fuera de alcance inicial:
 ## 6. Guía de implementación (orden sugerido)
 1) Auth + Users (roles + “me”).
 2) Services (CRUD provider + list público).
-3) Booking (create + estados + listados).
-4) Conversation/Message (REST + WebSocket).
-5) Review (post-completed).
-6) Notifications.
-7) Payment “thin slice” (intent + webhook).
+3) Service Requests (General vs Direct) + Quotes logic.
+4) Booking (Resulting from Accepted Quote).
+5) Conversation/Message (REST + WebSocket).
+6) Review (post-completed).
+7) Notifications.
+8) Payment “thin slice” (intent + webhook).
+
+---
+
+## 2. Requerimientos funcionales (ACTUALIZADO - Request & Quote Flow)
+
+### 2.4 Solicitudes (Service Requests)
+**RF-011: Crear Solicitud (Unified Request)**
+- El cliente puede crear una solicitud ("Request") describiendo:
+  - Título, Descripción, Fotos, Categoría.
+  - Zona y Preferencia de Fecha.
+- **Tipos de Solicitud**:
+  - **General (Open)**: No tiene destinatario específico. Se visible para todos los providers de la zona/categoría.
+  - **Directa**: Se crea desde el perfil de un provider específico (`targetProviderId`). Solo visible para ese provider.
+- Estado inicial: `OPEN`.
+
+**RF-012: Visualización para Providers**
+- Dashboard Provider tiene dos pestañas/secciones:
+  1. **Solicitudes Directas**: Peticiones enviadas específicamente a él.
+  2. **Solicitudes Generales**: Peticiones abiertas en su zona/categoría ("Oportunidades").
+- El detalle de la solicitud muestra la misma información en ambos casos.
+
+### 2.5 Presupuestos (Quotes)
+**RF-013: Enviar Presupuesto**
+- Provider visualiza una Solicitud (Directa o General) y puede:
+  - **Cotizar (Quote)**: Envia precio estimado y tiempo/comentarios.
+  - **Rechazar**: (Solo aplica a Directas, para limpiar el inbox).
+- Al cotizar, se crea un objeto `Quote`.
+
+**RF-014: Selección por Cliente**
+- Cliente ve su solicitud y lista de `Quotes` recibidas.
+- Cada Quote muestra: Precio, Comentario, Perfil del Provider (Rating, Reviews).
+- Cliente **ACEPTA** una Quote.
+  - Esto dispara la creación del **Booking** confirmado (`ACCEPTED`).
+  - La Solicitud pasa a estado `CLOSED`.
+
+### 2.6 Reservas Finales (Bookings)
+**RF-015: Gestión de Trabajo**
+- Una vez aceptada la Quote, se crea el Booking.
+- Estados del Booking: `ACCEPTED` -> `IN_PROGRESS` -> `COMPLETED`.
+- Chat habilitado solo para Booking activo (o fase de negociación previa si se decide, MVP: post-booking).
+
+---
