@@ -31,5 +31,11 @@ export class CreateServiceRequestDto {
 
   @IsNumber()
   @IsOptional()
+  @IsNumber()
+  @IsOptional()
   longitude?: number;
+
+  @IsString()
+  @IsOptional()
+  targetProviderId?: string;
 }

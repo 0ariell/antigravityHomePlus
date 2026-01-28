@@ -24,6 +24,13 @@ export class ServiceRequestController {
     return this.serviceRequestService.findAllOpen(providerId);
   }
 
+  @Get('direct')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.PROVIDER)
+  findDirect(@CurrentUser('id') providerId: string) {
+    return this.serviceRequestService.findDirect(providerId);
+  }
+
   @Get('my-requests')
   @UseGuards(RolesGuard)
   @Roles(UserRole.CLIENT)

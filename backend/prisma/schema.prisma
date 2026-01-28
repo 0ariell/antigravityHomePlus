@@ -95,6 +95,9 @@ model User {
   notifications Notification[]
   payments      Payment[]
   
+  // New Relation for Direct Requests
+  directRequestsReceived ServiceRequest[] @relation("DirectRequests")
+  
   @@map("users")
 }
 
@@ -151,6 +154,10 @@ model ServiceRequest {
   longitude   Float?
   preferredDate DateTime?
   
+  // Direct Request Logic
+  targetProviderId String?
+  targetProvider   User?        @relation("DirectRequests", fields: [targetProviderId], references: [id])
+  
   status      RequestStatus @default(OPEN)
   
   quotes      Quote[]
@@ -161,6 +168,7 @@ model ServiceRequest {
   @@index([category])
   @@index([zone])
   @@index([status])
+  @@index([targetProviderId])
   @@map("service_requests")
 }
 
