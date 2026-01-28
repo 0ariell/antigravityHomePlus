@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 interface RequestModalProps {
   isOpen: boolean;
   onClose: () => void;
-  serviceId?: string; // Optional: if coming from a specific service/provider
+  // serviceId removed as unused
   targetProviderId?: string; // If set, it's a DIRECT request
   initialCategory?: string;
   initialZone?: string;
@@ -16,7 +16,7 @@ interface RequestModalProps {
 export function RequestModal({ 
   isOpen, 
   onClose, 
-  serviceId, 
+  // serviceId unused
   targetProviderId,
   initialCategory = '',
   initialZone = ''

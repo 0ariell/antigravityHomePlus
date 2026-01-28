@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { httpClient } from '../../infra/http';
-import { ServiceDetail, PublicProfile } from '../../ui/pages/services/types'; // We will define types properly next
+import type { ServiceDetail, PublicProfile } from '../../ui/pages/services/types'; // We will define types properly next
 
 export function useServiceDetail(serviceId?: string) {
   const [service, setService] = useState<ServiceDetail | null>(null);

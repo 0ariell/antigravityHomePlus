@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { X, Star, Calendar, MapPin, Loader2, Sparkles } from 'lucide-react';
+import { X, Star, MapPin, Loader2, Sparkles } from 'lucide-react';
 import { httpClient } from '../infra/http';
-import { RequestModal } from './bookings/RequestModal';
+import { RequestModal } from '../ui/components/bookings/RequestModal';
 
 // ... (Interfaces remain the same) ...
 interface Review {
