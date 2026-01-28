@@ -220,7 +220,7 @@ export function DashboardLayout() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-gray-800/50 px-4 sm:px-6 py-3">
+        <header className="sticky top-0 z-30 bg-[#0a0a0f]/80 backdrop-blur-xl px-4 sm:px-6 py-4">
           <div className="flex items-center justify-end gap-4">
             
             {/* Right Actions */}
@@ -228,10 +228,10 @@ export function DashboardLayout() {
               {/* Chat Quick Access */}
               <button 
                 onClick={() => navigate('/chat')}
-                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-all relative group"
+                className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all relative group"
                 title="Ir al Chat"
               >
-                <Send className="w-5 h-5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
+                <Send className="w-6 h-6 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
               </button>
 
               {/* Provider Online Toggle */}
