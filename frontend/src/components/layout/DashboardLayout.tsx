@@ -2,13 +2,12 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home,
-  Search,
+  Send,
   Calendar,
   MessageSquare,
   Settings,
   LogOut,
   HelpCircle,
-
   Menu,
   X,
   Power,
@@ -222,21 +221,19 @@ export function DashboardLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
         <header className="sticky top-0 z-30 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-gray-800/50 px-4 sm:px-6 py-3">
-          <div className="flex items-center justify-between gap-4">
-            {/* Search Bar */}
-            <div className="flex-1 max-w-lg ml-12 lg:ml-0">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                <input
-                  type="text"
-                  placeholder="Buscar servicios, profesionales..."
-                  className="w-full pl-11 pr-4 py-2.5 bg-gray-900/50 text-white border border-gray-800 rounded-xl text-sm placeholder-gray-500 focus:bg-gray-900 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
-                />
-              </div>
-            </div>
-
+          <div className="flex items-center justify-end gap-4">
+            
             {/* Right Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Chat Quick Access */}
+              <button 
+                onClick={() => navigate('/chat')}
+                className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-all relative group"
+                title="Ir al Chat"
+              >
+                <Send className="w-5 h-5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
               {/* Provider Online Toggle */}
               {isProvider && (
                 <motion.button
