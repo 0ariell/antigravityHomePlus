@@ -8,7 +8,7 @@ import {
   Settings,
   LogOut,
   HelpCircle,
-  Briefcase,
+
   Menu,
   X,
   Power,
@@ -17,6 +17,7 @@ import {
   Globe,
   Users,
   PlusCircle,
+  User,
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useState, useEffect } from 'react';
@@ -67,7 +68,7 @@ export function DashboardLayout() {
     
     // Provider specific
     { icon: Globe, label: 'Oportunidades', path: '/leads', hide: !isProvider, description: 'Encontrar trabajos' },
-    { icon: Briefcase, label: 'Mis Servicios', path: '/my-services', hide: !isProvider, description: 'Gestionar servicios' },
+    { icon: User, label: 'Mi Perfil Profesional', path: '/my-services', hide: !isProvider, description: 'Gestionar perfil y servicios' },
     
     // Common
     { icon: Calendar, label: 'Reservas', path: '/my-jobs', description: 'Trabajos confirmados' },

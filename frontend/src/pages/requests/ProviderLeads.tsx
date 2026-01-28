@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { requestsService, type ServiceRequest } from '../../services/requests.service';
 import { quotesService } from '../../services/quotes.service';
-import { MapPin, Clock, Loader2, DollarSign, CheckCircle, List, Map as MapIcon, Globe, ArrowRight, Star, Send } from 'lucide-react';
+import { MapPin, Clock, Loader2, DollarSign, CheckCircle, List, Map as MapIcon, Globe, ArrowRight, Star, Send, TrendingUp, BarChart, Activity, PieChart } from 'lucide-react';
 import { MapLeadsView } from '../../components/MapLeadsView';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,13 +13,13 @@ interface MyQuote {
 }
 
 export function ProviderLeads() {
-  const [activeTab, setActiveTab] = useState<'DIRECT' | 'OPPORTUNITIES' | 'MY_QUOTES'>('DIRECT');
+  const [activeTab, setActiveTab] = useState<'DIRECT' | 'OPPORTUNITIES' | 'MY_QUOTES' | 'ANALYTICS'>('DIRECT');
   const [loading, setLoading] = useState(true);
   
   // Data
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [myQuotes, setMyQuotes] = useState<MyQuote[]>([]);
-  const [stats, setStats] = useState({ sent: 0, accepted: 0, pendingMoney: 0 });
+  const [stats, setStats] = useState({ sent: 0, accepted: 0, pendingMoney: 0, conversionRate: 0, totalRevenue: 0 });
   
   // Quote Form
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export function ProviderLeads() {
   const [quoteDesc, setQuoteDesc] = useState('');
   const [sendingQuote, setSendingQuote] = useState(false);
   
-  // View options for Opportunities
+  // View options
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [isGlobal, setIsGlobal] = useState(false);
 
@@ -43,14 +43,21 @@ export function ProviderLeads() {
       setMyQuotes(quotesData);
       
       // Calculate Stats
+      const sent = quotesData.length;
       const accepted = quotesData.filter(q => q.status === 'ACCEPTED').length;
       const pendingMoney = quotesData
           .filter(q => q.status === 'PENDING')
           .reduce((acc, q) => acc + q.price, 0);
+      const totalRevenue = quotesData
+          .filter(q => q.status === 'ACCEPTED')
+          .reduce((acc, q) => acc + q.price, 0);
+      
       setStats({
-          sent: quotesData.length,
+          sent,
           accepted,
-          pendingMoney
+          pendingMoney,
+          conversionRate: sent > 0 ? Math.round((accepted / sent) * 100) : 0,
+          totalRevenue
       });
 
       // Load main list based on tab
@@ -63,7 +70,6 @@ export function ProviderLeads() {
           : await requestsService.getNearbyOpen();
         setRequests(data);
       }
-      // For MY_QUOTES we already have quotesData
     } catch (error) {
       console.error('Error loading data', error);
     } finally {
@@ -85,7 +91,7 @@ export function ProviderLeads() {
         setQuotePrice('');
         setQuoteDesc('');
         loadData(); 
-        setActiveTab('MY_QUOTES'); // Switch to sent quotes to show feedback
+        setActiveTab('MY_QUOTES'); 
     } catch (error: any) {
         console.error(error);
         alert(error.response?.data?.message || 'Error al enviar cotización');
@@ -101,34 +107,115 @@ export function ProviderLeads() {
 
   // --- Render Helpers ---
 
-  const renderStats = () => (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-blue-900/30 flex items-center justify-center text-blue-400">
-                  <Send className="w-5 h-5" />
+  const renderStatsCards = () => (
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-between hover:border-gray-600 transition-all">
+              <div className="flex items-center gap-3 mb-2 text-gray-400">
+                  <Send className="w-4 h-4" />
+                  <span className="text-sm font-medium uppercase tracking-wider">Enviados</span>
               </div>
               <div>
-                  <p className="text-sm text-gray-400">Presupuestos Enviados</p>
-                  <p className="text-xl font-bold text-white">{stats.sent}</p>
+                  <p className="text-3xl font-bold text-white font-display">{stats.sent}</p>
               </div>
           </div>
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-green-900/30 flex items-center justify-center text-green-400">
-                  <CheckCircle className="w-5 h-5" />
+          
+          <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-between hover:border-gray-600 transition-all">
+              <div className="flex items-center gap-3 mb-2 text-gray-400">
+                  <CheckCircle className="w-4 h-4 text-primary-400" />
+                  <span className="text-sm font-medium uppercase tracking-wider">Aceptados</span>
               </div>
-              <div>
-                  <p className="text-sm text-gray-400">Aceptados</p>
-                  <p className="text-xl font-bold text-white">{stats.accepted}</p>
+              <div className="flex items-end gap-2">
+                  <p className="text-3xl font-bold text-white font-display">{stats.accepted}</p>
+                  <span className="text-sm text-green-500 font-bold mb-1">
+                    {stats.conversionRate}% Conv.
+                  </span>
               </div>
           </div>
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-amber-900/30 flex items-center justify-center text-amber-400">
-                  <DollarSign className="w-5 h-5" />
+
+          <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-between hover:border-gray-600 transition-all">
+              <div className="flex items-center gap-3 mb-2 text-gray-400">
+                  <DollarSign className="w-4 h-4" />
+                  <span className="text-sm font-medium uppercase tracking-wider">Pendiente</span>
               </div>
               <div>
-                  <p className="text-sm text-gray-400">Pendiente de Aprobación</p>
-                  <p className="text-xl font-bold text-white">${stats.pendingMoney.toLocaleString()}</p>
+                  <p className="text-3xl font-bold text-white font-display">${stats.pendingMoney.toLocaleString()}</p>
               </div>
+          </div>
+
+           <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-between hover:border-gray-600 transition-all bg-gradient-to-br from-primary-900/10 to-transparent">
+              <div className="flex items-center gap-3 mb-2 text-primary-400">
+                  <TrendingUp className="w-4 h-4" />
+                  <span className="text-sm font-bold uppercase tracking-wider">Ingresos</span>
+              </div>
+              <div>
+                  <p className="text-3xl font-bold text-white font-display">${stats.totalRevenue.toLocaleString()}</p>
+              </div>
+          </div>
+      </div>
+  );
+
+  const renderAnalytics = () => (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
+          {/* Revenue Chart (CSS only for now) */}
+          <div className="bg-gray-800 rounded-3xl p-6 border border-gray-700">
+              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                  <BarChart className="w-5 h-5 text-gray-400" />
+                  Rendimiento Mensual
+              </h3>
+              <div className="h-48 flex items-end justify-between gap-2 px-2">
+                  {[40, 65, 30, 85, 50, 95, 75].map((h, i) => (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+                          <div 
+                            className="w-full bg-primary-500/20 rounded-t-lg group-hover:bg-primary-500 transition-colors relative" 
+                            style={{ height: `${h}%` }}
+                          >
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                {h}%
+                            </div>
+                          </div>
+                          <span className="text-xs text-gray-500 font-bold uppercase">Sem {i+1}</span>
+                      </div>
+                  ))}
+              </div>
+          </div>
+
+          <div className="space-y-6">
+             <div className="bg-gray-800 rounded-3xl p-6 border border-gray-700">
+                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <PieChart className="w-5 h-5 text-gray-400" />
+                    Resumen de Actividad
+                </h3>
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded-xl">
+                        <span className="text-gray-400">Tasa de Conversión</span>
+                        <div className="flex items-center gap-2">
+                            <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                <div className="h-full bg-green-500 rounded-full" style={{ width: `${stats.conversionRate}%` }} />
+                            </div>
+                            <span className="text-white font-bold">{stats.conversionRate}%</span>
+                        </div>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded-xl">
+                        <span className="text-gray-400">Presupuestos Enviados</span>
+                        <span className="text-white font-bold">{stats.sent}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded-xl">
+                        <span className="text-gray-400">Ingreso Promedio</span>
+                        <span className="text-white font-bold">
+                            ${stats.accepted > 0 ? Math.round(stats.totalRevenue / stats.accepted).toLocaleString() : 0}
+                        </span>
+                    </div>
+                </div>
+             </div>
+
+             <div className="bg-gradient-to-br from-primary-600 to-indigo-700 rounded-3xl p-6 relative overflow-hidden">
+                 <div className="relative z-10">
+                     <h3 className="text-xl font-bold text-white mb-2">Mejora tu Nivel</h3>
+                     <p className="text-white/80 text-sm mb-4">Completa más trabajos y recibe mejores reseñas para acceder a solicitudes exclusivas.</p>
+                     <button className="bg-white text-primary-600 px-4 py-2 rounded-lg text-sm font-bold shadow-lg">Ver Consejos</button>
+                 </div>
+                 <Activity className="absolute -bottom-4 -right-4 w-32 h-32 text-white/10" />
+             </div>
           </div>
       </div>
   );
@@ -236,20 +323,21 @@ export function ProviderLeads() {
   };
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-8 pb-20">
       <div className="flex flex-col gap-6">
         <div>
-            <h2 className="text-2xl font-bold text-white">Panel de Oportunidades</h2>
-            <p className="text-gray-400">Gestiona tus presupuestos y encuentra nuevos trabajos</p>
+            <h2 className="text-3xl font-bold text-white font-display">Panel Profesional</h2>
+            <p className="text-gray-400 text-lg">Gestiona tu negocio y encuentra nuevas oportunidades.</p>
         </div>
 
-        {renderStats()}
+        {renderStatsCards()}
 
         <div className="flex bg-gray-800 p-1 rounded-2xl w-full sm:w-fit border border-gray-700 overflow-x-auto">
            {[
-               { id: 'DIRECT', label: 'Directas', icon: Star },
+               { id: 'DIRECT', label: 'Mis Solicitudes', icon: Star },
                { id: 'OPPORTUNITIES', label: 'Oportunidades', icon: Globe },
-               { id: 'MY_QUOTES', label: 'Mis Presupuestos', icon: List }
+               { id: 'MY_QUOTES', label: 'Historial', icon: List },
+               { id: 'ANALYTICS', label: 'Analíticas', icon: BarChart },
            ].map(tab => (
                <button
                  key={tab.id}
@@ -269,7 +357,7 @@ export function ProviderLeads() {
 
        {/* Filters (Opportunities only) */}
        {activeTab === 'OPPORTUNITIES' && (
-         <div className="flex items-center justify-between bg-gray-800/50 p-3 rounded-2xl border border-gray-700/50">
+         <div className="flex items-center justify-between bg-gray-800/50 p-3 rounded-2xl border border-gray-700/50 animate-fade-in">
             <div className="flex gap-2">
                  <button onClick={() => setViewMode('list')} className={`p-2 rounded-lg ${viewMode === 'list' ? 'bg-gray-700 text-white' : 'text-gray-500'}`}><List className="w-4 h-4"/></button>
                  <button onClick={() => setViewMode('map')} className={`p-2 rounded-lg ${viewMode === 'map' ? 'bg-gray-700 text-white' : 'text-gray-500'}`}><MapIcon className="w-4 h-4"/></button>
@@ -290,7 +378,13 @@ export function ProviderLeads() {
         {loading ? (
            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-primary-500 animate-spin" /></div>
         ) : (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <motion.div 
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+            >
                 
                 {/* DIRECT & OPPORTUNITIES VIEW */}
                 {(activeTab === 'DIRECT' || activeTab === 'OPPORTUNITIES') && (
@@ -338,6 +432,9 @@ export function ProviderLeads() {
                         </div>
                     )
                 )}
+
+                {/* ANALYTICS VIEW */}
+                {activeTab === 'ANALYTICS' && renderAnalytics()}
 
             </motion.div>
         )}
