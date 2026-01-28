@@ -1,17 +1,20 @@
 
+// Imports
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
+  MapPin, 
   Star, 
   Calendar, 
   Shield, 
-  Award,
   ArrowLeft,
   Loader2,
   Briefcase,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Clock,
+  Hammer
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { RequestModal } from '../../ui/components/bookings/RequestModal';
@@ -28,6 +31,15 @@ interface Review {
   };
 }
 
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  priceBase?: number;
+  priceUnit?: string;
+}
+
 interface PublicProfile {
   id: string;
   firstName: string;
@@ -41,6 +53,7 @@ interface PublicProfile {
   portfolioUrls: string[];
   createdAt: string;
   reviewsReceived: Review[];
+  services?: Service[];
 }
 
 export function ProfilePage() {
@@ -89,10 +102,21 @@ export function ProfilePage() {
 
   const joinDate = new Date(profile.createdAt).toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
 
+  // Mock function to get an image for a service
+  const getProjectImage = (index: number) => {
+    const images = [
+      'https://images.unsplash.com/photo-1581094794329-cd132c4a9191?q=80&w=2600&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2669&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2531&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2670&auto=format&fit=crop'
+    ];
+    return images[index % images.length];
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 pb-20 font-sans text-gray-200">
       {/* Immersive Header */}
-      <div className="relative h-80 md:h-96 w-full overflow-hidden">
+      <div className="relative h-96 w-full overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-950/60 to-gray-950 z-10" />
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2669&auto=format&fit=crop')] bg-cover bg-center opacity-40 grayscale" />
         
@@ -100,15 +124,16 @@ export function ProfilePage() {
         <div className="absolute top-6 left-4 md:left-8 z-20">
              <button 
               onClick={() => navigate(-1)}
-              className="p-3 bg-black/40 backdrop-blur-md text-white rounded-full hover:bg-black/60 transition-all border border-white/10 group"
+              className="p-3 bg-black/40 backdrop-blur-md text-white rounded-full hover:bg-black/60 transition-all border border-white/10 group top-nav-back"
             >
               <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             </button>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-20 -mt-32">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Main Container - WIDER now (max-w-7xl) */}
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 relative z-20 -mt-32">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             
             {/* Left Column: Core Info & CTA */}
             <div className="lg:col-span-1 space-y-6">
@@ -127,9 +152,6 @@ export function ProfilePage() {
                         <div className="flex items-center gap-2 mb-4">
                             <span className="px-3 py-1 bg-primary-500/10 text-primary-400 text-xs font-bold rounded-full border border-primary-500/20 flex items-center gap-1.5">
                                 <Shield className="w-3 h-3" /> VERIFICADO
-                            </span>
-                            <span className="px-3 py-1 bg-gray-800 text-gray-400 text-xs font-semibold rounded-full border border-gray-700">
-                                {profile.zone || 'AMBA'}
                             </span>
                         </div>
 
@@ -166,28 +188,24 @@ export function ProfilePage() {
                     </div>
                 </div>
 
-                {/* Trust Signals Widget */}
+                {/* Trust Signals */}
                 <div className="bg-gray-900/50 rounded-3xl p-6 border border-gray-800/50">
-                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Garantía HomePlus</h3>
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Garantía HomePlus</h3>
                     <ul className="space-y-3">
                         <li className="flex items-start gap-3 text-sm text-gray-400">
-                            <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
                             <span>Identidad Verificada</span>
                         </li>
                         <li className="flex items-start gap-3 text-sm text-gray-400">
-                            <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                            <span>Seguro de Responsabilidad</span>
-                        </li>
-                        <li className="flex items-start gap-3 text-sm text-gray-400">
-                            <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                            <span>Soporte 24/7</span>
+                            <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
+                            <span>Seguro Incluido</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
             {/* Right Column: Detailed Content */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3">
                 <div className="bg-gray-900 rounded-3xl border border-gray-800 overflow-hidden min-h-[600px]">
                     {/* Tabs */}
                     <div className="flex border-b border-gray-800">
@@ -195,13 +213,13 @@ export function ProfilePage() {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab as any)}
-                                className={`flex-1 py-4 text-sm font-bold uppercase tracking-wider transition-all border-b-2 ${
+                                className={`flex-1 py-5 text-sm font-bold uppercase tracking-wider transition-all border-b-2 ${
                                     activeTab === tab 
                                     ? 'border-primary-500 text-primary-400 bg-primary-500/5' 
                                     : 'border-transparent text-gray-500 hover:text-gray-300 hover:bg-gray-800'
                                 }`}
                             >
-                                {tab === 'about' && 'Perfil'}
+                                {tab === 'about' && 'Sobre mí'}
                                 {tab === 'portfolio' && 'Portafolio'}
                                 {tab === 'reviews' && 'Opiniones'}
                             </button>
@@ -213,50 +231,84 @@ export function ProfilePage() {
                         {activeTab === 'about' && (
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
                                 <div>
-                                    <h3 className="text-xl font-bold text-white mb-4">Sobre mí</h3>
+                                    <h3 className="text-2xl font-bold text-white mb-4 font-display">Biografía</h3>
                                     <p className="text-gray-400 leading-relaxed text-lg whitespace-pre-wrap">
                                         {profile.bio || 'Este profesional es un hombre de pocas palabras.'}
                                     </p>
                                 </div>
                                 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                      <div className="p-5 rounded-2xl bg-gray-800/50 border border-gray-800 flex items-center gap-4">
                                          <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400">
                                              <Calendar className="w-6 h-6" />
                                          </div>
                                          <div>
-                                             <div className="text-sm text-gray-500 font-medium">Desde</div>
+                                             <div className="text-sm text-gray-500 font-medium">Miembro desde</div>
                                              <div className="text-white font-bold">{joinDate}</div>
                                          </div>
                                      </div>
                                      <div className="p-5 rounded-2xl bg-gray-800/50 border border-gray-800 flex items-center gap-4">
                                          <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400">
-                                             <Award className="w-6 h-6" />
+                                             <MapPin className="w-6 h-6" />
                                          </div>
                                          <div>
-                                             <div className="text-sm text-gray-500 font-medium">Nivel</div>
-                                             <div className="text-white font-bold">Expert</div>
+                                             <div className="text-sm text-gray-500 font-medium">Zona de Cobertura</div>
+                                             <div className="text-white font-bold">{profile.zone || 'AMBA'}</div>
                                          </div>
                                      </div>
                                 </div>
                             </motion.div>
                         )}
 
-                        {/* Portfolio Tab */}
+                        {/* Portfolio Tab - REFACTORED to use Services as Projects */}
                         {activeTab === 'portfolio' && (
                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                                <div className="flex justify-between items-end mb-6">
-                                    <h3 className="text-xl font-bold text-white">Trabajos Realizados</h3>
-                                    <span className="text-sm text-gray-500">Historial de proyectos</span>
+                                <div className="flex justify-between items-end mb-8">
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-white font-display">Proyectos Destacados</h3>
+                                        <p className="text-gray-500 mt-1">Una selección de mis trabajos más recientes.</p>
+                                    </div>
+                                    <div className="text-sm text-gray-500 font-medium bg-gray-800 px-3 py-1 rounded-full border border-gray-700">
+                                        {profile.services?.length || 0} Proyectos
+                                    </div>
                                 </div>
 
-                                {profile.portfolioUrls && profile.portfolioUrls.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {profile.portfolioUrls.map((url, i) => (
-                                            <div key={i} className="group relative aspect-video bg-gray-800 rounded-xl overflow-hidden border border-gray-800 scrollbar-hide">
-                                                <img src={url} alt={`Work ${i}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                                <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-gray-900 to-transparent translate-y-full group-hover:translate-y-0 transition-transform">
-                                                    <span className="text-white text-sm font-bold">Proyecto #{i+1}</span>
+                                {profile.services && profile.services.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {profile.services.map((service, i) => (
+                                            <div key={service.id} className="group flex flex-col bg-gray-950 rounded-2xl overflow-hidden border border-gray-800 hover:border-primary-500/30 transition-all hover:-translate-y-1 shadow-lg">
+                                                {/* Preview Image */}
+                                                <div className="h-48 overflow-hidden relative">
+                                                    <img 
+                                                        src={getProjectImage(i)} 
+                                                        alt={service.title} 
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                                                    />
+                                                    <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg border border-white/10 text-xs font-bold text-white">
+                                                       Terminado
+                                                    </div>
+                                                </div>
+
+                                                {/* Content */}
+                                                <div className="p-5 flex-1 flex flex-col">
+                                                    <h4 className="text-lg font-bold text-white mb-2 leading-tight group-hover:text-primary-400 transition-colors">
+                                                        {service.title}
+                                                    </h4>
+                                                    <p className="text-sm text-gray-500 line-clamp-3 mb-4 flex-1">
+                                                        {service.description}
+                                                    </p>
+
+                                                    {/* Metadata */}
+                                                    <div className="flex items-center justify-between pt-4 border-t border-gray-800 mt-auto">
+                                                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                                                            <Clock className="w-3.5 h-3.5" />
+                                                            <span>2-3 días</span> {/* Mocked Duration */}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-xs text-primary-400 font-medium">
+                                                            <Hammer className="w-3.5 h-3.5" />
+                                                            <span>{service.category}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
@@ -264,7 +316,8 @@ export function ProfilePage() {
                                 ) : (
                                     <div className="py-20 text-center border-2 border-dashed border-gray-800 rounded-2xl bg-gray-800/30">
                                         <Briefcase className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                                        <p className="text-gray-500">Aún no hay trabajos en el portafolio.</p>
+                                        <h4 className="text-xl font-bold text-white mb-2">Sin proyectos publicados</h4>
+                                        <p className="text-gray-500">Este profesional aún no ha cargado su portafolio de trabajos.</p>
                                     </div>
                                 )}
                             </motion.div>
