@@ -58,5 +58,10 @@ export const requestsService = {
   getDirect: async (): Promise<ServiceRequest[]> => {
     const response = await httpClient.get('/service-requests/direct');
     return response.data;
+  },
+
+  getMyQuotes: async (): Promise<{ id: string, status: string, price: number, request: ServiceRequest }[]> => {
+    const response = await httpClient.get('/api/quotes/my-quotes');
+    return response.data;
   }
 };

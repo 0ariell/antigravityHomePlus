@@ -3,23 +3,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
   Edit2, 
-  Trash2, 
-  Eye, 
-  EyeOff, 
+  Trash2,
   Loader2,
   Briefcase,
   Star,
-  MapPin,
   X,
-  TrendingUp,
-  DollarSign,
-  Zap,
-  CheckCircle,
-  AlertCircle,
-  Image as ImageIcon
+  Save,
+  Users,
+  Wrench,
+  Award,
+  Truck
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
+import { useAuthStore } from '../../app/stores';
 
+// --- Types ---
 interface Service {
   id: string;
   title: string;
@@ -36,35 +34,90 @@ interface Service {
 }
 
 const CATEGORIES = [
-  'Plomería',
-  'Electricidad',
-  'Pintura',
-  'Carpintería',
-  'Albañilería',
-  'Cerrajería',
-  'Limpieza',
-  'Jardinería',
+  'Plomería', 'Electricidad', 'Pintura', 'Carpintería', 
+  'Albañilería', 'Cerrajería', 'Limpieza', 'Jardinería',
+  'Gasista', 'Técnico PC', 'Fletes'
 ];
 
-const PRICE_UNITS = ['hora', 'trabajo', 'metro cuadrado'];
+const PRICE_UNITS = ['hora', 'trabajo', 'metro cuadrado', 'visita'];
 
-const emptyService = {
-  title: '',
-  description: '',
-  category: '',
-  zone: '',
-  priceBase: '',
-  priceUnit: 'hora',
+// --- Components ---
+
+const TagInput = ({ label, value, onChange, placeholder, icon: Icon }: any) => {
+  const [input, setInput] = useState('');
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && input.trim()) {
+      e.preventDefault();
+      if (!value.includes(input.trim())) {
+        onChange([...value, input.trim()]);
+      }
+      setInput('');
+    }
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    onChange(value.filter((tag: string) => tag !== tagToRemove));
+  };
+
+  return (
+    <div>
+      <label className="block text-sm font-bold text-gray-300 mb-2 flex items-center gap-2">
+        {Icon && <Icon className="w-4 h-4 text-primary-400" />}
+        {label}
+      </label>
+      <div className="bg-gray-900/50 border border-gray-700 rounded-xl p-2 focus-within:ring-1 focus-within:ring-primary-500 focus-within:border-primary-500 transition-all">
+        <div className="flex flex-wrap gap-2 mb-2">
+          {value.map((tag: string, index: number) => (
+            <span key={index} className="px-2 py-1 bg-gray-800 border border-gray-600 rounded-lg text-sm text-gray-200 flex items-center gap-1">
+              {tag}
+              <button onClick={() => removeTag(tag)} className="hover:text-red-400">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          className="bg-transparent border-none outline-none text-white w-full text-sm placeholder-gray-600"
+        />
+      </div>
+      <p className="text-xs text-gray-500 mt-1">Presiona Enter para agregar</p>
+    </div>
+  );
 };
 
 export function MyServicesPage() {
+  const { user, loadUser } = useAuthStore();
+  const [activeTab, setActiveTab] = useState<'profile' | 'catalog'>('profile');
+  
+  // Profile State
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    bio: user?.bio || '',
+    zone: user?.zone || '',
+    yearsExperience: user?.yearsExperience || 0,
+    isTeam: user?.isTeam || false,
+    teamSize: user?.teamSize || 1,
+    tools: user?.tools || [],
+    vehicles: user?.vehicles || [],
+    languages: user?.languages || [],
+    aptitudes: user?.aptitudes || ['Puntualidad', 'Limpieza'],
+  });
+
+  // Services Catalog State
   const [services, setServices] = useState<Service[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
-  const [formData, setFormData] = useState(emptyService);
-  const [isSaving, setIsSaving] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [serviceForm, setServiceForm] = useState({
+     title: '', description: '', category: '', zone: '', priceBase: '', priceUnit: 'hora'
+  });
+  const [isSavingService, setIsSavingService] = useState(false);
 
   useEffect(() => {
     loadMyServices();
@@ -75,16 +128,31 @@ export function MyServicesPage() {
       const response = await httpClient.get('/services/provider/my-services');
       setServices(response.data || []);
     } catch (error) {
-      console.error('Error loading services:', error);
+      console.error(error);
     } finally {
-      setIsLoading(false);
+      setIsLoadingServices(false);
     }
   };
 
-  const handleOpenModal = (service?: Service) => {
+  const handleSaveProfile = async () => {
+    setIsSavingProfile(true);
+    try {
+      await httpClient.patch('/auth/me', profileForm);
+      await loadUser(); // Refresh global state
+      alert('Perfil actualizado correctamente');
+    } catch (error) {
+      console.error(error);
+      alert('Error al actualizar el perfil');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  // --- Service CRUD Helpers ---
+  const handleOpenServiceModal = (service?: Service) => {
     if (service) {
       setEditingService(service);
-      setFormData({
+      setServiceForm({
         title: service.title,
         description: service.description,
         category: service.category,
@@ -94,438 +162,326 @@ export function MyServicesPage() {
       });
     } else {
       setEditingService(null);
-      setFormData(emptyService);
+      setServiceForm({
+        title: '', description: '', category: '', zone: user?.zone || '', priceBase: '', priceUnit: 'hora'
+      });
     }
     setShowModal(true);
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setEditingService(null);
-    setFormData(emptyService);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSaveService = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
-
+    setIsSavingService(true);
     try {
       const payload = {
-        ...formData,
-        priceBase: formData.priceBase ? parseFloat(formData.priceBase) : null,
+        ...serviceForm,
+        priceBase: serviceForm.priceBase ? parseFloat(serviceForm.priceBase) : null,
       };
 
       if (editingService) {
         const response = await httpClient.patch(`/services/${editingService.id}`, payload);
-        setServices((prev) =>
-          prev.map((s) => (s.id === editingService.id ? response.data : s))
-        );
+        setServices(prev => prev.map(s => s.id === editingService.id ? response.data : s));
       } else {
         const response = await httpClient.post('/services', payload);
-        setServices((prev) => [response.data, ...prev]);
+        setServices(prev => [response.data, ...prev]);
       }
-      handleCloseModal();
+      setShowModal(false);
     } catch (error) {
-      console.error('Error saving service:', error);
-      alert('Error al guardar el servicio');
+      console.error(error);
     } finally {
-      setIsSaving(false);
+      setIsSavingService(false);
     }
   };
-
-  const toggleServiceStatus = async (service: Service) => {
-    try {
-      await httpClient.patch(`/services/${service.id}`, { isActive: !service.isActive });
-      setServices((prev) =>
-        prev.map((s) => (s.id === service.id ? { ...s, isActive: !s.isActive } : s))
-      );
-    } catch (error) {
-      console.error('Error toggling service:', error);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await httpClient.delete(`/services/${id}`);
-      setServices((prev) => prev.filter((s) => s.id !== id));
-      setDeleteConfirm(null);
-    } catch (error) {
-      console.error('Error deleting service:', error);
-      alert('Error al eliminar el servicio');
-    }
-  };
-
-  // Stats
-  const totalServices = services.length;
-  const activeServices = services.filter(s => s.isActive).length;
-  const avgRating = services.length > 0 
-    ? services.reduce((acc, s) => acc + s.avgRating, 0) / services.length 
-    : 0;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
-      </div>
-    );
-  }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="pb-12"
-    >
+    <div className="pb-20">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white font-display">Mis Servicios</h1>
-          <p className="text-gray-400 mt-1">Gestiona y optimiza tu catálogo de servicios</p>
-        </div>
-        <motion.button 
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => handleOpenModal()} 
-          className="btn-primary flex items-center gap-2 shadow-lg shadow-primary-500/25"
-        >
-          <Plus className="w-5 h-5" />
-          Nuevo Servicio
-        </motion.button>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-gray-800 rounded-2xl p-5 border border-gray-700">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-primary-900/30 rounded-xl flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-primary-400" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-400">Total Servicios</p>
-              <p className="text-2xl font-bold text-white">{totalServices}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-gray-800 rounded-2xl p-5 border border-gray-700">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-green-900/30 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-400" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-400">Activos</p>
-              <p className="text-2xl font-bold text-white">{activeServices}</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="bg-gray-800 rounded-2xl p-5 border border-gray-700">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-amber-900/30 rounded-xl flex items-center justify-center">
-              <Star className="w-6 h-6 text-amber-400" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-400">Rating Promedio</p>
-              <p className="text-2xl font-bold text-white">{avgRating.toFixed(1)}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Services Grid */}
-      {services.length === 0 ? (
-        <motion.div 
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-gray-800 rounded-3xl p-12 text-center border border-gray-700"
-        >
-          <div className="w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Briefcase className="w-10 h-10 text-gray-500" />
-          </div>
-          <h3 className="text-xl font-bold text-white mb-2">No tienes servicios</h3>
-          <p className="text-gray-400 mb-8 max-w-sm mx-auto">
-            Crea tu primer servicio para comenzar a recibir solicitudes de clientes
+          <h1 className="text-3xl font-bold text-white font-display flex items-center gap-3">
+             <Briefcase className="w-8 h-8 text-primary-400" />
+             Perfil Profesional
+          </h1>
+          <p className="text-gray-400 mt-1 max-w-2xl">
+            Gestiona tu información profesional y tu catálogo de servicios. Un perfil completo aumenta tus chances de ser contratado.
           </p>
+        </div>
+        
+        {/* Tabs */}
+        <div className="bg-gray-800 p-1 rounded-xl flex gap-1">
           <button 
-            onClick={() => handleOpenModal()} 
-            className="btn-primary inline-flex items-center gap-2"
+            onClick={() => setActiveTab('profile')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'profile' ? 'bg-primary-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'
+            }`}
           >
-            <Plus className="w-5 h-5" />
-            Crear mi primer servicio
+            Mi Perfil
           </button>
-        </motion.div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          <AnimatePresence>
-            {services.map((service, i) => (
-              <motion.div 
-                key={service.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ delay: i * 0.05 }}
-                className="group bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 hover:shadow-xl hover:shadow-gray-900/50 transition-all duration-300"
-              >
-                {/* Image / Placeholder */}
-                <div className="relative h-40 bg-gradient-to-br from-gray-700 to-gray-600">
-                  {service.images && service.images[0] ? (
-                    <img src={service.images[0]} alt={service.title} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <ImageIcon className="w-12 h-12 text-gray-500" />
-                    </div>
-                  )}
-                  
-                  {/* Status Badge */}
-                  <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
-                    service.isActive 
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-gray-900/80 text-white'
-                  }`}>
-                    {service.isActive ? (
-                      <>
-                        <CheckCircle className="w-3 h-3" />
-                        Activo
-                      </>
-                    ) : (
-                      <>
-                        <AlertCircle className="w-3 h-3" />
-                        Pausado
-                      </>
-                    )}
+          <button 
+             onClick={() => setActiveTab('catalog')}
+             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+               activeTab === 'catalog' ? 'bg-primary-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'
+             }`}
+          >
+            Catálogo de Servicios
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        
+        {/* === PROFILE TAB === */}
+        {activeTab === 'profile' && (
+          <motion.div 
+            key="profile"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+          >
+            {/* Left Column: Stats & Status */}
+            <div className="space-y-6">
+              <div className="card p-6 border-t-4 border-t-primary-500">
+                 <div className="flex items-center gap-4 mb-6">
+                   <div className="w-16 h-16 rounded-full bg-gray-700 overflow-hidden border-2 border-gray-600">
+                     {user?.avatarUrl ? (
+                       <img src={user.avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                     ) : (
+                       <div className="w-full h-full flex items-center justify-center text-xl font-bold text-gray-400">{user?.firstName?.[0]}</div>
+                     )}
+                   </div>
+                   <div>
+                     <h3 className="text-lg font-bold text-white">{user?.firstName} {user?.lastName}</h3>
+                     <div className="flex items-center gap-1 text-amber-500 font-bold">
+                       <Star className="w-4 h-4 fill-current" />
+                       {user?.avgRating?.toFixed(1) || 'N/A'}
+                     </div>
+                   </div>
+                 </div>
+
+                 <div className="space-y-4">
+                   <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
+                     <span className="text-gray-400">Nivel</span>
+                     <span className="px-2 py-0.5 bg-primary-500/10 text-primary-400 text-xs font-bold rounded uppercase">Pro</span>
+                   </div>
+                   <div className="flex justify-between items-center py-2 border-b border-gray-700/50">
+                     <span className="text-gray-400">Miembro desde</span>
+                     <span className="text-white text-sm">2024</span>
+                   </div>
+                   <div className="flex justify-between items-center py-2">
+                     <span className="text-gray-400">Estado</span>
+                     <div className="flex items-center gap-2">
+                       <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                       <span className="text-green-500 text-sm font-medium">Disponible</span>
+                     </div>
+                   </div>
+                 </div>
+              </div>
+            </div>
+
+            {/* Right Column: Edit Form */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="card p-6">
+                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                  <Edit2 className="w-5 h-5 text-gray-500" />
+                  Información Básica
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-gray-300 mb-2">Biografía Profesional</label>
+                    <textarea 
+                      value={profileForm.bio}
+                      onChange={e => setProfileForm({...profileForm, bio: e.target.value})}
+                      className="input-field h-24 resize-none"
+                      placeholder="Cuéntale a los clientes sobre tu experiencia y especialidades..."
+                    />
                   </div>
-                  
-                  {/* Category Badge */}
-                  <div className="absolute top-3 right-3 px-3 py-1 bg-gray-800/90 backdrop-blur-sm rounded-full text-xs font-bold text-gray-200">
-                    {service.category}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-300 mb-2">Zona de Cobertura</label>
+                    <input 
+                      type="text" 
+                      value={profileForm.zone}
+                      onChange={e => setProfileForm({...profileForm, zone: e.target.value})}
+                      className="input-field"
+                      placeholder="Ej: CABA, Zona Norte"
+                    />
+                  </div>
+                   <div>
+                    <label className="block text-sm font-bold text-gray-300 mb-2">Años de Experiencia</label>
+                    <input 
+                      type="number" 
+                      value={profileForm.yearsExperience}
+                      onChange={e => setProfileForm({...profileForm, yearsExperience: parseInt(e.target.value)})}
+                      className="input-field"
+                      min="0"
+                    />
                   </div>
                 </div>
 
-                {/* Content */}
-                <div className="p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-bold text-white line-clamp-1 group-hover:text-primary-400 transition-colors">
-                      {service.title}
-                    </h3>
-                    <div className="flex items-center gap-1 text-amber-500">
-                      <Star className="w-4 h-4 fill-current" />
-                      <span className="text-sm font-medium">{service.avgRating.toFixed(1)}</span>
-                    </div>
-                  </div>
-                  
-                  <p className="text-sm text-gray-400 line-clamp-2 mb-4">
-                    {service.description}
-                  </p>
+                <div className="border-t border-gray-700/50 pt-6 mb-6">
+                   <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                     <Users className="w-5 h-5 text-gray-500" />
+                     Equipo
+                   </h3>
+                   <div className="flex items-center gap-8">
+                     <label className="flex items-center gap-3 cursor-pointer group">
+                       <div className={`w-12 h-6 rounded-full transition-colors flex items-center px-1 ${profileForm.isTeam ? 'bg-primary-600' : 'bg-gray-700'}`}>
+                         <div className={`w-4 h-4 rounded-full bg-white shadow-sm transition-transform ${profileForm.isTeam ? 'translate-x-6' : 'translate-x-0'}`} />
+                       </div>
+                       <input 
+                         type="checkbox" 
+                         className="hidden" 
+                         checked={profileForm.isTeam} 
+                         onChange={e => setProfileForm({...profileForm, isTeam: e.target.checked})} 
+                       />
+                       <span className="text-gray-300 font-medium group-hover:text-white transition-colors">Trabajo con equipo</span>
+                     </label>
 
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-1.5 text-sm text-gray-400">
-                      <MapPin className="w-4 h-4" />
-                      <span className="truncate max-w-[120px]">{service.zone}</span>
-                    </div>
-                    
-                    {service.priceBase && (
-                      <div className="flex items-center gap-1 text-primary-400 font-bold">
-                        <DollarSign className="w-4 h-4" />
-                        <span>{service.priceBase}/{service.priceUnit}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-2 pt-4 border-t border-gray-700">
-                    <button 
-                      onClick={() => handleOpenModal(service)}
-                      className="flex-1 py-2.5 px-4 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      Editar
-                    </button>
-                    <button 
-                      onClick={() => toggleServiceStatus(service)}
-                      className={`p-2.5 rounded-xl transition-colors ${
-                        service.isActive 
-                          ? 'bg-gray-700 hover:bg-amber-900/20 text-gray-300 hover:text-amber-500' 
-                          : 'bg-green-900/20 hover:bg-green-900/30 text-green-500'
-                      }`}
-                      title={service.isActive ? 'Pausar' : 'Activar'}
-                    >
-                      {service.isActive ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                    <button 
-                      onClick={() => setDeleteConfirm(service.id)}
-                      className="p-2.5 bg-gray-700 hover:bg-red-900/20 text-gray-300 hover:text-red-500 rounded-xl transition-colors"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
+                     {profileForm.isTeam && (
+                       <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                         <label className="text-sm text-gray-400 mr-2">Integrantes:</label>
+                         <input 
+                           type="number" 
+                           value={profileForm.teamSize} 
+                           onChange={e => setProfileForm({...profileForm, teamSize: parseInt(e.target.value)})}
+                           className="w-20 bg-gray-900 border border-gray-700 rounded-lg py-1 px-2 text-white outline-none focus:border-primary-500"
+                           min="2"
+                         />
+                       </motion.div>
+                     )}
+                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+
+                <div className="border-t border-gray-700/50 pt-6 mb-6">
+                   <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                     <Award className="w-5 h-5 text-gray-500" />
+                     Aptitudes y Recursos
+                   </h3>
+                   <div className="space-y-6">
+                     <TagInput 
+                       label="Herramientas Especializadas" 
+                       icon={Wrench}
+                       value={profileForm.tools} 
+                       onChange={(v: string[]) => setProfileForm({...profileForm, tools: v})} 
+                       placeholder="Ej: Taladro Percutor, Escalera Extensible..."
+                     />
+                      <TagInput 
+                       label="Aptitudes / Habilidades blandas" 
+                       icon={Star}
+                       value={profileForm.aptitudes} 
+                       onChange={(v: string[]) => setProfileForm({...profileForm, aptitudes: v})} 
+                       placeholder="Ej: Puntualidad, Limpieza posterior..."
+                     />
+                      <TagInput 
+                       label="Vehículos" 
+                       icon={Truck}
+                       value={profileForm.vehicles} 
+                       onChange={(v: string[]) => setProfileForm({...profileForm, vehicles: v})} 
+                       placeholder="Ej: Camioneta 4x4, Furgón..."
+                     />
+                   </div>
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <button 
+                    onClick={handleSaveProfile}
+                    disabled={isSavingProfile}
+                    className="btn-primary py-3 px-8 flex items-center gap-2 shadow-lg shadow-primary-500/20"
+                  >
+                    {isSavingProfile && <Loader2 className="w-4 h-4 animate-spin" />}
+                    <Save className="w-4 h-4" />
+                    Guardar Perfil
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* === CATALOG TAB (Legacy MyServices) === */}
+        {activeTab === 'catalog' && (
+          <motion.div 
+            key="catalog"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+               <motion.button
+                 onClick={() => handleOpenServiceModal()}
+                 whileHover={{ scale: 1.02 }}
+                 whileTap={{ scale: 0.98 }}
+                 className="min-h-[250px] bg-gray-800/30 rounded-2xl border-2 border-dashed border-gray-700 flex flex-col items-center justify-center gap-4 text-gray-500 hover:text-primary-400 hover:border-primary-500/50 hover:bg-gray-800/50 transition-all cursor-pointer group"
+               >
+                 <div className="w-16 h-16 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                   <Plus className="w-8 h-8" />
+                 </div>
+                 <span className="font-bold text-lg">Agregar Servicio</span>
+               </motion.button>
+               
+               {services.map((service, i) => (
+                  <motion.div 
+                    key={service.id}
+                    className="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 group hover:shadow-xl transition-all"
+                  >
+                     <div className="p-5">
+                       <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-bold text-white text-lg">{service.title}</h3>
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold ${service.isActive ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
+                            {service.isActive ? 'Activo' : 'Pausado'}
+                          </span>
+                       </div>
+                       <p className="text-gray-400 text-sm line-clamp-2 mb-4">{service.description}</p>
+                       <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                         <span className="px-2 py-1 bg-gray-900 rounded-lg">{service.category}</span>
+                         {service.priceBase && (
+                           <span className="text-white font-medium">${service.priceBase} / {service.priceUnit}</span>
+                         )}
+                       </div>
+                       
+                       <div className="flex gap-2 border-t border-gray-700 pt-3">
+                         <button onClick={() => handleOpenServiceModal(service)} className="flex-1 py-2 rounded-lg bg-gray-700 text-gray-300 text-sm hover:bg-gray-600 font-medium">Editar</button>
+                         {/* More actions could go here */}
+                       </div>
+                     </div>
+                  </motion.div>
+               ))}
+             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Service Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-3xl w-full max-w-lg p-6 border border-gray-700">
+             <h2 className="text-xl font-bold text-white mb-6">{editingService ? 'Editar' : 'Nuevo'} Servicio</h2>
+             <form onSubmit={handleSaveService} className="space-y-4">
+                <input value={serviceForm.title} onChange={e => setServiceForm({...serviceForm, title: e.target.value})} placeholder="Título" className="input-field" required />
+                <textarea value={serviceForm.description} onChange={e => setServiceForm({...serviceForm, description: e.target.value})} placeholder="Descripción" className="input-field" required rows={3} />
+                <div className="grid grid-cols-2 gap-4">
+                  <select value={serviceForm.category} onChange={e => setServiceForm({...serviceForm, category: e.target.value})} className="input-field" required>
+                    <option value="">Categoría</option>
+                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <input value={serviceForm.zone} onChange={e => setServiceForm({...serviceForm, zone: e.target.value})} placeholder="Zona" className="input-field" required />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                   <input type="number" value={serviceForm.priceBase} onChange={e => setServiceForm({...serviceForm, priceBase: e.target.value})} placeholder="Precio Base" className="input-field" />
+                   <select value={serviceForm.priceUnit} onChange={e => setServiceForm({...serviceForm, priceUnit: e.target.value})} className="input-field">
+                     {PRICE_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                   </select>
+                </div>
+                <div className="flex justify-end gap-3 pt-4">
+                  <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 text-gray-300">Cancelar</button>
+                  <button type="submit" className="btn-primary px-6 py-2">{isSavingService ? <Loader2 className="animate-spin" /> : 'Guardar'}</button>
+                </div>
+             </form>
+          </div>
         </div>
       )}
-
-      {/* Create/Edit Modal */}
-      <AnimatePresence>
-        {showModal && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-gray-800 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-700"
-            >
-              <div className="p-6 border-b border-gray-700 flex items-center justify-between bg-gray-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-900/30 rounded-xl flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-primary-400" />
-                  </div>
-                  <h2 className="text-xl font-bold text-white">
-                    {editingService ? 'Editar Servicio' : 'Nuevo Servicio'}
-                  </h2>
-                </div>
-                <button onClick={handleCloseModal} className="p-2 hover:bg-gray-700 rounded-xl transition-colors">
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                <div>
-                  <label className="block text-sm font-bold text-white mb-2">Título</label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="input-field"
-                    required
-                    placeholder="Ej: Instalación de cañerías"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-white mb-2">Descripción</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="input-field resize-none"
-                    rows={3}
-                    required
-                    placeholder="Describe tu servicio en detalle..."
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2">Categoría</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="input-field"
-                      required
-                    >
-                      <option value="">Seleccionar</option>
-                      {CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2">Zona</label>
-                    <input
-                      type="text"
-                      value={formData.zone}
-                      onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
-                      className="input-field"
-                      required
-                      placeholder="Ej: CABA"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2">Precio base</label>
-                    <input
-                      type="number"
-                      value={formData.priceBase}
-                      onChange={(e) => setFormData({ ...formData, priceBase: e.target.value })}
-                      className="input-field"
-                      placeholder="0.00"
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-bold text-white mb-2">Por</label>
-                    <select
-                      value={formData.priceUnit}
-                      onChange={(e) => setFormData({ ...formData, priceUnit: e.target.value })}
-                      className="input-field"
-                    >
-                      {PRICE_UNITS.map((unit) => (
-                        <option key={unit} value={unit}>{unit}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <button 
-                    type="button" 
-                    onClick={handleCloseModal} 
-                    className="flex-1 py-3 px-4 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-xl font-medium transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button 
-                    type="submit" 
-                    disabled={isSaving} 
-                    className="flex-1 btn-primary py-3 flex items-center justify-center gap-2"
-                  >
-                    {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                    {editingService ? 'Guardar cambios' : 'Crear servicio'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Delete Confirmation */}
-      <AnimatePresence>
-        {deleteConfirm && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-gray-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-gray-700"
-            >
-              <div className="w-16 h-16 bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8 text-red-400" />
-              </div>
-              <h3 className="text-xl font-bold text-white text-center mb-2">¿Eliminar servicio?</h3>
-              <p className="text-gray-400 text-center mb-6">Esta acción no se puede deshacer.</p>
-              <div className="flex gap-3">
-                <button 
-                  onClick={() => setDeleteConfirm(null)} 
-                  className="flex-1 py-3 px-4 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-xl font-medium transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button 
-                  onClick={() => handleDelete(deleteConfirm)} 
-                  className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }

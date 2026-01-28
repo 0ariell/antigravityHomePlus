@@ -156,6 +156,13 @@ export class AuthService {
         avgRating: true,
         totalReviews: true,
         createdAt: true,
+        yearsExperience: true,
+        isTeam: true,
+        teamSize: true,
+        vehicles: true,
+        tools: true,
+        languages: true,
+        aptitudes: true,
       },
     });
 
@@ -189,6 +196,13 @@ export class AuthService {
         bio: true,
         zone: true,
         isOnline: true,
+        yearsExperience: true,
+        isTeam: true,
+        teamSize: true,
+        vehicles: true,
+        tools: true,
+        languages: true,
+        aptitudes: true,
       }
     });
     return user;
@@ -209,6 +223,13 @@ export class AuthService {
         totalReviews: true,
         portfolioUrls: true,
         createdAt: true,
+        yearsExperience: true,
+        isTeam: true,
+        teamSize: true,
+        vehicles: true,
+        tools: true,
+        languages: true,
+        aptitudes: true,
         reviewsReceived: {
           orderBy: { createdAt: 'desc' },
           take: 10,
@@ -272,6 +293,13 @@ export class AuthService {
         isOnline: true,
         bio: true,
         certifications: true,
+        yearsExperience: true,
+        isTeam: true,
+        teamSize: true,
+        vehicles: true,
+        tools: true,
+        languages: true,
+        aptitudes: true,
       },
     });
 

@@ -58,6 +58,15 @@ model User {
   phone         String?
   avatarUrl     String?
   bio           String?
+
+  // Professional Profile
+  yearsExperience Int       @default(0)
+  isTeam        Boolean   @default(false)
+  teamSize      Int       @default(1)
+  vehicles      String[]  // e.g. "Camioneta", "Moto"
+  tools         String[]  // e.g. "Taladro Industrial", "Escalera 10m"
+  languages     String[]  // e.g. "Español", "Inglés"
+  aptitudes     String[]  // e.g. "Puntualidad", "Limpieza"
   
   // Provider-specific
   zone          String?   // Area de trabajo

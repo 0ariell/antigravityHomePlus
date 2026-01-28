@@ -126,4 +126,23 @@ export class QuoteService {
           }
       })
   }
+
+  async findMyQuotes(providerId: string) {
+      return this.prisma.quote.findMany({
+          where: { providerId },
+          include: {
+              request: {
+                  select: {
+                      id: true,
+                      title: true,
+                      category: true,
+                      zone: true,
+                      status: true,
+                      createdAt: true
+                  }
+              }
+          },
+          orderBy: { createdAt: 'desc' }
+      });
+  }
 }

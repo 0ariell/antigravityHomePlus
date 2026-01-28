@@ -17,6 +17,13 @@ export class QuoteController {
     return this.quoteService.create(providerId, dto);
   }
 
+  @Get('my-quotes')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.PROVIDER)
+  findMyQuotes(@CurrentUser('id') providerId: string) {
+      return this.quoteService.findMyQuotes(providerId);
+  }
+
   @Patch(':id/accept')
   @UseGuards(RolesGuard)
   @Roles(UserRole.CLIENT)

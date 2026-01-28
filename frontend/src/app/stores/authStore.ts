@@ -14,6 +14,16 @@ export interface User {
   bio?: string;
   zone?: string;
   isOnline?: boolean;
+  avgRating?: number;
+  totalReviews?: number;
+  // Professional Profile
+  yearsExperience?: number;
+  isTeam?: boolean;
+  teamSize?: number;
+  vehicles?: string[];
+  tools?: string[];
+  languages?: string[];
+  aptitudes?: string[];
 }
 
 interface AuthState {

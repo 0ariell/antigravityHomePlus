@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Sparkles, Droplet, Zap, PaintBucket, Hammer, Wrench, Shield, MapPin, Star, ChevronRight, User } from 'lucide-react';
+import { Search, Sparkles, Droplet, Zap, PaintBucket, Hammer, Wrench, Shield, MapPin, Star, ChevronRight, User, Briefcase, Users, Truck } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { ProviderProfileModal } from '../../components/ProviderProfileModal';
 import { useNavigate } from 'react-router-dom';
@@ -16,15 +16,20 @@ interface Provider {
   totalReviews: number;
   isOnline: boolean;
   bio: string | null;
+  yearsExperience?: number;
+  isTeam?: boolean;
+  teamSize?: number;
+  vehicles?: string[];
+  tools?: string[];
 }
 
 const CATEGORIES = [
-  { id: 'Todos', label: 'Todos', icon: Sparkles, color: 'from-gray-500 to-gray-600' },
-  { id: 'Plomería', label: 'Plomería', icon: Droplet, color: 'from-blue-500 to-blue-600' },
-  { id: 'Electricidad', label: 'Electricidad', icon: Zap, color: 'from-yellow-500 to-amber-500' },
-  { id: 'Pintura', label: 'Pintura', icon: PaintBucket, color: 'from-pink-500 to-rose-500' },
-  { id: 'Construcción', label: 'Construcción', icon: Hammer, color: 'from-amber-600 to-orange-600' },
-  { id: 'Servicio Técnico', label: 'Técnico', icon: Wrench, color: 'from-stone-500 to-stone-600' },
+  { id: 'Todos', label: 'Todos', icon: Sparkles },
+  { id: 'Plomería', label: 'Plomería', icon: Droplet },
+  { id: 'Electricidad', label: 'Electricidad', icon: Zap },
+  { id: 'Pintura', label: 'Pintura', icon: PaintBucket },
+  { id: 'Construcción', label: 'Construcción', icon: Hammer },
+  { id: 'Servicio Técnico', label: 'Técnico', icon: Wrench },
 ];
 
 export function ProvidersPage() {
@@ -40,7 +45,7 @@ export function ProvidersPage() {
 
   useEffect(() => {
     loadProviders();
-  }, [selectedCategory, searchQuery]); // Reload when filters change (debounce could be added)
+  }, [selectedCategory, searchQuery]);
 
   const loadProviders = async () => {
     setIsLoading(true);
@@ -73,7 +78,7 @@ export function ProvidersPage() {
       animate={{ opacity: 1 }}
       className="space-y-8 pb-20"
     >
-      {/* Header & CTA */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 text-primary-400 text-sm font-medium mb-1">
@@ -88,11 +93,11 @@ export function ProvidersPage() {
           </p>
         </div>
 
-        {/* General Request CTA */}
+        {/* CTA */}
         <div className="flex-shrink-0 bg-gradient-to-br from-gray-800 to-gray-900 p-1 rounded-2xl border border-gray-700/50 shadow-xl">
            <div className="bg-gray-900/90 rounded-[12px] p-5 max-w-xs backdrop-blur-sm">
              <h3 className="font-bold text-white mb-1">¿No encuentras lo que buscas?</h3>
-             <p className="text-gray-400 text-sm mb-4">Publica una solicitud general y deja que los profesionales te contacten a ti.</p>
+             <p className="text-gray-400 text-sm mb-4">Publica una solicitud general y deja que los profesionales te contacten.</p>
              <button 
                onClick={() => navigate('/request-wizard')}
                className="w-full btn-primary py-2.5 text-sm font-bold shadow-lg shadow-primary-500/20"
@@ -103,7 +108,7 @@ export function ProvidersPage() {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Search & Filters */}
       <div className="space-y-6">
         <div className="relative group">
           <div className="absolute inset-0 bg-primary-500/5 rounded-2xl blur-xl group-hover:bg-primary-500/10 transition-colors" />
@@ -119,7 +124,7 @@ export function ProvidersPage() {
           </div>
         </div>
 
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0 scrollbar-hide">
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
           {CATEGORIES.map((cat) => {
             const isActive = selectedCategory === cat.id;
             const Icon = cat.icon;
@@ -141,18 +146,18 @@ export function ProvidersPage() {
         </div>
       </div>
 
-      {/* Results Grid */}
+      {/* Grid */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-64 bg-gray-800 rounded-3xl animate-pulse" />
+            <div key={i} className="h-72 bg-gray-800 rounded-3xl animate-pulse" />
           ))}
         </div>
       ) : providers.length === 0 ? (
         <div className="text-center py-20 bg-gray-800/30 rounded-3xl border border-dashed border-gray-700">
            <User className="w-16 h-16 text-gray-600 mx-auto mb-4" />
            <h3 className="text-xl font-bold text-white mb-2">No se encontraron trabajadores</h3>
-           <p className="text-gray-500">Prueba ajustando los filtros o tu búsqueda.</p>
+           <p className="text-gray-500">Prueba ajustando los filtros.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -163,9 +168,7 @@ export function ProvidersPage() {
               onClick={() => handleProviderClick(provider.id)}
               className="group bg-gray-800 rounded-3xl p-5 border border-gray-700/50 hover:border-primary-500/30 transition-all cursor-pointer relative overflow-hidden"
             >
-              {/* Hover Effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-500/0 via-primary-500/0 to-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
+              {/* Header */}
               <div className="flex items-start justify-between mb-4 relative z-10">
                 <div className="flex items-center gap-4">
                   <div className="relative">
@@ -193,28 +196,51 @@ export function ProvidersPage() {
                 </div>
               </div>
 
+              {/* Badges Row */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                  {provider.yearsExperience ? (
+                       <span className="px-2 py-1 bg-gray-700/50 rounded-lg text-xs font-bold text-gray-300 flex items-center gap-1.5 border border-gray-700">
+                           <Briefcase className="w-3 h-3 text-primary-400" />
+                           {provider.yearsExperience} años
+                       </span>
+                  ) : null}
+                   {provider.isTeam && (
+                       <span className="px-2 py-1 bg-gray-700/50 rounded-lg text-xs font-bold text-gray-300 flex items-center gap-1.5 border border-gray-700">
+                           <Users className="w-3 h-3 text-primary-400" />
+                           Equipo de {provider.teamSize}
+                       </span>
+                  )}
+                  {provider.vehicles && provider.vehicles.length > 0 && (
+                       <span className="px-2 py-1 bg-gray-700/50 rounded-lg text-xs font-bold text-gray-300 flex items-center gap-1.5 border border-gray-700">
+                           <Truck className="w-3 h-3 text-primary-400" />
+                           Vehículo
+                       </span>
+                  )}
+              </div>
+
               {/* Trades */}
               <div className="flex flex-wrap gap-2 mb-4 relative z-10">
-                {provider.trades.map((trade, i) => (
-                  <span key={i} className="px-2.5 py-1 text-xs font-medium rounded-lg bg-gray-700/50 text-gray-300 border border-gray-700">
+                {provider.trades.slice(0, 3).map((trade, i) => (
+                  <span key={i} className="px-2.5 py-1 text-xs font-medium rounded-lg bg-gray-900 text-gray-400 border border-gray-800">
                     {trade}
                   </span>
                 ))}
+                {provider.trades.length > 3 && (
+                    <span className="px-2.5 py-1 text-xs font-medium rounded-lg bg-gray-900 text-gray-500 border border-gray-800">
+                        +{provider.trades.length - 3}
+                    </span>
+                )}
               </div>
-
-              {/* Zone / Bio snippet */}
-              <div className="space-y-2 mb-4 relative z-10">
-                 {provider.zone && (
-                   <div className="flex items-center gap-2 text-sm text-gray-400">
-                     <MapPin className="w-4 h-4" />
-                     <span className="truncate">{provider.zone}</span>
-                   </div>
-                 )}
-              </div>
-
+              
               <div className="flex items-center justify-between pt-4 border-t border-gray-700/50 relative z-10">
-                 <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">Ver Perfil</span>
-                 <div className="w-8 h-8 rounded-full bg-gray-700 group-hover:bg-primary-500 group-hover:text-white flex items-center justify-center transition-colors">
+                 {provider.zone ? (
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <MapPin className="w-4 h-4" />
+                      <span className="truncate max-w-[120px]">{provider.zone}</span>
+                    </div>
+                 ) : <span></span>}
+                 
+                 <div className="w-8 h-8 rounded-full bg-gray-700 group-hover:bg-primary-500 group-hover:text-white flex items-center justify-center transition-colors shadow-lg">
                    <ChevronRight className="w-4 h-4" />
                  </div>
               </div>
