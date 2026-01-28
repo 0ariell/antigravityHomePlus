@@ -237,6 +237,50 @@ export class AuthService {
     return user;
   }
 
+  async findAllProviders(query?: string, category?: string) {
+    const whereClause: any = {
+      role: 'PROVIDER',
+    };
+
+    if (category && category !== 'Todos') {
+      whereClause.trades = {
+        has: category
+      };
+    }
+
+    if (query) {
+      whereClause.OR = [
+        { firstName: { contains: query, mode: 'insensitive' } },
+        { lastName: { contains: query, mode: 'insensitive' } },
+        { bio: { contains: query, mode: 'insensitive' } },
+        { zone: { contains: query, mode: 'insensitive' } },
+      ];
+    }
+
+    const providers = await this.prisma.user.findMany({
+      where: whereClause,
+      orderBy: { avgRating: 'desc' },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        avatarUrl: true,
+        zone: true,
+        trades: true,
+        avgRating: true,
+        totalReviews: true,
+        isOnline: true,
+        bio: true,
+        certifications: true,
+      },
+    });
+
+    return providers.map(p => ({
+      ...p,
+      category: p.trades?.[0] || 'Profesional',
+    }));
+  }
+
   async getTopProviders() {
     const providers = await this.prisma.user.findMany({
       where: {

@@ -5,11 +5,11 @@ import { ProtectedRoute } from './components/auth';
 import { DashboardLayout } from './components/layout';
 import { LoginPage, RegisterPage } from './pages/auth';
 import { DashboardPage } from './pages/dashboard';
-import { ServicesPage, ServiceDetailPage } from './pages/services';
+import { ServicesPage, ServiceDetailPage, ProvidersPage } from './pages/services';
 import { MyJobsPage } from './pages/jobs';
 import { ChatPage } from './pages/chat';
 import { MyServicesPage } from './pages/my-services';
-import { MyRequestsPage, ProviderLeads } from './pages/requests';
+import { MyRequestsPage, ProviderLeads, RequestWizard } from './pages/requests';
 import { SettingsPage } from './pages/settings';
 import { HelpPage } from './pages/help';
 import { ProfilePage } from './pages/profile/ProfilePage';
@@ -50,11 +50,13 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/:id" element={<ServiceDetailPage />} />
+          <Route path="/professionals" element={<ProvidersPage />} />
           <Route path="/profile/:id" element={<ProfilePage />} />
           <Route path="/my-jobs" element={<MyJobsPage />} />
           <Route path="/bookings" element={<Navigate to="/my-jobs" />} />
           
           {/* Request Flow */}
+          <Route path="/request-wizard" element={<RequestWizard />} />
           <Route path="/my-requests" element={<MyRequestsPage />} />
           <Route path="/leads" element={<ProviderLeads />} />
           

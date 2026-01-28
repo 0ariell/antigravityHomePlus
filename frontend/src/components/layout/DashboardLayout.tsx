@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Layers,
   Globe,
+  Users,
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useState, useEffect } from 'react';
@@ -58,7 +59,8 @@ export function DashboardLayout() {
 
   const menuItems = [
     { icon: Home, label: 'Inicio', path: '/dashboard', description: 'Tu centro de control' },
-    { icon: Search, label: 'Buscar', path: '/services', hide: isProvider, description: 'Encontrar profesionales' },
+    { icon: Search, label: 'Servicios', path: '/services', hide: isProvider, description: 'Buscar servicios' },
+    { icon: Users, label: 'Profesionales', path: '/professionals', hide: isProvider, description: 'Directorio de trabajadores' },
     // Client specific
     { icon: Layers, label: 'Mis Pedidos', path: '/my-requests', hide: isProvider, description: 'Solicitudes abiertas' },
     
