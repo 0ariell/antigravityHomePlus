@@ -67,11 +67,11 @@ export function DashboardLayout() {
     { icon: Layers, label: 'Mis Pedidos', path: '/my-requests', hide: isProvider, description: 'Solicitudes abiertas' },
     
     // Provider specific
-    { icon: Globe, label: 'Oportunidades', path: '/leads', hide: !isProvider, description: 'Encontrar trabajos' },
+    { icon: Globe, label: 'Panel Profesional', path: '/leads', hide: !isProvider, description: 'Tu centro de trabajo' },
     { icon: User, label: 'Mi Perfil Profesional', path: '/my-services', hide: !isProvider, description: 'Gestionar perfil y servicios' },
     
     // Common
-    { icon: Calendar, label: 'Reservas', path: '/my-jobs', description: 'Trabajos confirmados' },
+    { icon: Calendar, label: 'Reservas', path: '/my-jobs', hide: isProvider, description: 'Trabajos confirmados' },
     { icon: MessageSquare, label: 'Chat', path: '/chat', description: 'Conversaciones' },
   ];
 

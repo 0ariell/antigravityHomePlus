@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { requestsService, type ServiceRequest } from '../../services/requests.service';
 import { quotesService } from '../../services/quotes.service';
-import { MapPin, Clock, Loader2, DollarSign, CheckCircle, List, Map as MapIcon, Globe, ArrowRight, Star, Send, TrendingUp, BarChart, Activity, PieChart } from 'lucide-react';
+import { httpClient } from '../../infra/http';
+import { useNavigate } from 'react-router-dom';
+import { MapPin, Clock, Loader2, DollarSign, CheckCircle, List, Map as MapIcon, Globe, ArrowRight, Star, Send, TrendingUp, BarChart, PieChart, Briefcase } from 'lucide-react';
 import { MapLeadsView } from '../../components/MapLeadsView';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,15 +14,34 @@ interface MyQuote {
     request: ServiceRequest;
 }
 
+interface Booking {
+  id: string;
+  status: 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'REJECTED';
+  description: string;
+  createdAt: string;
+  quotedPrice: number | null;
+  client: {
+    firstName: string;
+    lastName: string;
+    avatarUrl?: string | null;
+  };
+   service: {
+    title: string;
+  } | null;
+}
+
 export function ProviderLeads() {
-  const [activeTab, setActiveTab] = useState<'DIRECT' | 'OPPORTUNITIES' | 'MY_QUOTES' | 'ANALYTICS'>('DIRECT');
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'DIRECT' | 'OPPORTUNITIES' | 'MY_QUOTES' | 'JOBS' | 'ANALYTICS'>('DIRECT');
   const [loading, setLoading] = useState(true);
   
   // Data
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [myQuotes, setMyQuotes] = useState<MyQuote[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [stats, setStats] = useState({ sent: 0, accepted: 0, pendingMoney: 0, conversionRate: 0, totalRevenue: 0 });
-  
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
   // Quote Form
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   const [quotePrice, setQuotePrice] = useState('');
@@ -41,6 +62,10 @@ export function ProviderLeads() {
       // Always load quotes for stats
       const quotesData = await requestsService.getMyQuotes();
       setMyQuotes(quotesData);
+
+      // Load Bookings if on JOBS tab or for stats
+      const bookingsRes = await httpClient.get('/bookings/my-bookings');
+      setBookings(bookingsRes.data || []);
       
       // Calculate Stats
       const sent = quotesData.length;
@@ -97,6 +122,21 @@ export function ProviderLeads() {
         alert(error.response?.data?.message || 'Error al enviar cotización');
     } finally {
       setSendingQuote(false);
+    }
+  };
+
+  const updateBookingStatus = async (bookingId: string, status: string) => {
+    setActionLoading(bookingId);
+    try {
+      await httpClient.patch(`/bookings/${bookingId}/status`, { status });
+      setBookings((prev) =>
+        prev.map((b) => (b.id === bookingId ? { ...b, status: status as Booking['status'] } : b))
+      );
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      alert('Error al actualizar');
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -207,18 +247,88 @@ export function ProviderLeads() {
                     </div>
                 </div>
              </div>
-
-             <div className="bg-gradient-to-br from-primary-600 to-indigo-700 rounded-3xl p-6 relative overflow-hidden">
-                 <div className="relative z-10">
-                     <h3 className="text-xl font-bold text-white mb-2">Mejora tu Nivel</h3>
-                     <p className="text-white/80 text-sm mb-4">Completa más trabajos y recibe mejores reseñas para acceder a solicitudes exclusivas.</p>
-                     <button className="bg-white text-primary-600 px-4 py-2 rounded-lg text-sm font-bold shadow-lg">Ver Consejos</button>
-                 </div>
-                 <Activity className="absolute -bottom-4 -right-4 w-32 h-32 text-white/10" />
-             </div>
           </div>
       </div>
   );
+
+  const renderBookingCard = (booking: Booking) => {
+      return (
+          <div key={booking.id} className="card p-6 bg-gray-800 border-gray-700 mb-4 animate-fade-in">
+              <div className="flex justify-between items-start mb-4">
+                 <div className="flex items-center gap-4">
+                     <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-xl font-bold text-gray-400 border border-gray-600">
+                         {booking.client.avatarUrl ? <img src={booking.client.avatarUrl} className="w-full h-full object-cover rounded-full"/> : booking.client.firstName[0]}
+                     </div>
+                     <div>
+                         <h3 className="font-bold text-white text-lg">{booking.service?.title || 'Servicio Personalizado'}</h3>
+                         <p className="text-gray-400 text-sm">Cliente: {booking.client.firstName} {booking.client.lastName}</p>
+                     </div>
+                 </div>
+                 <div className="flex flex-col items-end">
+                     <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider mb-1 ${
+                         booking.status === 'ACCEPTED' ? 'bg-blue-500/20 text-blue-400' :
+                         booking.status === 'IN_PROGRESS' ? 'bg-amber-500/20 text-amber-400' :
+                         booking.status === 'COMPLETED' ? 'bg-green-500/20 text-green-400' :
+                         'bg-gray-700 text-gray-400'
+                     }`}>
+                         {booking.status}
+                     </span>
+                     <span className="text-xs text-gray-500">{new Date(booking.createdAt).toLocaleDateString()}</span>
+                 </div>
+              </div>
+
+              <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-700/50 mb-4 flex justify-between items-center">
+                  <p className="text-gray-300 text-sm">{booking.description}</p>
+                  <p className="text-xl font-bold text-white ml-6">${booking.quotedPrice}</p>
+              </div>
+
+              <div className="flex gap-3 justify-end border-t border-gray-700 pt-4">
+                  <button onClick={() => navigate('/chat', { state: { bookingId: booking.id } })} className="btn-secondary text-sm py-2">
+                      Mensaje
+                  </button>
+
+                  {booking.status === 'PENDING' && (
+                      <>
+                        <button 
+                            onClick={() => updateBookingStatus(booking.id, 'ACCEPTED')} 
+                            className="btn-primary text-sm py-2 bg-green-600 hover:bg-green-700 border-none"
+                            disabled={actionLoading === booking.id}
+                        >
+                            {actionLoading === booking.id ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Aceptar'}
+                        </button>
+                        <button 
+                            onClick={() => updateBookingStatus(booking.id, 'REJECTED')} 
+                            className="btn-secondary text-sm py-2 bg-red-900/20 text-red-400 hover:bg-red-900/30 border-none"
+                            disabled={actionLoading === booking.id}
+                        >
+                            Rechazar
+                        </button>
+                      </>
+                  )}
+
+                  {booking.status === 'ACCEPTED' && (
+                      <button 
+                        onClick={() => updateBookingStatus(booking.id, 'IN_PROGRESS')}
+                        className="btn-primary text-sm py-2"
+                        disabled={actionLoading === booking.id}
+                      >
+                         {actionLoading === booking.id ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Iniciar Trabajo'}
+                      </button>
+                  )}
+
+                  {booking.status === 'IN_PROGRESS' && (
+                      <button 
+                        onClick={() => updateBookingStatus(booking.id, 'COMPLETED')}
+                        className="btn-primary text-sm py-2 bg-green-600 hover:bg-green-700 border-none"
+                        disabled={actionLoading === booking.id}
+                      >
+                          {actionLoading === booking.id ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Marcar Completado'}
+                      </button>
+                  )}
+              </div>
+          </div>
+      );
+  };
 
   const renderRequestCard = (req: ServiceRequest, isDirect: boolean = false) => {
       const isSelected = selectedRequest === req.id;
@@ -337,6 +447,7 @@ export function ProviderLeads() {
                { id: 'DIRECT', label: 'Mis Solicitudes', icon: Star },
                { id: 'OPPORTUNITIES', label: 'Oportunidades', icon: Globe },
                { id: 'MY_QUOTES', label: 'Historial', icon: List },
+               { id: 'JOBS', label: 'Trabajos', icon: Briefcase },
                { id: 'ANALYTICS', label: 'Analíticas', icon: BarChart },
            ].map(tab => (
                <button
@@ -429,6 +540,20 @@ export function ProviderLeads() {
                     ) : (
                         <div className="text-center py-12 text-gray-400 bg-gray-800/30 rounded-2xl border border-gray-700 border-dashed">
                             Aún no has enviado presupuestos.
+                        </div>
+                    )
+                )}
+
+                {/* JOBS VIEW */}
+                {activeTab === 'JOBS' && (
+                    bookings.length > 0 ? (
+                        <div>
+                            {bookings.map(booking => renderBookingCard(booking))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 text-gray-400 bg-gray-800/30 rounded-2xl border border-gray-700 border-dashed">
+                            <Briefcase className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                            No tienes trabajos activos o pendientes.
                         </div>
                     )
                 )}
