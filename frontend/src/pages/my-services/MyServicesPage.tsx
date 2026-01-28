@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, 
   Edit2, 
-  Trash2,
+
   Loader2,
   Briefcase,
   Star,
@@ -111,7 +111,7 @@ export function MyServicesPage() {
 
   // Services Catalog State
   const [services, setServices] = useState<Service[]>([]);
-  const [isLoadingServices, setIsLoadingServices] = useState(true);
+
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [serviceForm, setServiceForm] = useState({
@@ -130,7 +130,7 @@ export function MyServicesPage() {
     } catch (error) {
       console.error(error);
     } finally {
-      setIsLoadingServices(false);
+
     }
   };
 
@@ -421,7 +421,7 @@ export function MyServicesPage() {
                  <span className="font-bold text-lg">Agregar Servicio</span>
                </motion.button>
                
-               {services.map((service, i) => (
+               {services.map((service) => (
                   <motion.div 
                     key={service.id}
                     className="bg-gray-800 rounded-2xl overflow-hidden border border-gray-700 group hover:shadow-xl transition-all"
