@@ -175,62 +175,91 @@ export function ProvidersPage() {
               layout
               key={provider.id}
               onClick={() => navigate(`/profile/${provider.id}`)}
-              className="bg-gray-800 rounded-3xl border border-gray-700/50 p-6 cursor-pointer hover:border-primary-500/50 hover:shadow-lg hover:shadow-primary-500/10 transition-all group relative overflow-hidden"
+              className="group relative bg-gray-900 rounded-3xl border border-gray-800 overflow-hidden cursor-pointer hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-300 transform hover:-translate-y-1"
             >
-                {/* Hover Background Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/0 to-primary-500/0 group-hover:from-primary-500/5 group-hover:to-transparent transition-all duration-500" />
+                {/* Image/Gradient Overlay - Decorative */}
+                <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-gray-800 to-gray-900 opacity-50" />
                 
-                <div className="relative">
-                    {/* Header */}
+                <div className="relative p-6">
+                    {/* Header: Avatar & Rating */}
                     <div className="flex justify-between items-start mb-4">
                         <div className="relative">
-                            <div className="w-16 h-16 rounded-2xl bg-gray-700 overflow-hidden shadow-md">
+                            <div className="w-16 h-16 rounded-2xl bg-gray-800 border-2 border-gray-700 shadow-xl overflow-hidden group-hover:border-primary-500/50 transition-colors">
                                 {provider.avatarUrl ? (
                                     <img src={provider.avatarUrl} alt={provider.firstName} className="w-full h-full object-cover" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-xl font-bold text-gray-500">{provider.firstName[0]}</div>
+                                    <div className="w-full h-full flex items-center justify-center text-xl font-bold text-gray-400 bg-gray-800">
+                                      {provider.firstName[0]}
+                                    </div>
                                 )}
                             </div>
                             {provider.isOnline && (
-                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-gray-800 rounded-full" />
+                                <span className="absolute -bottom-1 -right-1 flex h-4 w-4">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-gray-900"></span>
+                                </span>
                             )}
                         </div>
-                        <div className="flex items-center gap-1 bg-gray-900/50 px-2 py-1 rounded-lg border border-gray-700/50">
-                            <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />
-                            <span className="text-xs font-bold text-gray-200">{provider.avgRating.toFixed(1)}</span>
+                        
+                        <div className="flex flex-col items-end gap-1">
+                           <div className="flex items-center gap-1 bg-gray-800 px-2.5 py-1 rounded-full border border-gray-700">
+                              <Star className="w-3.5 h-3.5 text-amber-500 fill-current" />
+                              <span className="text-xs font-bold text-gray-200">{provider.avgRating.toFixed(1)}</span>
+                           </div>
+                           <span className="text-[10px] text-gray-500 uppercase tracking-wider font-medium">{provider.totalReviews} reseñas</span>
                         </div>
                     </div>
 
-                    {/* Info */}
-                    <h3 className="font-bold text-white text-lg mb-1 group-hover:text-primary-400 transition-colors">
-                        {provider.firstName} {provider.lastName}
-                    </h3>
-                    
-                    <div className="flex flex-wrap gap-2 mb-3">
-                        {provider.trades.slice(0, 2).map((trade, i) => (
-                            <span key={i} className="text-xs font-medium px-2 py-0.5 rounded-full bg-primary-500/10 text-primary-400 border border-primary-500/20">
-                                {trade}
-                            </span>
-                        ))}
-                        {provider.trades.length > 2 && (
-                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-700 text-gray-400">
-                                +{provider.trades.length - 2}
-                            </span>
-                        )}
-                    </div>
+                    {/* Content */}
+                    <div className="space-y-3">
+                        <div>
+                            <h3 className="text-xl font-bold text-white group-hover:text-primary-400 transition-colors font-display">
+                                {provider.firstName} {provider.lastName}
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
+                                <MapPin className="w-3 h-3" />
+                                {provider.zone || 'Zona AMBA'}
+                            </div>
+                        </div>
 
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-6">
-                        <MapPin className="w-3 h-3" />
-                        {provider.zone || 'Buenos Aires'}
-                    </div>
+                        {/* Trades */}
+                        <div className="flex flex-wrap gap-1.5">
+                            {provider.trades.slice(0, 3).map((trade, i) => (
+                                <span key={i} className="px-2 py-0.5 rounded-md bg-gray-800 border border-gray-700 text-xs text-gray-300 font-medium">
+                                    {trade}
+                                </span>
+                            ))}
+                            {provider.trades.length > 3 && (
+                                <span className="px-2 py-0.5 rounded-md bg-gray-800 border border-gray-700 text-xs text-gray-500">
+                                    +{provider.trades.length - 3}
+                                </span>
+                            )}
+                        </div>
 
-                    {/* Footer / CTA */}
-                    <div className="flex items-center justify-between border-t border-gray-700/50 pt-4 mt-auto">
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                            <Briefcase className="w-3 h-3" />
-                            {provider.yearsExperience ? `${provider.yearsExperience} años exp.` : 'Profesional'}
-                        </span>
-                        <ArrowRight className="w-5 h-5 text-gray-600 group-hover:text-primary-400 group-hover:translate-x-1 transition-all" />
+                        {/* Bio / Experience */}
+                        <div className="pt-3 border-t border-gray-800">
+                            <p className="text-sm text-gray-500 line-clamp-2 mb-3 min-h-[40px]">
+                                {provider.bio || 'Profesional verificado de HomePlus. Experiencia comprobable y excelentes calificaciones.'}
+                            </p>
+                            
+                            <div className="flex items-center justify-between">
+                                {provider.yearsExperience ? (
+                                    <div className="flex items-center gap-1.5 text-xs font-medium text-primary-400 bg-primary-500/5 px-2 py-1 rounded-lg">
+                                        <Briefcase className="w-3.5 h-3.5" />
+                                        {provider.yearsExperience} Años de Exp.
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-800 px-2 py-1 rounded-lg">
+                                        <Briefcase className="w-3.5 h-3.5" />
+                                        Verificado
+                                    </div>
+                                )}
+                                
+                                <span className="text-xs font-bold text-white group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                                    Ver Perfil <ArrowRight className="w-3 h-3" />
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </motion.div>
