@@ -230,6 +230,18 @@ export class AuthService {
         tools: true,
         languages: true,
         aptitudes: true,
+        services: {
+          where: { isActive: true },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            category: true,
+            zone: true,
+            priceBase: true,
+            priceUnit: true,
+          }
+        },
         reviewsReceived: {
           orderBy: { createdAt: 'desc' },
           take: 10,
