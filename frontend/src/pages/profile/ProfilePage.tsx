@@ -26,6 +26,15 @@ interface Review {
   };
 }
 
+interface Service {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  priceBase?: number;
+  priceUnit?: string;
+}
+
 interface PublicProfile {
   id: string;
   firstName: string;
@@ -39,6 +48,7 @@ interface PublicProfile {
   portfolioUrls: string[];
   createdAt: string;
   reviewsReceived: Review[];
+  services?: Service[];
 }
 
 export function ProfilePage() {
@@ -46,7 +56,7 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'about' | 'portfolio' | 'reviews'>('about');
+  const [activeTab, setActiveTab] = useState<'about' | 'services' | 'portfolio' | 'reviews'>('about');
 
   useEffect(() => {
     if (id) {
@@ -184,22 +194,28 @@ export function ProfilePage() {
           {/* Main Column */}
           <div className="lg:col-span-2 space-y-8">
             {/* Tabs Header */}
-            <div className="flex border-b border-gray-200 dark:border-gray-700">
+            <div className="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('about')}
-                className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'about' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'about' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
               >
                 Sobre mí
               </button>
               <button
+                onClick={() => setActiveTab('services')}
+                className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'services' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+              >
+                Servicios
+              </button>
+              <button
                 onClick={() => setActiveTab('portfolio')}
-                className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'portfolio' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'portfolio' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
               >
                 Portafolio
               </button>
               <button
                 onClick={() => setActiveTab('reviews')}
-                className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors ${activeTab === 'reviews' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                className={`px-6 py-3 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${activeTab === 'reviews' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
               >
                 Reseñas
               </button>
@@ -243,6 +259,62 @@ export function ProfilePage() {
                     </div>
                   </div>
                 </motion.div>
+              )}
+
+              {activeTab === 'services' && (
+                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Catálogo de Servicios</h3>
+                   {profile.services && profile.services.length > 0 ? (
+                     <div className="space-y-4">
+                       {profile.services.map(service => (
+                         <div key={service.id} className="p-5 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-primary-500/30 transition-colors group">
+                           <div className="flex justify-between items-start">
+                             <div>
+                               <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-1 group-hover:text-primary-500 transition-colors">{service.title}</h4>
+                               <p className="text-gray-500 text-sm mb-2">{service.category}</p>
+                               <p className="text-gray-600 dark:text-gray-300 text-sm">{service.description}</p>
+                             </div>
+                             <button className="btn-secondary px-4 py-2 text-sm">
+                               Solicitar
+                             </button>
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   ) : (
+                     <div className="text-center py-10 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                       <p className="text-gray-500">Este profesional no tiene servicios publicados.</p>
+                     </div>
+                   )}
+                 </motion.div>
+              )}
+
+              {activeTab === 'services' && (
+                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Catálogo de Servicios</h3>
+                   {profile.services && profile.services.length > 0 ? (
+                     <div className="space-y-4">
+                       {profile.services.map(service => (
+                         <div key={service.id} className="p-5 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-primary-500/30 transition-colors group">
+                           <div className="flex justify-between items-start">
+                             <div>
+                               <h4 className="font-bold text-gray-900 dark:text-white text-lg mb-1 group-hover:text-primary-500 transition-colors">{service.title}</h4>
+                               <p className="text-gray-500 text-sm mb-2">{service.category}</p>
+                               <p className="text-gray-600 dark:text-gray-300 text-sm">{service.description}</p>
+                             </div>
+                             <button className="btn-secondary px-4 py-2 text-sm">
+                               Solicitar
+                             </button>
+                           </div>
+                         </div>
+                       ))}
+                     </div>
+                   ) : (
+                     <div className="text-center py-10 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
+                       <p className="text-gray-500">Este profesional no tiene servicios publicados.</p>
+                     </div>
+                   )}
+                 </motion.div>
               )}
 
               {activeTab === 'portfolio' && (
