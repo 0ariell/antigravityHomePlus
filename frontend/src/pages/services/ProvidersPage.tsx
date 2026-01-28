@@ -86,6 +86,19 @@ export function ProvidersPage() {
     }
   };
 
+  // Mock images for cover background
+  const getCoverImage = (index: number) => {
+    const images = [
+      'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2669&auto=format&fit=crop', // Electrician / Dark
+      'https://images.unsplash.com/photo-1581094794329-cd132c4a9191?q=80&w=2600&auto=format&fit=crop', // Worker / Industrial
+      'https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2531&auto=format&fit=crop', // Architecture / Concrete
+      'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2670&auto=format&fit=crop', // Wood / Warm
+      'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=2669&auto=format&fit=crop', // Tools
+      'https://images.unsplash.com/photo-1534237710431-e2fc698436d0?q=80&w=2532&auto=format&fit=crop'  // Clean / Bright
+    ];
+    return images[index % images.length];
+  };
+
   return (
     <div className="space-y-8 pb-20 animate-fade-in">
       {/* Header */}
@@ -118,42 +131,33 @@ export function ProvidersPage() {
         </div>
       </div>
 
-       {/* Search */}
-        <div className="relative group w-full">
-           <div className="absolute inset-0 bg-primary-500/5 rounded-2xl blur-xl group-hover:bg-primary-500/10 transition-colors" />
-           <div className="relative">
-               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-               <input
-               type="text"
-               value={searchQuery}
-               onChange={(e) => setSearchQuery(e.target.value)}
-               placeholder="Buscar por nombre o especialidad..."
-               className="w-full pl-12 pr-4 py-3 bg-gray-900/80 border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all outline-none"
-               />
-           </div>
-       </div>
+      {/* Search Bar */}
+      <div className="relative w-full max-w-lg">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Buscar profesional por nombre o especialidad..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full py-4 pl-12 pr-4 rounded-2xl bg-gray-800/50 border border-gray-700 text-white focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition-all"
+          />
+      </div>
 
        {/* Categories */}
-        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          {CATEGORIES.map((cat) => {
-            const isActive = selectedCategory === cat.id;
-            const Icon = cat.icon;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all border ${
-                  isActive
-                    ? 'bg-primary-500/10 border-primary-500/50 text-white'
-                    : 'bg-gray-800/50 border-gray-700/50 text-gray-400 hover:border-gray-600 hover:text-gray-300'
-                }`}
-              >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-primary-400' : 'text-gray-500'}`} />
-                <span className="font-medium text-sm">{cat.label}</span>
-              </button>
-            );
-          })}
-        </div>
+      <div className="flex flex-wrap gap-3">
+        {CATEGORIES.map(cat => (
+          <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${selectedCategory === cat.id
+              ? 'bg-primary-500 text-white shadow-lg'
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
 
       {/* Grid List */}
       {isLoading ? (
@@ -170,17 +174,24 @@ export function ProvidersPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {providers.map(provider => (
+          {providers.map((provider, index) => (
             <motion.div 
               layout
               key={provider.id}
               onClick={() => navigate(`/profile/${provider.id}`)}
               className="group relative bg-gray-900 rounded-3xl border border-gray-800 overflow-hidden cursor-pointer hover:shadow-2xl hover:shadow-primary-500/10 transition-all duration-300 transform hover:-translate-y-1"
             >
-                {/* Image/Gradient Overlay - Decorative */}
-                <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-gray-800 to-gray-900 opacity-50" />
+                {/* Cover Image with Gradient Overlay */}
+                <div className="absolute top-0 inset-x-0 h-32">
+                   <img 
+                      src={getCoverImage(index)} 
+                      alt="Cover" 
+                      className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
+                   />
+                   <div className="absolute inset-0 bg-gradient-to-b from-gray-900/10 via-gray-900/60 to-gray-900" />
+                </div>
                 
-                <div className="relative p-6">
+                <div className="relative p-6 pt-20">
                     {/* Header: Avatar & Rating */}
                     <div className="flex justify-between items-start mb-4">
                         <div className="relative">
