@@ -65,7 +65,7 @@ export const requestsService = {
   },
 
   getMyQuotes: async (): Promise<{ id: string, status: string, price: number, isAsap: boolean, estimatedDate?: string, request: ServiceRequest }[]> => {
-    const response = await httpClient.get('/api/quotes/my-quotes');
+    const response = await httpClient.get('/quotes/my-quotes');
     return response.data;
   }
 };
