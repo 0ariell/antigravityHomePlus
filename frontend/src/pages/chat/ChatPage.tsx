@@ -298,22 +298,22 @@ export function ChatPage() {
                                   {formatTime(message.createdAt)}
                                 </span>
                                 {isOwn && (
-                                  <div className="relative group cursor-help">
+                                  <div className="relative group cursor-pointer flex items-center">
                                     {message.readAt ? (
-                                      <CheckCheck className="w-3 h-3 text-primary-500" />
+                                      <CheckCheck className="w-3 h-3 text-primary-400 opacity-80" />
                                     ) : (
-                                      <Check className="w-3 h-3 text-gray-400" />
+                                      <Check className="w-3 h-3 text-gray-500 opacity-60" />
                                     )}
                                     
-                                    {/* Premium Styled Tooltip */}
-                                    <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50">
-                                      <div className="bg-gray-900/90 backdrop-blur-md border border-gray-800 px-2.5 py-1 rounded-lg shadow-xl whitespace-nowrap">
-                                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">
+                                    {/* Subtler Styled Tooltip */}
+                                    <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-300 translate-y-1 group-hover:translate-y-0 z-50">
+                                      <div className="bg-gray-800/95 backdrop-blur-md border border-gray-700/50 px-2 py-0.5 rounded-md shadow-2xl">
+                                        <span className="text-[9px] font-bold text-gray-200 uppercase tracking-widest whitespace-nowrap">
                                           {message.readAt ? 'Leído' : 'Enviado'}
                                         </span>
                                       </div>
-                                      {/* Tooltip Arrow */}
-                                      <div className="w-2 h-2 bg-gray-900/90 border-r border-b border-gray-800 rotate-45 absolute -bottom-1 right-1" />
+                                      {/* Refined Arrow */}
+                                      <div className="w-1.5 h-1.5 bg-gray-800/95 border-r border-b border-gray-700/50 rotate-45 absolute -bottom-[3px] right-1" />
                                     </div>
                                   </div>
                                 )}
