@@ -19,6 +19,8 @@ interface Booking {
   id: string;
   status: string;
   description: string;
+  diagnosis?: any;
+  extraInfo?: string;
   images: string[];
   createdAt: string;
   service?: { title: string };
@@ -92,57 +94,103 @@ function CompactRequestCard({ req, onExpand, isExpanded, quotes, loadingQuotes, 
             exit={{ height: 0, opacity: 0 }}
             className="border-t border-gray-800 bg-black/20"
           >
-            <div className="p-4 space-y-3">
-              {loadingQuotes ? (
-                <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-primary-500" /></div>
-              ) : quotes.length === 0 ? (
-                <p className="text-xs text-center text-gray-600 py-2">No hay presupuestos aún.</p>
-              ) : (
-                quotes.map(quote => (
-                  <div key={quote.id} className="space-y-2">
-                    <div className="flex items-center justify-between bg-gray-800/80 p-3 rounded-xl border border-gray-700">
-                      <div className="flex items-center gap-3 flex-1">
-                         <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden shrink-0">
-                           {quote.provider.avatarUrl ? <img src={quote.provider.avatarUrl} className="w-full h-full object-cover" /> : <User className="w-4 h-4 m-2 text-gray-500" />}
-                         </div>
-                         <div className="min-w-0">
-                           <p className="text-xs font-bold text-white truncate">{quote.provider.firstName} {quote.provider.lastName}</p>
-                           <p className="text-[10px] text-green-400 font-bold">${quote.price.toLocaleString()}</p>
-                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button 
-                          onClick={() => setExpandedQuoteId(expandedQuoteId === quote.id ? null : quote.id)}
-                          className={`text-[10px] font-bold px-3 py-1.5 rounded-lg transition-colors border ${expandedQuoteId === quote.id ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-900/50 border-gray-700 text-gray-400 hover:text-white'}`}
-                        >
-                          {expandedQuoteId === quote.id ? 'Ocultar' : 'Ver Propuesta'}
-                        </button>
-                        <button 
-                          onClick={() => onAcceptQuote(quote.id)}
-                          className="text-[10px] font-bold bg-primary-500 text-white px-3 py-1.5 rounded-lg hover:bg-primary-600 transition-colors shadow-lg shadow-primary-500/20"
-                        >
-                          Aceptar
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <AnimatePresence>
-                      {expandedQuoteId === quote.id && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="px-4 py-3 bg-primary-500/5 border border-primary-500/10 rounded-xl"
-                        >
-                          <p className="text-xs text-gray-300 leading-relaxed italic">
-                            "{quote.description || 'Sin descripción adicional.'}"
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))
+            <div className="p-4 space-y-5">
+              
+              {/* Diagnosis Summary (NEW) */}
+              {req.diagnosis && (
+                <div className="space-y-3">
+                   <h4 className="text-[10px] font-black text-primary-500 uppercase tracking-widest pl-1">Detalle del Diagnóstico</h4>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                      {req.diagnosis.answers?.map((ans: any, idx: number) => (
+                        <div key={idx} className="space-y-0.5">
+                           <p className="text-[10px] text-gray-500 font-medium">{ans.question}</p>
+                           <p className="text-[11px] text-white font-bold">{ans.answer}</p>
+                        </div>
+                      ))}
+                   </div>
+                </div>
               )}
+
+              {/* Extra Info (NEW) */}
+              {req.extraInfo && (
+                <div className="space-y-1.5">
+                   <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Información Adicional</h4>
+                   <p className="text-xs text-gray-300 leading-relaxed italic bg-gray-900/40 p-4 rounded-2xl border border-gray-800/50">
+                     "{req.extraInfo}"
+                   </p>
+                </div>
+              )}
+
+              {/* Images (NEW - if any) */}
+              {req.images && req.images.length > 0 && (
+                <div className="space-y-2">
+                   <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Imágenes Adjuntas</h4>
+                   <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                      {req.images.map((img, idx) => (
+                        <div key={idx} className="w-20 h-20 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0">
+                          <img src={img} className="w-full h-full object-cover" />
+                        </div>
+                      ))}
+                   </div>
+                </div>
+              )}
+
+              {/* Quotes Section */}
+              <div className="space-y-3 pt-4 border-t border-gray-800/50">
+                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-1">Presupuestos Recibidos</h4>
+                {loadingQuotes ? (
+                  <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-primary-500" /></div>
+                ) : quotes.length === 0 ? (
+                  <p className="text-xs text-center text-gray-600 py-2">No hay presupuestos aún.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {quotes.map(quote => (
+                      <div key={quote.id} className="space-y-2">
+                        <div className="flex items-center justify-between bg-gray-800/80 p-3 rounded-xl border border-gray-700">
+                          <div className="flex items-center gap-3 flex-1">
+                             <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden shrink-0">
+                               {quote.provider.avatarUrl ? <img src={quote.provider.avatarUrl} className="w-full h-full object-cover" /> : <User className="w-4 h-4 m-2 text-gray-500" />}
+                             </div>
+                             <div className="min-w-0">
+                               <p className="text-xs font-bold text-white truncate">{quote.provider.firstName} {quote.provider.lastName}</p>
+                               <p className="text-[10px] text-green-400 font-bold">${quote.price.toLocaleString()}</p>
+                             </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={() => setExpandedQuoteId(expandedQuoteId === quote.id ? null : quote.id)}
+                              className={`text-[10px] font-bold px-3 py-1.5 rounded-lg transition-colors border ${expandedQuoteId === quote.id ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-900/50 border-gray-700 text-gray-400 hover:text-white'}`}
+                            >
+                              {expandedQuoteId === quote.id ? 'Ocultar' : 'Ver Propuesta'}
+                            </button>
+                            <button 
+                              onClick={() => onAcceptQuote(quote.id)}
+                              className="text-[10px] font-bold bg-primary-500 text-white px-3 py-1.5 rounded-lg hover:bg-primary-600 transition-colors shadow-lg shadow-primary-500/20"
+                            >
+                              Aceptar
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <AnimatePresence>
+                          {expandedQuoteId === quote.id && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="px-4 py-3 bg-primary-500/5 border border-primary-500/10 rounded-xl"
+                            >
+                              <p className="text-xs text-gray-300 leading-relaxed italic">
+                                "{quote.description || 'Sin descripción adicional.'}"
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
@@ -208,13 +256,38 @@ function CompactBookingCard({ booking, navigate }: { booking: Booking, navigate:
             exit={{ height: 0, opacity: 0 }}
             className="border-t border-gray-800 bg-black/20"
           >
-            <div className="p-5 space-y-4">
+            <div className="p-5 space-y-5">
+              
+              {/* Diagnosis Summary (NEW) */}
+              {booking.diagnosis && (
+                <div className="space-y-3">
+                   <h4 className="text-[10px] font-black text-primary-500 uppercase tracking-widest pl-1">Diagnóstico</h4>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-900/80 p-4 rounded-2xl border border-gray-800">
+                      {(booking.diagnosis as any).answers?.map((ans: any, idx: number) => (
+                        <div key={idx} className="space-y-0.5">
+                           <p className="text-[10px] text-gray-500 font-medium">{ans.question}</p>
+                           <p className="text-[11px] text-white font-bold">{ans.answer}</p>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+              )}
+
               <div className="space-y-2">
-                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Descripción Enviada</h4>
-                <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">
+                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest pl-1">Descripción</h4>
+                <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap bg-gray-900/40 p-4 rounded-2xl border border-gray-800/50">
                   {booking.description}
                 </p>
               </div>
+
+              {booking.extraInfo && (
+                <div className="space-y-1.5">
+                   <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Info Extra</h4>
+                   <p className="text-xs text-gray-300 leading-relaxed italic bg-gray-900/40 p-4 rounded-2xl border border-gray-800/50">
+                     "{booking.extraInfo}"
+                   </p>
+                </div>
+              )}
 
               {booking.images && booking.images.length > 0 && (
                 <div className="space-y-2">

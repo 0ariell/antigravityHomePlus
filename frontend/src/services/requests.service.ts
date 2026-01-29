@@ -9,6 +9,8 @@ export interface CreateRequestDto {
   preferredDate?: string;
   latitude?: number;
   longitude?: number;
+  diagnosis?: any;
+  extraInfo?: string;
 }
 
 export interface ServiceRequest {
@@ -21,6 +23,8 @@ export interface ServiceRequest {
   status: 'OPEN' | 'CLOSED' | 'CANCELLED';
   latitude: number | null;
   longitude: number | null;
+  diagnosis?: any;
+  extraInfo?: string;
   createdAt: string;
   client: {
     firstName: string;

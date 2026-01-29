@@ -38,4 +38,11 @@ export class CreateServiceRequestDto {
   @IsString()
   @IsOptional()
   targetProviderId?: string;
+
+  @IsOptional()
+  diagnosis?: any;
+
+  @IsString()
+  @IsOptional()
+  extraInfo?: string;
 }

@@ -169,6 +169,9 @@ model ServiceRequest {
   
   status      RequestStatus @default(OPEN)
   
+  diagnosis   Json?         // Structured QA results
+  extraInfo   String?       // Optional additional details
+  
   quotes      Quote[]
   
   createdAt   DateTime      @default(now())
@@ -218,7 +221,9 @@ model Booking {
 
   
   // Request details
-  description String        // Descripción del problema
+  description String        // Descripción del problema (Summary)
+  diagnosis   Json?         // Results from guided wizard
+  extraInfo   String?       // Field for additional details
   images      String[]      // Fotos del problema
   preferredDate DateTime?   // Fecha preferida
   address     String        // Dirección aproximada

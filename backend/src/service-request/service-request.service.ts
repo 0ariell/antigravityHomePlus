@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationService } from '../notification/notification.service';
 import { CreateServiceRequestDto } from './dto/create-service-request.dto';
-import { RequestStatus, NotificationType } from '@prisma/client';
+import { RequestStatus, NotificationType, Prisma } from '@prisma/client';
 
 @Injectable()
 export class ServiceRequestService {
@@ -12,6 +12,17 @@ export class ServiceRequestService {
   ) {}
 
   async create(clientId: string, dto: CreateServiceRequestDto) {
+    // Security check: Mask personal data in extraInfo
+    const sanitizedExtraInfo = dto.extraInfo 
+      ? this.maskPersonalData(dto.extraInfo) 
+      : null;
+
+    // Fetch client name first for type-safe notification logic
+    const client = await this.prisma.user.findUnique({
+      where: { id: clientId },
+      select: { firstName: true }
+    });
+
     // 1. Create the request
     const request = await this.prisma.serviceRequest.create({
       data: {
@@ -19,6 +30,8 @@ export class ServiceRequestService {
         category: dto.category,
         title: dto.title,
         description: dto.description,
+        diagnosis: dto.diagnosis as Prisma.InputJsonValue,
+        extraInfo: sanitizedExtraInfo,
         zone: dto.zone,
         latitude: dto.latitude,
         longitude: dto.longitude,
@@ -26,13 +39,10 @@ export class ServiceRequestService {
         preferredDate: dto.preferredDate ? new Date(dto.preferredDate) : null,
         targetProviderId: dto.targetProviderId, // Direct Request
         status: RequestStatus.OPEN,
-      },
-      include: {
-        client: {
-          select: { firstName: true, lastName: true, avatarUrl: true },
-        },
-      },
+      }
     });
+
+    const clientName = client?.firstName || 'Un usuario';
 
     // 2. Notification Logic
     if (dto.targetProviderId) {
@@ -41,7 +51,7 @@ export class ServiceRequestService {
          dto.targetProviderId,
          NotificationType.BOOKING_CREATED,
          '¡Solicitud Directa Recibida!',
-         `${request.client.firstName} te ha enviado una solicitud directa para ${dto.category}.`,
+         `${clientName} te ha enviado una solicitud directa para ${dto.category}.`,
          { requestId: request.id }
        );
     } else {
@@ -65,13 +75,13 @@ export class ServiceRequestService {
             provider.id,
             NotificationType.BOOKING_CREATED, 
             '¡Nueva Oportunidad!',
-            `${request.client.firstName} busca ${dto.category} en ${dto.zone}`,
+            `${clientName} busca ${dto.category} en ${dto.zone}`,
             { requestId: request.id },
           );
         }
     }
 
-    return request;
+    return request as any;
   }
 
   // General Opportunities (No target provider)
@@ -180,5 +190,23 @@ export class ServiceRequestService {
         },
       },
     });
+  }
+
+  private maskPersonalData(text: string): string {
+    // Regex for emails
+    const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+    // Regex for typical phone numbers (7 to 15 digits, allowing spaces/dashes)
+    const phoneRegex = /(\+?\d{1,4}[-.\s]?)?(\(?\d{2,5}\)?[-.\s]?)?\d{3,4}[-.\s]?\d{3,4}/g;
+
+    return text
+      .replace(emailRegex, '[DATOS PROTEGIDOS]')
+      .replace(phoneRegex, (match) => {
+        // Only mask if it looks like a real phone (length check to avoid masking simple numbers)
+        const digits = match.replace(/\D/g, '');
+        if (digits.length >= 8) {
+          return '[DATOS PROTEGIDOS]';
+        }
+        return match;
+      });
   }
 }
