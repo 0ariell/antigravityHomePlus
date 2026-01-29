@@ -109,7 +109,7 @@ export function ProviderDashboard() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-20 pt-6 px-4 md:px-0">
+    <div className="max-w-7xl mx-auto space-y-8 pb-20 pt-6 px-4 md:px-8">
       
       {/* 1. HERO SECTION */}
       <section className="flex flex-col md:flex-row md:items-center justify-between gap-6">
