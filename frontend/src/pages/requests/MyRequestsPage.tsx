@@ -2,12 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Clock, 
-  MapPin, 
   ChevronDown, 
   ChevronUp, 
   Loader2, 
-  CheckCircle, 
-  DollarSign,
   AlertCircle,
   Briefcase,
   User,
@@ -17,7 +14,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { requestsService, type ServiceRequest } from '../../services/requests.service';
 import { httpClient } from '../../infra/http';
-import { useAuthStore } from '../../app/stores';
 
 interface Booking {
   id: string;
@@ -178,7 +174,6 @@ function CompactBookingCard({ booking, navigate }: { booking: Booking, navigate:
 
 export function MyRequestsPage() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
