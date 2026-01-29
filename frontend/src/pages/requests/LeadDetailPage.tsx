@@ -60,7 +60,7 @@ export function LeadDetailPage() {
         estimatedDate: isAsap ? undefined : estimatedDate
       });
       setSuccess(true);
-      setTimeout(() => navigate('/leads'), 2000);
+      setTimeout(() => navigate('/leads', { state: { initialTab: 'MY_QUOTES' } }), 2000);
     } catch (error) {
       console.error('Error sending quote', error);
       alert('Error al enviar presupuesto');

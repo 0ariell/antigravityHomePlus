@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { requestsService, type ServiceRequest } from '../../services/requests.service';
-import { httpClient } from '../../infra/http';
-import { useNavigate } from 'react-router-dom';
-import { MapPin, Clock, Loader2, DollarSign, CheckCircle, List, Map as MapIcon, Globe, ArrowRight, Star, Send, TrendingUp, BarChart, PieChart, Briefcase } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { MapPin, Loader2, Star, List, Map as MapIcon, Globe, ArrowRight } from 'lucide-react';
 import { MapLeadsView } from '../../components/MapLeadsView';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,36 +12,25 @@ interface MyQuote {
     request: ServiceRequest;
 }
 
-interface Booking {
-  id: string;
-  status: 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'REJECTED';
-  description: string;
-  createdAt: string;
-  quotedPrice: number | null;
-  client: {
-    firstName: string;
-    lastName: string;
-    avatarUrl?: string | null;
-  };
-   service: {
-    title: string;
-  } | null;
-}
+type TabType = 'DIRECT' | 'OPPORTUNITIES' | 'MY_QUOTES';
 
 export function ProviderLeads() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'DIRECT' | 'OPPORTUNITIES' | 'MY_QUOTES' | 'JOBS' | 'ANALYTICS'>('DIRECT');
+  const location = useLocation();
+  
+  // Initialize tab from state or default to DIRECT
+  const initialTab = (location.state as any)?.initialTab as TabType | undefined;
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab || 'DIRECT');
+  
   const [loading, setLoading] = useState(true);
   
   // Data
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [myQuotes, setMyQuotes] = useState<MyQuote[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [stats, setStats] = useState({ sent: 0, accepted: 0, pendingMoney: 0, conversionRate: 0, totalRevenue: 0 });
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-
-  // Quote Form
+  
+  // Quote Form helpers
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
+  
   // View options
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [isGlobal, setIsGlobal] = useState(false);
@@ -54,34 +42,10 @@ export function ProviderLeads() {
   const loadData = async () => {
     setLoading(true);
     try {
-      // Always load quotes for stats
-      const quotesData = await requestsService.getMyQuotes();
-      setMyQuotes(quotesData);
-
-      // Load Bookings if on JOBS tab or for stats
-      const bookingsRes = await httpClient.get('/bookings/my-bookings');
-      setBookings(bookingsRes.data || []);
-      
-      // Calculate Stats
-      const sent = quotesData.length;
-      const accepted = quotesData.filter(q => q.status === 'ACCEPTED').length;
-      const pendingMoney = quotesData
-          .filter(q => q.status === 'PENDING')
-          .reduce((acc, q) => acc + q.price, 0);
-      const totalRevenue = quotesData
-          .filter(q => q.status === 'ACCEPTED')
-          .reduce((acc, q) => acc + q.price, 0);
-      
-      setStats({
-          sent,
-          accepted,
-          pendingMoney,
-          conversionRate: sent > 0 ? Math.round((accepted / sent) * 100) : 0,
-          totalRevenue
-      });
-
-      // Load main list based on tab
-      if (activeTab === 'DIRECT') {
+      if (activeTab === 'MY_QUOTES') {
+         const quotesData = await requestsService.getMyQuotes();
+         setMyQuotes(quotesData);
+      } else if (activeTab === 'DIRECT') {
         const data = await requestsService.getDirect();
         setRequests(data);
       } else if (activeTab === 'OPPORTUNITIES') {
@@ -97,209 +61,10 @@ export function ProviderLeads() {
     }
   };
 
-  const updateBookingStatus = async (bookingId: string, status: string) => {
-    setActionLoading(bookingId);
-    try {
-      await httpClient.patch(`/bookings/${bookingId}/status`, { status });
-      setBookings((prev) =>
-        prev.map((b) => (b.id === bookingId ? { ...b, status: status as Booking['status'] } : b))
-      );
-    } catch (error) {
-      console.error('Error updating booking:', error);
-      alert('Error al actualizar');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
   const openQuoteForm = (requestId: string) => {
     setSelectedRequest(requestId);
     setViewMode('list');
-  };
-
-  // --- Render Helpers ---
-
-  const renderStatsCards = () => (
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-between hover:border-gray-600 transition-all">
-              <div className="flex items-center gap-3 mb-2 text-gray-400">
-                  <Send className="w-4 h-4" />
-                  <span className="text-sm font-medium uppercase tracking-wider">Enviados</span>
-              </div>
-              <div>
-                  <p className="text-3xl font-bold text-white font-display">{stats.sent}</p>
-              </div>
-          </div>
-          
-          <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-between hover:border-gray-600 transition-all">
-              <div className="flex items-center gap-3 mb-2 text-gray-400">
-                  <CheckCircle className="w-4 h-4 text-primary-400" />
-                  <span className="text-sm font-medium uppercase tracking-wider">Aceptados</span>
-              </div>
-              <div className="flex items-end gap-2">
-                  <p className="text-3xl font-bold text-white font-display">{stats.accepted}</p>
-                  <span className="text-sm text-green-500 font-bold mb-1">
-                    {stats.conversionRate}% Conv.
-                  </span>
-              </div>
-          </div>
-
-          <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-between hover:border-gray-600 transition-all">
-              <div className="flex items-center gap-3 mb-2 text-gray-400">
-                  <DollarSign className="w-4 h-4" />
-                  <span className="text-sm font-medium uppercase tracking-wider">Pendiente</span>
-              </div>
-              <div>
-                  <p className="text-3xl font-bold text-white font-display">${stats.pendingMoney.toLocaleString()}</p>
-              </div>
-          </div>
-
-           <div className="bg-gray-800/60 backdrop-blur-sm rounded-2xl p-5 border border-gray-700/50 flex flex-col justify-between hover:border-gray-600 transition-all bg-gradient-to-br from-primary-900/10 to-transparent">
-              <div className="flex items-center gap-3 mb-2 text-primary-400">
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="text-sm font-bold uppercase tracking-wider">Ingresos</span>
-              </div>
-              <div>
-                  <p className="text-3xl font-bold text-white font-display">${stats.totalRevenue.toLocaleString()}</p>
-              </div>
-          </div>
-      </div>
-  );
-
-  const renderAnalytics = () => (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fade-in">
-          {/* Revenue Chart (CSS only for now) */}
-          <div className="bg-gray-800 rounded-3xl p-6 border border-gray-700">
-              <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                  <BarChart className="w-5 h-5 text-gray-400" />
-                  Rendimiento Mensual
-              </h3>
-              <div className="h-48 flex items-end justify-between gap-2 px-2">
-                  {[40, 65, 30, 85, 50, 95, 75].map((h, i) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                          <div 
-                            className="w-full bg-primary-500/20 rounded-t-lg group-hover:bg-primary-500 transition-colors relative" 
-                            style={{ height: `${h}%` }}
-                          >
-                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                {h}%
-                            </div>
-                          </div>
-                          <span className="text-xs text-gray-500 font-bold uppercase">Sem {i+1}</span>
-                      </div>
-                  ))}
-              </div>
-          </div>
-
-          <div className="space-y-6">
-             <div className="bg-gray-800 rounded-3xl p-6 border border-gray-700">
-                <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <PieChart className="w-5 h-5 text-gray-400" />
-                    Resumen de Actividad
-                </h3>
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded-xl">
-                        <span className="text-gray-400">Tasa de Conversión</span>
-                        <div className="flex items-center gap-2">
-                            <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
-                                <div className="h-full bg-green-500 rounded-full" style={{ width: `${stats.conversionRate}%` }} />
-                            </div>
-                            <span className="text-white font-bold">{stats.conversionRate}%</span>
-                        </div>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded-xl">
-                        <span className="text-gray-400">Presupuestos Enviados</span>
-                        <span className="text-white font-bold">{stats.sent}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded-xl">
-                        <span className="text-gray-400">Ingreso Promedio</span>
-                        <span className="text-white font-bold">
-                            ${stats.accepted > 0 ? Math.round(stats.totalRevenue / stats.accepted).toLocaleString() : 0}
-                        </span>
-                    </div>
-                </div>
-             </div>
-          </div>
-      </div>
-  );
-
-  const renderBookingCard = (booking: Booking) => {
-      return (
-          <div key={booking.id} className="card p-6 bg-gray-800 border-gray-700 mb-4 animate-fade-in">
-              <div className="flex justify-between items-start mb-4">
-                 <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-xl font-bold text-gray-400 border border-gray-600">
-                         {booking.client.avatarUrl ? <img src={booking.client.avatarUrl} className="w-full h-full object-cover rounded-full"/> : booking.client.firstName[0]}
-                     </div>
-                     <div>
-                         <h3 className="font-bold text-white text-lg">{booking.service?.title || 'Servicio Personalizado'}</h3>
-                         <p className="text-gray-400 text-sm">Cliente: {booking.client.firstName} {booking.client.lastName}</p>
-                     </div>
-                 </div>
-                 <div className="flex flex-col items-end">
-                     <span className={`px-2 py-1 rounded text-xs font-bold uppercase tracking-wider mb-1 ${
-                         booking.status === 'ACCEPTED' ? 'bg-blue-500/20 text-blue-400' :
-                         booking.status === 'IN_PROGRESS' ? 'bg-amber-500/20 text-amber-400' :
-                         booking.status === 'COMPLETED' ? 'bg-green-500/20 text-green-400' :
-                         'bg-gray-700 text-gray-400'
-                     }`}>
-                         {booking.status}
-                     </span>
-                     <span className="text-xs text-gray-500">{new Date(booking.createdAt).toLocaleDateString()}</span>
-                 </div>
-              </div>
-
-              <div className="bg-gray-900/50 p-4 rounded-xl border border-gray-700/50 mb-4 flex justify-between items-center">
-                  <p className="text-gray-300 text-sm">{booking.description}</p>
-                  <p className="text-xl font-bold text-white ml-6">${booking.quotedPrice}</p>
-              </div>
-
-              <div className="flex gap-3 justify-end border-t border-gray-700 pt-4">
-                  <button onClick={() => navigate('/chat', { state: { bookingId: booking.id } })} className="btn-secondary text-sm py-2">
-                      Mensaje
-                  </button>
-
-                  {booking.status === 'PENDING' && (
-                      <>
-                        <button 
-                            onClick={() => updateBookingStatus(booking.id, 'ACCEPTED')} 
-                            className="btn-primary text-sm py-2 bg-green-600 hover:bg-green-700 border-none"
-                            disabled={actionLoading === booking.id}
-                        >
-                            {actionLoading === booking.id ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Aceptar'}
-                        </button>
-                        <button 
-                            onClick={() => updateBookingStatus(booking.id, 'REJECTED')} 
-                            className="btn-secondary text-sm py-2 bg-red-900/20 text-red-400 hover:bg-red-900/30 border-none"
-                            disabled={actionLoading === booking.id}
-                        >
-                            Rechazar
-                        </button>
-                      </>
-                  )}
-
-                  {booking.status === 'ACCEPTED' && (
-                      <button 
-                        onClick={() => updateBookingStatus(booking.id, 'IN_PROGRESS')}
-                        className="btn-primary text-sm py-2"
-                        disabled={actionLoading === booking.id}
-                      >
-                         {actionLoading === booking.id ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Iniciar Trabajo'}
-                      </button>
-                  )}
-
-                  {booking.status === 'IN_PROGRESS' && (
-                      <button 
-                        onClick={() => updateBookingStatus(booking.id, 'COMPLETED')}
-                        className="btn-primary text-sm py-2 bg-green-600 hover:bg-green-700 border-none"
-                        disabled={actionLoading === booking.id}
-                      >
-                          {actionLoading === booking.id ? <Loader2 className="w-4 h-4 animate-spin"/> : 'Marcar Completado'}
-                      </button>
-                  )}
-              </div>
-          </div>
-      );
+    navigate(`/leads/${requestId}`); // Direct navigation to detail
   };
 
   const renderRequestCard = (req: ServiceRequest, isDirect: boolean = false) => {
@@ -336,15 +101,11 @@ export function ProviderLeads() {
                             <MapPin className="w-4 h-4 text-primary-500" />
                             {req.zone}
                         </span>
-                        <span className="flex items-center gap-1.5 font-medium">
-                            <Clock className="w-4 h-4 text-gray-500" />
-                            {new Date(req.createdAt).toLocaleDateString()}
-                        </span>
                     </div>
                 </div>
             </div>
 
-            <p className="text-gray-300 mb-6 bg-gray-900/50 p-4 rounded-xl leading-relaxed border border-gray-700/50">
+            <p className="text-gray-300 mb-6 bg-gray-900/50 p-4 rounded-xl leading-relaxed border border-gray-700/50 truncate">
                 {req.description}
             </p>
 
@@ -363,19 +124,15 @@ export function ProviderLeads() {
     <div className="space-y-8 pb-20">
       <div className="flex flex-col gap-6">
         <div>
-            <h2 className="text-3xl font-bold text-white font-display">Panel Profesional</h2>
-            <p className="text-gray-400 text-lg">Gestiona tu negocio y encuentra nuevas oportunidades.</p>
+            <h2 className="text-3xl font-bold text-white font-display">Búsqueda de Oportunidades</h2>
+            <p className="text-gray-400 text-lg">Encuentra clientes y gestiona tus presupuestos recibidos.</p>
         </div>
-
-        {renderStatsCards()}
 
         <div className="flex bg-gray-800 p-1 rounded-2xl w-full sm:w-fit border border-gray-700 overflow-x-auto">
            {[
                { id: 'DIRECT', label: 'Mis Solicitudes', icon: Star },
                { id: 'OPPORTUNITIES', label: 'Oportunidades', icon: Globe },
                { id: 'MY_QUOTES', label: 'Historial', icon: List },
-               { id: 'JOBS', label: 'Trabajos', icon: Briefcase },
-               { id: 'ANALYTICS', label: 'Analíticas', icon: BarChart },
            ].map(tab => (
                <button
                  key={tab.id}
@@ -470,23 +227,6 @@ export function ProviderLeads() {
                         </div>
                     )
                 )}
-
-                {/* JOBS VIEW */}
-                {activeTab === 'JOBS' && (
-                    bookings.length > 0 ? (
-                        <div>
-                            {bookings.map(booking => renderBookingCard(booking))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-12 text-gray-400 bg-gray-800/30 rounded-2xl border border-gray-700 border-dashed">
-                            <Briefcase className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                            No tienes trabajos activos o pendientes.
-                        </div>
-                    )
-                )}
-
-                {/* ANALYTICS VIEW */}
-                {activeTab === 'ANALYTICS' && renderAnalytics()}
 
             </motion.div>
         )}

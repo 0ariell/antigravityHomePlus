@@ -175,7 +175,7 @@ export function ProviderDashboard() {
           ) : (
              <div className="bg-gray-900/30 border border-dashed border-gray-800 rounded-2xl p-8 text-center">
                  <p className="text-gray-500 text-sm">No tienes trabajos programados próximamente.</p>
-                 <button onClick={() => navigate('/leads')} className="mt-3 text-primary-500 font-bold text-sm hover:underline">Buscar Oportunidades</button>
+                 <button onClick={() => navigate('/leads', { state: { initialTab: 'OPPORTUNITIES' } })} className="mt-3 text-primary-500 font-bold text-sm hover:underline">Buscar Oportunidades</button>
              </div>
           )}
       </section>
@@ -190,7 +190,7 @@ export function ProviderDashboard() {
                       <Globe className="w-4 h-4" />
                       Nuevas Solicitudes
                    </h3>
-                   <button onClick={() => navigate('/leads')} className="text-xs text-primary-500 font-bold hover:underline">Explorar Todo</button>
+                   <button onClick={() => navigate('/leads', { state: { initialTab: 'OPPORTUNITIES' } })} className="text-xs text-primary-500 font-bold hover:underline">Explorar Todo</button>
               </div>
 
               <div className="space-y-3">
@@ -227,14 +227,14 @@ export function ProviderDashboard() {
                       <span className="block text-white font-bold text-sm">Mi Agenda</span>
                       <span className="text-xs text-gray-500">Gestionar trabajos</span>
                   </button>
-                  <button onClick={() => navigate('/leads')} className="bg-gray-900 border border-gray-800 hover:bg-gray-800 p-4 rounded-xl text-left transition-all group">
+                  <button onClick={() => navigate('/leads', { state: { initialTab: 'OPPORTUNITIES' } })} className="bg-gray-900 border border-gray-800 hover:bg-gray-800 p-4 rounded-xl text-left transition-all group">
                       <div className="bg-primary-500/10 w-fit p-2 rounded-lg mb-3 group-hover:scale-110 transition-transform">
                           <Globe className="w-5 h-5 text-primary-500" />
                       </div>
                       <span className="block text-white font-bold text-sm">Búsqueda</span>
                       <span className="text-xs text-gray-500">Encontrar clientes</span>
                   </button>
-                  <button onClick={() => navigate('/my-requests')} className="bg-gray-900 border border-gray-800 hover:bg-gray-800 p-4 rounded-xl text-left transition-all group">
+                  <button onClick={() => navigate('/leads', { state: { initialTab: 'MY_QUOTES' } })} className="bg-gray-900 border border-gray-800 hover:bg-gray-800 p-4 rounded-xl text-left transition-all group">
                       <div className="bg-purple-500/10 w-fit p-2 rounded-lg mb-3 group-hover:scale-110 transition-transform">
                           <DollarSign className="w-5 h-5 text-purple-500" />
                       </div>
