@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Clock, 
   MapPin, 
@@ -7,11 +8,30 @@ import {
   Loader2, 
   CheckCircle, 
   DollarSign,
-  AlertCircle
+  AlertCircle,
+  Briefcase,
+  User,
+  ExternalLink,
+  MessageSquare
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { requestsService, type ServiceRequest } from '../../services/requests.service';
-import { useNavigate } from 'react-router-dom';
 import { httpClient } from '../../infra/http';
+import { useAuthStore } from '../../app/stores';
+
+interface Booking {
+  id: string;
+  status: string;
+  description: string;
+  createdAt: string;
+  service?: { title: string };
+  provider: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    avatarUrl: string | null;
+  };
+}
 
 interface Quote {
   id: string;
@@ -26,27 +46,162 @@ interface Quote {
   };
 }
 
+function CompactRequestCard({ req, onExpand, isExpanded, quotes, loadingQuotes, onAcceptQuote }: { 
+  req: ServiceRequest, 
+  onExpand: (id: string) => void, 
+  isExpanded: boolean,
+  quotes: Quote[],
+  loadingQuotes: boolean,
+  onAcceptQuote: (id: string) => void
+}) {
+  return (
+    <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden hover:border-primary-500/30 transition-colors">
+      <div className="p-4 flex items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+             <span className="px-2 py-0.5 bg-primary-500/10 text-primary-400 text-[10px] font-bold rounded-full uppercase tracking-wider border border-primary-500/20">
+               {req.category}
+             </span>
+             <span className="text-[10px] text-gray-500 flex items-center gap-1">
+               <Clock className="w-3 h-3" />
+               {new Date(req.createdAt).toLocaleDateString()}
+             </span>
+          </div>
+          <h3 className="text-sm font-bold text-white truncate">{req.title}</h3>
+          <p className="text-xs text-gray-500 truncate mt-0.5">{req.description}</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <span className="text-[10px] text-gray-500 block uppercase font-bold tracking-tight">Presupuestos</span>
+            <span className="text-sm font-black text-primary-500">{req._count?.quotes || 0}</span>
+          </div>
+          <button 
+            onClick={() => onExpand(req.id)}
+            className={`p-2 rounded-xl border transition-all ${isExpanded ? 'bg-primary-500 border-primary-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}`}
+          >
+            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="border-t border-gray-800 bg-black/20"
+          >
+            <div className="p-4 space-y-4">
+              {loadingQuotes ? (
+                <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-primary-500" /></div>
+              ) : quotes.length === 0 ? (
+                <p className="text-xs text-center text-gray-600 py-2">No hay presupuestos aún.</p>
+              ) : (
+                quotes.map(quote => (
+                  <div key={quote.id} className="flex items-center justify-between bg-gray-800/80 p-3 rounded-xl border border-gray-700">
+                    <div className="flex items-center gap-2">
+                       <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden">
+                         {quote.provider.avatarUrl ? <img src={quote.provider.avatarUrl} className="w-full h-full object-cover" /> : <User className="w-4 h-4 m-2 text-gray-500" />}
+                       </div>
+                       <div>
+                         <p className="text-xs font-bold text-white">{quote.provider.firstName}</p>
+                         <p className="text-[10px] text-green-400 font-bold">${quote.price.toLocaleString()}</p>
+                       </div>
+                    </div>
+                    <button 
+                      onClick={() => onAcceptQuote(quote.id)}
+                      className="text-[10px] font-bold bg-primary-500 text-white px-3 py-1.5 rounded-lg hover:bg-primary-600 transition-colors"
+                    >
+                      Aceptar
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function CompactBookingCard({ booking, navigate }: { booking: Booking, navigate: any }) {
+  const statusColors: any = {
+    'PENDING': 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+    'ACCEPTED': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    'IN_PROGRESS': 'bg-green-500/10 text-green-500 border-green-500/20',
+    'COMPLETED': 'bg-gray-500/10 text-gray-400 border-gray-500/20',
+  };
+
+  return (
+    <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 flex items-center justify-between gap-4 hover:border-primary-500/30 transition-colors">
+      <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="w-12 h-12 rounded-2xl bg-gray-800 flex items-center justify-center border border-gray-700 shrink-0">
+          {booking.provider.avatarUrl ? (
+            <img src={booking.provider.avatarUrl} className="w-full h-full object-cover rounded-2xl" />
+          ) : (
+            <User className="w-6 h-6 text-gray-500" />
+          )}
+        </div>
+        <div className="min-w-0">
+          <h3 className="text-sm font-bold text-white truncate">{booking.service?.title || 'Servicio Directo'}</h3>
+          <p className="text-xs text-gray-400">Con {booking.provider.firstName} {booking.provider.lastName}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase tracking-tighter ${statusColors[booking.status] || 'bg-gray-800 text-gray-500 border-gray-700'}`}>
+              {booking.status}
+            </span>
+            <span className="text-[10px] text-gray-600">{new Date(booking.createdAt).toLocaleDateString()}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <button 
+          onClick={() => navigate('/chat', { state: { bookingId: booking.id } })}
+          className="p-2.5 bg-gray-800 text-gray-400 rounded-xl hover:text-white hover:bg-gray-700 transition-colors"
+          title="Ir al Chat"
+        >
+          <MessageSquare className="w-4 h-4" />
+        </button>
+        <button 
+           onClick={() => navigate(`/my-jobs`)}
+           className="p-2.5 bg-primary-500/10 text-primary-400 rounded-xl hover:bg-primary-500 hover:text-white transition-all shadow-lg shadow-primary-500/10"
+        >
+          <ExternalLink className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function MyRequestsPage() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Accordion & Quotes State
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [currentQuotes, setCurrentQuotes] = useState<Quote[]>([]);
   const [loadingQuotes, setLoadingQuotes] = useState(false);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
-    loadRequests();
+    loadAllData();
   }, []);
 
-  const loadRequests = async () => {
+  const loadAllData = async () => {
+    setLoading(true);
     try {
-      const data = await requestsService.getMyRequests();
-      setRequests(data);
+      const [reqs, booksRes] = await Promise.all([
+        requestsService.getMyRequests(),
+        httpClient.get('/bookings/my-bookings')
+      ]);
+      setRequests(reqs);
+      setBookings(booksRes.data || []);
     } catch (error) {
-      console.error('Error loading my requests', error);
+      console.error('Error loading my solicitudes', error);
     } finally {
       setLoading(false);
     }
@@ -71,149 +226,102 @@ export function MyRequestsPage() {
   };
 
   const handleAcceptQuote = async (quoteId: string) => {
-    if(!confirm('¿Estás seguro de aceptar este presupuesto? Se creará una reserva confirmada.')) return;
-    setActionLoading(quoteId);
+    if(!confirm('¿Estás seguro de aceptar este presupuesto?')) return;
     try {
       await httpClient.patch(`/quotes/${quoteId}/accept`);
-      // Update local state is complex, simpler to reload or navigate
-      navigate('/bookings'); // Redirect to bookings
+      loadAllData(); // Refresh to move to Direct Requests
     } catch (error: any) {
-      console.error('Error accepting quote', error);
-      alert(error.response?.data?.message || 'Error al aceptar el presupuesto');
-    } finally {
-      setActionLoading(null);
+      alert(error.response?.data?.message || 'Error al aceptar');
     }
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center p-20">
+      <div className="flex flex-col items-center justify-center p-20 space-y-4">
         <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
+        <p className="text-gray-500 font-medium font-mono text-xs uppercase tracking-widest">Sincronizando solicitudes...</p>
       </div>
     );
   }
 
   return (
-    <div className="animate-fade-in space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="max-w-4xl mx-auto space-y-12 pb-20 animate-fade-in">
+      {/* Page Header */}
+      <header className="flex items-center justify-between px-2">
         <div>
-          <h2 className="text-2xl font-bold text-white">Mis Pedidos Abiertos</h2>
-          <p className="text-gray-400">Gestiona tus solicitudes y revisa los presupuestos recibidos</p>
+          <h2 className="text-3xl font-bold text-white tracking-tight">Mis Solicitudes</h2>
+          <p className="text-gray-500 text-sm mt-1">Todas tus gestiones en un solo lugar.</p>
         </div>
-      </div>
+        <button 
+          onClick={() => navigate('/request-wizard')}
+          className="bg-primary-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary-500/20 hover:scale-105 transition-transform"
+        >
+          Nueva Solicitud
+        </button>
+      </header>
 
-      {requests.length === 0 ? (
-        <div className="card p-12 text-center bg-gray-800 border-gray-700">
-          <AlertCircle className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-white mb-2">No tienes pedidos activos</h3>
-          <p className="text-gray-400 mb-6">Cuando publiques un problema, aparecerá aquí.</p>
-          <button onClick={() => navigate('/services')} className="btn-primary">
-            Buscar Servicio
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {requests.map(req => (
-            <div key={req.id} className="card bg-gray-800 border-gray-700 overflow-hidden">
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <span className="inline-block px-3 py-1 bg-primary-500/20 text-primary-400 text-xs font-bold rounded-full mb-2 uppercase tracking-wider">
-                      {req.category}
-                    </span>
-                    <h3 className="text-xl font-bold text-white">{req.title}</h3>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs text-gray-400 block mb-1">Recibidos</span>
-                    <span className="text-xl font-bold text-primary-500">
-                      {req._count?.quotes || 0}
-                    </span>
-                  </div>
-                </div>
+      {/* Direct Requests / Confirmed Bookings */}
+      <section className="space-y-4">
+         <div className="flex items-center gap-2 px-2 text-primary-400">
+            <Briefcase className="w-5 h-5" />
+            <h3 className="text-lg font-bold text-white">Solicitudes Directas</h3>
+            <span className="text-[10px] px-1.5 py-0.5 bg-primary-500/20 rounded-lg text-primary-300 font-black">{bookings.length}</span>
+         </div>
+         
+         {bookings.length === 0 ? (
+           <div className="p-10 border border-dashed border-gray-800 rounded-[2rem] text-center bg-gray-900/20">
+              <p className="text-gray-600 text-sm italic">No hay solicitudes directas o confirmadas.</p>
+           </div>
+         ) : (
+           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {bookings.map(b => (
+                <CompactBookingCard key={b.id} booking={b} navigate={navigate} />
+              ))}
+           </div>
+         )}
+      </section>
 
-                <div className="flex items-center gap-4 text-sm text-gray-400 mb-6">
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-primary-500" />
-                    {req.zone}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-gray-500" />
-                    {new Date(req.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
+      {/* Public / General Requests */}
+      <section className="space-y-4">
+         <div className="flex items-center gap-2 px-2 text-gray-500">
+            <Clock className="w-5 h-5 text-gray-600" />
+            <h3 className="text-lg font-bold text-white">Otras Solicitudes</h3>
+            <span className="text-[10px] px-1.5 py-0.5 bg-gray-800 rounded-lg text-gray-400 font-black">{requests.length}</span>
+         </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-700">
-                  <p className="text-sm text-gray-400 italic">
-                    {req.status === 'OPEN' ? 'Esperando presupuestos...' : 'Cerrado/Completado'}
-                  </p>
-                  
-                  <button 
-                    onClick={() => handleExpand(req.id)}
-                    className="flex items-center gap-2 text-primary-400 font-bold hover:text-white py-2 px-4 rounded-xl border border-primary-500/30 hover:bg-primary-500/20 transition-all"
-                  >
-                    {req._count?.quotes ? 'Ver Presupuestos' : 'Ver Detalles'}
-                    {expandedId === req.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
+         {requests.length === 0 ? (
+           <div className="p-10 border border-dashed border-gray-800 rounded-[2rem] text-center bg-gray-900/20">
+              <p className="text-gray-600 text-sm italic">No tienes otras solicitudes abiertas.</p>
+           </div>
+         ) : (
+           <div className="grid grid-cols-1 gap-3">
+              {requests.map(req => (
+                <CompactRequestCard 
+                  key={req.id} 
+                  req={req} 
+                  onExpand={handleExpand}
+                  isExpanded={expandedId === req.id}
+                  quotes={currentQuotes}
+                  loadingQuotes={loadingQuotes}
+                  onAcceptQuote={handleAcceptQuote}
+                />
+              ))}
+           </div>
+         )}
+      </section>
 
-              {expandedId === req.id && (
-                <div className="bg-gray-900/50 p-6 border-t border-gray-700 animate-fade-in">
-                  <h4 className="font-bold text-white mb-4">Detalles del Pedido</h4>
-                  <p className="text-gray-300 mb-8 whitespace-pre-wrap leading-relaxed">
-                    {req.description}
-                  </p>
-
-                  <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-green-500" />
-                    Propuestas Recibidas
-                  </h4>
-
-                  {loadingQuotes ? (
-                     <div className="py-8 flex justify-center">
-                        <Loader2 className="w-6 h-6 text-primary-500 animate-spin" />
-                     </div>
-                  ) : currentQuotes.length === 0 ? (
-                    <div className="p-8 text-center bg-gray-800 rounded-2xl border border-dashed border-gray-700 text-gray-500">
-                      Aún no has recibido propuestas para este pedido. 
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                       {currentQuotes.map(quote => (
-                          <div key={quote.id} className="p-4 bg-gray-800 rounded-2xl border border-gray-700 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                             <div className="flex items-center gap-3 w-full sm:w-auto">
-                                <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-white font-bold overflow-hidden border border-gray-600">
-                                   {quote.provider.avatarUrl ? (
-                                     <img src={quote.provider.avatarUrl} alt={quote.provider.firstName} className="w-full h-full object-cover" />
-                                   ) : quote.provider.firstName[0]}
-                                </div>
-                                <div>
-                                   <p className="font-bold text-white">{quote.provider.firstName} {quote.provider.lastName}</p>
-                                   <p className="text-sm text-gray-400 italic line-clamp-1">"{quote.description}"</p>
-                                </div>
-                             </div>
-                             <div className="flex items-center justify-between w-full sm:w-auto gap-6 border-t border-gray-700 sm:border-t-0 pt-4 sm:pt-0">
-                                <div className="text-center sm:text-right">
-                                   <p className="text-xs text-gray-500 uppercase font-bold">Total</p>
-                                   <p className="text-xl font-bold text-green-400">${quote.price.toLocaleString()}</p>
-                                </div>
-                                <button 
-                                   onClick={() => handleAcceptQuote(quote.id)}
-                                   disabled={!!actionLoading}
-                                   className="btn-primary px-6 py-2.5 flex items-center gap-2 shadow-lg shadow-primary-500/20"
-                                >
-                                   {actionLoading === quote.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                                   Aceptar
-                                </button>
-                             </div>
-                          </div>
-                       ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
+      {/* Empty State Final Call */}
+      {requests.length === 0 && bookings.length === 0 && (
+        <div className="flex flex-col items-center justify-center p-12 bg-gray-900 rounded-[3rem] border border-gray-800 shadow-2xl">
+           <AlertCircle className="w-16 h-16 text-gray-600 mb-4" />
+           <h3 className="text-xl font-bold text-white mb-2 font-display">Todo bajo control</h3>
+           <p className="text-gray-500 text-sm text-center max-w-xs mb-8">No tienes gestiones pendientes en este momento. ¡Buen trabajo!</p>
+           <button 
+             onClick={() => navigate('/dashboard')}
+             className="w-full bg-gray-800 text-white font-bold py-3 rounded-2xl hover:bg-gray-700 transition"
+           >
+             Volver al Inicio
+           </button>
         </div>
       )}
     </div>

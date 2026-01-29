@@ -63,14 +63,14 @@ export function DashboardLayout() {
     { icon: PlusCircle, label: 'Solicitar Servicio', path: '/request-wizard', hide: isProvider, description: 'Nueva solicitud general' },
     { icon: Users, label: 'Profesionales', path: '/professionals', hide: isProvider, description: 'Directorio de trabajadores' },
     // Client specific
-    { icon: Layers, label: 'Mis Pedidos', path: '/my-requests', hide: isProvider, description: 'Solicitudes abiertas' },
+    { icon: Layers, label: 'Mis Solicitudes', path: '/my-requests', hide: isProvider, description: 'Estado de tus solicitudes' },
     
     // Provider specific
     { icon: Globe, label: 'Panel Profesional', path: '/leads', hide: !isProvider, description: 'Tu centro de trabajo' },
     { icon: User, label: 'Mi Perfil Profesional', path: '/my-services', hide: !isProvider, description: 'Gestionar perfil y servicios' },
     
     // Common
-    { icon: Calendar, label: 'Reservas', path: '/my-jobs', hide: isProvider, description: 'Trabajos confirmados' },
+    { icon: Calendar, label: 'Reservas', path: '/my-jobs', hide: !isProvider, description: 'Trabajos confirmados' },
     { icon: MessageSquare, label: 'Chat', path: '/chat', description: 'Conversaciones' },
   ];
 
