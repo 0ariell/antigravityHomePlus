@@ -9,7 +9,7 @@ import { ProvidersPage } from './pages/services';
 import { MyJobsPage } from './pages/jobs';
 import { ChatPage } from './pages/chat';
 import { MyServicesPage } from './pages/my-services';
-import { MyRequestsPage, ProviderLeads, RequestWizard } from './pages/requests';
+import { MyRequestsPage, ProviderLeads, RequestWizard, LeadDetailPage } from './pages/requests';
 import { SettingsPage } from './pages/settings';
 import { HelpPage } from './pages/help';
 import { ProfilePage } from './pages/profile/ProfilePage';

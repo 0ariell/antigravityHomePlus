@@ -4,6 +4,8 @@ export interface CreateQuoteDto {
   requestId: string;
   price: number;
   description?: string;
+  isAsap?: boolean;
+  estimatedDate?: string;
 }
 
 export interface Quote {

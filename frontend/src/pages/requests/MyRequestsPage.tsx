@@ -8,7 +8,6 @@ import {
     Calendar,
     ChevronDown,
     ChevronUp,
-    Info,
     User,
     MessageSquare,
     ExternalLink,

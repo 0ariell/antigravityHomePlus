@@ -10,8 +10,6 @@ import {
   Loader2, 
   CheckCircle2, 
   Info,
-  ChevronRight,
-  User,
   Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
