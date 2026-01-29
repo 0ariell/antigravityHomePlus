@@ -19,6 +19,7 @@ interface Booking {
   id: string;
   status: string;
   description: string;
+  images: string[];
   createdAt: string;
   service?: { title: string };
   provider: {
@@ -50,6 +51,8 @@ function CompactRequestCard({ req, onExpand, isExpanded, quotes, loadingQuotes, 
   loadingQuotes: boolean,
   onAcceptQuote: (id: string) => void
 }) {
+  const [expandedQuoteId, setExpandedQuoteId] = useState<string | null>(null);
+
   return (
     <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden hover:border-primary-500/30 transition-colors">
       <div className="p-4 flex items-center justify-between gap-4">
@@ -89,29 +92,54 @@ function CompactRequestCard({ req, onExpand, isExpanded, quotes, loadingQuotes, 
             exit={{ height: 0, opacity: 0 }}
             className="border-t border-gray-800 bg-black/20"
           >
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-3">
               {loadingQuotes ? (
                 <div className="flex justify-center py-4"><Loader2 className="w-5 h-5 animate-spin text-primary-500" /></div>
               ) : quotes.length === 0 ? (
                 <p className="text-xs text-center text-gray-600 py-2">No hay presupuestos aún.</p>
               ) : (
                 quotes.map(quote => (
-                  <div key={quote.id} className="flex items-center justify-between bg-gray-800/80 p-3 rounded-xl border border-gray-700">
-                    <div className="flex items-center gap-2">
-                       <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden">
-                         {quote.provider.avatarUrl ? <img src={quote.provider.avatarUrl} className="w-full h-full object-cover" /> : <User className="w-4 h-4 m-2 text-gray-500" />}
-                       </div>
-                       <div>
-                         <p className="text-xs font-bold text-white">{quote.provider.firstName}</p>
-                         <p className="text-[10px] text-green-400 font-bold">${quote.price.toLocaleString()}</p>
-                       </div>
+                  <div key={quote.id} className="space-y-2">
+                    <div className="flex items-center justify-between bg-gray-800/80 p-3 rounded-xl border border-gray-700">
+                      <div className="flex items-center gap-3 flex-1">
+                         <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden shrink-0">
+                           {quote.provider.avatarUrl ? <img src={quote.provider.avatarUrl} className="w-full h-full object-cover" /> : <User className="w-4 h-4 m-2 text-gray-500" />}
+                         </div>
+                         <div className="min-w-0">
+                           <p className="text-xs font-bold text-white truncate">{quote.provider.firstName} {quote.provider.lastName}</p>
+                           <p className="text-[10px] text-green-400 font-bold">${quote.price.toLocaleString()}</p>
+                         </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => setExpandedQuoteId(expandedQuoteId === quote.id ? null : quote.id)}
+                          className={`text-[10px] font-bold px-3 py-1.5 rounded-lg transition-colors border ${expandedQuoteId === quote.id ? 'bg-gray-700 border-gray-600 text-white' : 'bg-gray-900/50 border-gray-700 text-gray-400 hover:text-white'}`}
+                        >
+                          {expandedQuoteId === quote.id ? 'Ocultar' : 'Ver Propuesta'}
+                        </button>
+                        <button 
+                          onClick={() => onAcceptQuote(quote.id)}
+                          className="text-[10px] font-bold bg-primary-500 text-white px-3 py-1.5 rounded-lg hover:bg-primary-600 transition-colors shadow-lg shadow-primary-500/20"
+                        >
+                          Aceptar
+                        </button>
+                      </div>
                     </div>
-                    <button 
-                      onClick={() => onAcceptQuote(quote.id)}
-                      className="text-[10px] font-bold bg-primary-500 text-white px-3 py-1.5 rounded-lg hover:bg-primary-600 transition-colors"
-                    >
-                      Aceptar
-                    </button>
+                    
+                    <AnimatePresence>
+                      {expandedQuoteId === quote.id && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="px-4 py-3 bg-primary-500/5 border border-primary-500/10 rounded-xl"
+                        >
+                          <p className="text-xs text-gray-300 leading-relaxed italic">
+                            "{quote.description || 'Sin descripción adicional.'}"
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 ))
               )}
@@ -124,6 +152,7 @@ function CompactRequestCard({ req, onExpand, isExpanded, quotes, loadingQuotes, 
 }
 
 function CompactBookingCard({ booking, navigate }: { booking: Booking, navigate: any }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const statusColors: any = {
     'PENDING': 'bg-amber-500/10 text-amber-500 border-amber-500/20',
     'ACCEPTED': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
@@ -132,42 +161,86 @@ function CompactBookingCard({ booking, navigate }: { booking: Booking, navigate:
   };
 
   return (
-    <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 flex items-center justify-between gap-4 hover:border-primary-500/30 transition-colors">
-      <div className="flex items-center gap-4 flex-1 min-w-0">
-        <div className="w-12 h-12 rounded-2xl bg-gray-800 flex items-center justify-center border border-gray-700 shrink-0">
-          {booking.provider.avatarUrl ? (
-            <img src={booking.provider.avatarUrl} className="w-full h-full object-cover rounded-2xl" />
-          ) : (
-            <User className="w-6 h-6 text-gray-500" />
-          )}
-        </div>
-        <div className="min-w-0">
-          <h3 className="text-sm font-bold text-white truncate">{booking.service?.title || 'Servicio Directo'}</h3>
-          <p className="text-xs text-gray-400">Con {booking.provider.firstName} {booking.provider.lastName}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase tracking-tighter ${statusColors[booking.status] || 'bg-gray-800 text-gray-500 border-gray-700'}`}>
-              {booking.status}
-            </span>
-            <span className="text-[10px] text-gray-600">{new Date(booking.createdAt).toLocaleDateString()}</span>
+    <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden hover:border-primary-500/30 transition-colors">
+      <div className="p-4 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          <div className="w-12 h-12 rounded-2xl bg-gray-800 flex items-center justify-center border border-gray-700 shrink-0">
+            {booking.provider.avatarUrl ? (
+              <img src={booking.provider.avatarUrl} className="w-full h-full object-cover rounded-2xl" />
+            ) : (
+              <User className="w-6 h-6 text-gray-500" />
+            )}
           </div>
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold text-white truncate">{booking.service?.title || 'Servicio Directo'}</h3>
+            <p className="text-xs text-gray-400">Con {booking.provider.firstName} {booking.provider.lastName}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className={`text-[10px] px-2 py-0.5 rounded-full border font-bold uppercase tracking-tighter ${statusColors[booking.status] || 'bg-gray-800 text-gray-500 border-gray-700'}`}>
+                {booking.status}
+              </span>
+              <span className="text-[10px] text-gray-600">{new Date(booking.createdAt).toLocaleDateString()}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => navigate('/chat', { state: { bookingId: booking.id } })}
+            className="p-2.5 bg-gray-800 text-gray-400 rounded-xl hover:text-white hover:bg-gray-700 transition-colors"
+            title="Ir al Chat"
+          >
+            <MessageSquare className="w-4 h-4" />
+          </button>
+          <button 
+             onClick={() => setIsExpanded(!isExpanded)}
+             className={`p-2.5 rounded-xl border transition-all ${isExpanded ? 'bg-primary-500 border-primary-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-400 hover:text-white'}`}
+          >
+            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button 
-          onClick={() => navigate('/chat', { state: { bookingId: booking.id } })}
-          className="p-2.5 bg-gray-800 text-gray-400 rounded-xl hover:text-white hover:bg-gray-700 transition-colors"
-          title="Ir al Chat"
-        >
-          <MessageSquare className="w-4 h-4" />
-        </button>
-        <button 
-           onClick={() => navigate(`/my-jobs`)}
-           className="p-2.5 bg-primary-500/10 text-primary-400 rounded-xl hover:bg-primary-500 hover:text-white transition-all shadow-lg shadow-primary-500/10"
-        >
-          <ExternalLink className="w-4 h-4" />
-        </button>
-      </div>
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="border-t border-gray-800 bg-black/20"
+          >
+            <div className="p-5 space-y-4">
+              <div className="space-y-2">
+                <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Descripción Enviada</h4>
+                <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">
+                  {booking.description}
+                </p>
+              </div>
+
+              {booking.images && booking.images.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Imágenes Adjuntas</h4>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {booking.images.map((img, idx) => (
+                      <div key={idx} className="w-20 h-20 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0">
+                        <img src={img} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-4 flex justify-end">
+                <button 
+                   onClick={() => navigate(`/my-jobs`)}
+                   className="flex items-center gap-2 text-[10px] font-bold text-primary-400 hover:text-primary-300 transition-colors"
+                >
+                  Ver en mis reservas <ExternalLink className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
