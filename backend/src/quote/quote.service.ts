@@ -31,6 +31,8 @@ export class QuoteService {
         providerId,
         price: dto.price,
         description: dto.description,
+        estimatedDate: dto.estimatedDate ? new Date(dto.estimatedDate) : null,
+        isAsap: dto.isAsap || false,
         status: QuoteStatus.PENDING,
       },
       include: {
@@ -94,7 +96,7 @@ export class QuoteService {
                 description: quote.request.description,
                 address: quote.request.zone, // We stored zone as address in request? Or should map Request.zone -> Booking.address
                 images: quote.request.images,
-                preferredDate: quote.request.preferredDate,
+                preferredDate: quote.estimatedDate || quote.request.preferredDate, // Take provider's estimate if available
                 quotedPrice: quote.price,
                 acceptedAt: new Date(),
                 conversation: { create: {} }

@@ -200,6 +200,9 @@ model Quote {
   price       Float
   description String?
   
+  estimatedDate DateTime? // Proposed date for the job
+  isAsap        Boolean   @default(false) // If true, provider offers to go "now"
+  
   status      QuoteStatus @default(PENDING)
   
   createdAt   DateTime    @default(now())

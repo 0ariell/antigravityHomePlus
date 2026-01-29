@@ -57,6 +57,7 @@ function App() {
           <Route path="/request-wizard" element={<RequestWizard />} />
           <Route path="/my-requests" element={<MyRequestsPage />} />
           <Route path="/leads" element={<ProviderLeads />} />
+          <Route path="/leads/:id" element={<LeadDetailPage />} />
           
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/my-services" element={<MyServicesPage />} />

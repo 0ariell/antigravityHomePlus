@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { requestsService, type ServiceRequest } from '../../services/requests.service';
-import { quotesService } from '../../services/quotes.service';
 import { httpClient } from '../../infra/http';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Clock, Loader2, DollarSign, CheckCircle, List, Map as MapIcon, Globe, ArrowRight, Star, Send, TrendingUp, BarChart, PieChart, Briefcase } from 'lucide-react';
@@ -44,10 +43,6 @@ export function ProviderLeads() {
 
   // Quote Form
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
-  const [quotePrice, setQuotePrice] = useState('');
-  const [quoteDesc, setQuoteDesc] = useState('');
-  const [sendingQuote, setSendingQuote] = useState(false);
-  
   // View options
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [isGlobal, setIsGlobal] = useState(false);
@@ -99,29 +94,6 @@ export function ProviderLeads() {
       console.error('Error loading data', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSendQuote = async (requestId: string) => {
-    if (!quotePrice) return;
-    setSendingQuote(true);
-    try {
-        await quotesService.create({
-            requestId,
-            price: parseFloat(quotePrice),
-            description: quoteDesc
-        });
-        alert('¡Presupuesto enviado!');
-        setSelectedRequest(null);
-        setQuotePrice('');
-        setQuoteDesc('');
-        loadData(); 
-        setActiveTab('MY_QUOTES'); 
-    } catch (error: any) {
-        console.error(error);
-        alert(error.response?.data?.message || 'Error al enviar cotización');
-    } finally {
-      setSendingQuote(false);
     }
   };
 
@@ -376,58 +348,13 @@ export function ProviderLeads() {
                 {req.description}
             </p>
 
-            {!isSelected ? (
-                    <button 
-                    onClick={() => openQuoteForm(req.id)}
-                    className="w-full btn-primary py-3 font-bold shadow-lg shadow-primary-500/20 flex items-center justify-center gap-2 group"
-                    >
-                    Enviar Presupuesto
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-            ) : (
-                <motion.div 
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    className="pt-6 border-t border-gray-700"
-                >
-                    <h4 className="font-bold text-white mb-4 flex items-center gap-2">
-                        <DollarSign className="w-5 h-5 text-primary-500" />
-                        Tu propuesta
-                    </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                        <div>
-                            <label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5 block">Precio ($)</label>
-                            <input 
-                                type="number" 
-                                value={quotePrice}
-                                onChange={e => setQuotePrice(e.target.value)}
-                                className="input-field"
-                                placeholder="0.00"
-                                autoFocus
-                            />
-                        </div>
-                        <div>
-                            <label className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5 block">Notas</label>
-                            <input 
-                                value={quoteDesc}
-                                onChange={e => setQuoteDesc(e.target.value)}
-                                className="input-field"
-                                placeholder="Detalles..."
-                            />
-                        </div>
-                    </div>
-                    <div className="flex gap-3">
-                        <button onClick={() => setSelectedRequest(null)} className="btn-secondary flex-1">Cancelar</button>
-                        <button 
-                            onClick={() => handleSendQuote(req.id)}
-                            disabled={sendingQuote || !quotePrice}
-                            className="btn-primary flex-1 flex justify-center items-center gap-2"
-                        >
-                            {sendingQuote ? <Loader2 className="animate-spin" /> : 'Enviar'}
-                        </button>
-                    </div>
-                </motion.div>
-            )}
+            <button 
+                onClick={() => navigate(`/leads/${req.id}`)}
+                className="w-full btn-primary py-3 font-bold shadow-lg shadow-primary-500/20 flex items-center justify-center gap-2 group"
+            >
+                Ver detalle y cotizar
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
         </motion.div>
       );
   };

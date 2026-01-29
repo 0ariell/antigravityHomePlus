@@ -12,4 +12,6 @@ export class CreateQuoteDto {
   @IsString()
   @IsOptional()
   description?: string;
+  estimatedDate?: string;
+  isAsap?: boolean;
 }

@@ -33,7 +33,7 @@ export interface ServiceRequest {
     address?: string;
   };
   _count?: { quotes: number };
-  quotes?: { id: string }[]; // Minimal info to check if quoted
+  quotes?: { id: string, price: number, status: string, isAsap: boolean, estimatedDate?: string, provider: { firstName: string, lastName: string, avatarUrl?: string, avgRating?: number } }[];
 }
 
 export const requestsService = {
@@ -64,7 +64,7 @@ export const requestsService = {
     return response.data;
   },
 
-  getMyQuotes: async (): Promise<{ id: string, status: string, price: number, request: ServiceRequest }[]> => {
+  getMyQuotes: async (): Promise<{ id: string, status: string, price: number, isAsap: boolean, estimatedDate?: string, request: ServiceRequest }[]> => {
     const response = await httpClient.get('/api/quotes/my-quotes');
     return response.data;
   }

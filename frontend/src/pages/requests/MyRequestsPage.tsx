@@ -1,15 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Clock, 
-  ChevronDown, 
-  ChevronUp, 
-  Loader2, 
-  AlertCircle,
-  Briefcase,
-  User,
-  ExternalLink,
-  MessageSquare
+    Clock, 
+    AlertCircle, 
+    Loader2, 
+    Zap, 
+    Calendar,
+    ChevronDown,
+    ChevronUp,
+    Info,
+    User,
+    MessageSquare,
+    ExternalLink,
+    Briefcase
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { requestsService, type ServiceRequest } from '../../services/requests.service';
@@ -36,12 +39,14 @@ interface Quote {
   id: string;
   price: number;
   description: string;
+  estimatedDate?: string;
+  isAsap: boolean;
   provider: {
     id: string;
     firstName: string;
     lastName: string;
     avatarUrl: string | null;
-    avgRating: number;
+    avgRating?: number;
   };
 }
 
@@ -153,7 +158,18 @@ function CompactRequestCard({ req, onExpand, isExpanded, quotes, loadingQuotes, 
                              </div>
                              <div className="min-w-0">
                                <p className="text-xs font-bold text-white truncate">{quote.provider.firstName} {quote.provider.lastName}</p>
-                               <p className="text-[10px] text-green-400 font-bold">${quote.price.toLocaleString()}</p>
+                               <div className="flex items-center gap-2">
+                                  <p className="text-[10px] text-green-400 font-bold">${quote.price.toLocaleString()}</p>
+                                  {quote.isAsap ? (
+                                    <span className="text-[8px] bg-primary-500/20 text-primary-400 px-1.5 py-0.5 rounded-full font-black border border-primary-500/20 flex items-center gap-0.5">
+                                      <Zap className="w-2 h-2" /> YA MISMO
+                                    </span>
+                                  ) : quote.estimatedDate && (
+                                    <span className="text-[8px] bg-gray-800 text-gray-400 px-1.5 py-0.5 rounded-full font-bold border border-gray-700 flex items-center gap-0.5">
+                                      <Calendar className="w-2 h-2" /> {new Date(quote.estimatedDate).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                                    </span>
+                                  )}
+                               </div>
                              </div>
                           </div>
                           <div className="flex items-center gap-2">
