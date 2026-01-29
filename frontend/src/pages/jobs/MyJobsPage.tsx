@@ -80,7 +80,7 @@ export function MyJobsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-gray-900/50 backdrop-blur-md p-1 rounded-2xl overflow-x-auto border border-gray-800">
+      <div className="flex bg-gray-900/50 backdrop-blur-md p-2 rounded-2xl overflow-x-auto border border-gray-800 gap-1">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;

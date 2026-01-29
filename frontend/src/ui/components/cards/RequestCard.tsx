@@ -25,7 +25,7 @@ export function RequestCard({
     <motion.div
       whileHover={{ y: -2 }}
       onClick={onClick}
-      className="card p-5 shadow-sm hover:shadow-lg transition-all cursor-pointer group hover:bg-gray-800/40"
+      className="card p-4 shadow-sm hover:shadow-lg transition-all cursor-pointer group hover:bg-gray-800/40"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">

@@ -102,7 +102,7 @@ export function ChatPage() {
           }`}
         >
           {/* Header */}
-          <div className="p-5 border-b border-gray-700/50">
+          <div className="p-4 border-b border-gray-800">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white">
                 Mensajes
@@ -118,7 +118,7 @@ export function ChatPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar conversación..."
-                className="w-full pl-11 pr-4 py-3 bg-gray-900/40 border border-gray-800 rounded-xl text-sm text-white placeholder-gray-500 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none"
+                className="w-full pl-11 pr-4 py-3 bg-gray-900/40 border border-gray-800 rounded-lg text-sm text-white placeholder-gray-500 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none"
               />
             </div>
           </div>

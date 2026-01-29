@@ -75,10 +75,10 @@ export function BookingCard({
           'bg-gray-600'
         }`} />
 
-        <div className="flex-1 p-5 lg:p-6">
+        <div className="flex-1 p-4 lg:p-4">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gray-700 overflow-hidden flex-shrink-0">
+              <div className="w-14 h-14 rounded-lg bg-gray-700 overflow-hidden flex-shrink-0">
                 {image ? (
                   <img src={image} alt={title} className="w-full h-full object-cover" />
                 ) : (

@@ -91,7 +91,7 @@ export function ServiceCard({
         </div>
 
         {/* Content Area */}
-        <div className="p-5">
+        <div className="p-4">
           <div className="flex justify-between items-start mb-2">
             <div>
               <h3 className="text-lg font-bold text-white line-clamp-1 group-hover:text-primary-400 transition-colors">

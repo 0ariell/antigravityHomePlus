@@ -5,7 +5,6 @@ import {
   ChevronRight, 
   MapPin, 
   Calendar, 
-  DollarSign, 
   Zap, 
   Globe, 
   List,
@@ -150,19 +149,19 @@ export function ProviderDashboard() {
                       <span className="block text-white font-bold text-sm">Mi Agenda</span>
                       <span className="text-[10px] text-gray-500 uppercase font-black tracking-tight">Gestionar trabajos</span>
                   </button>
-                  <button onClick={() => navigate('/leads', { state: { initialTab: 'OPPORTUNITIES' } })} className="bg-gray-900 border border-gray-800 hover:bg-gray-800 p-4 rounded-xl text-left transition-all group">
+                  <button onClick={() => navigate('/leads', { state: { initialTab: 'OPPORTUNITIES' } })} className="bg-gray-900/50 border border-gray-800 hover:bg-primary-500/5 p-4 rounded-2xl text-left transition-all group backdrop-blur-sm">
                       <div className="bg-primary-500/10 w-fit p-2 rounded-lg mb-3 group-hover:scale-110 transition-transform">
                           <Globe className="w-5 h-5 text-primary-500" />
                       </div>
                       <span className="block text-white font-bold text-sm">Búsqueda</span>
-                      <span className="text-xs text-gray-500">Encontrar clientes</span>
+                      <span className="text-[10px] text-gray-500 uppercase font-black tracking-tight">Encontrar clientes</span>
                   </button>
-                  <button onClick={() => navigate('/leads', { state: { initialTab: 'MY_QUOTES' } })} className="bg-gray-900 border border-gray-800 hover:bg-gray-800 p-4 rounded-xl text-left transition-all group">
-                      <div className="bg-purple-500/10 w-fit p-2 rounded-lg mb-3 group-hover:scale-110 transition-transform">
-                          <DollarSign className="w-5 h-5 text-purple-500" />
+                  <button onClick={() => navigate('/leads', { state: { initialTab: 'MY_QUOTES' } })} className="bg-gray-900/50 border border-gray-800 hover:bg-primary-500/5 p-4 rounded-2xl text-left transition-all group backdrop-blur-sm">
+                      <div className="bg-amber-500/10 w-fit p-2 rounded-lg mb-3 group-hover:scale-110 transition-transform">
+                          <List className="w-5 h-5 text-amber-500" />
                       </div>
-                      <span className="block text-white font-bold text-sm">Presupuestos</span>
-                      <span className="text-xs text-gray-500">Historial enviado</span>
+                      <span className="block text-white font-bold text-sm">Mis Cotizaciones</span>
+                      <span className="text-[10px] text-gray-500 uppercase font-black tracking-tight">Historial de enviado</span>
                   </button>
                </div>
           </div>

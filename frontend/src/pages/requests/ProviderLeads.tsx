@@ -84,7 +84,7 @@ export function ProviderLeads() {
             <p className="text-gray-400 text-lg">Encuentra clientes y gestiona tus presupuestos recibidos.</p>
         </div>
 
-        <div className="flex bg-gray-900/50 backdrop-blur-md p-1 rounded-2xl w-full sm:w-fit border border-gray-800 overflow-x-auto">
+        <div className="flex bg-gray-900/50 backdrop-blur-md p-2 rounded-2xl w-full sm:w-fit border border-gray-800 overflow-x-auto gap-1">
            {[
                { id: 'DIRECT', label: 'Mis Solicitudes', icon: Star },
                { id: 'OPPORTUNITIES', label: 'Oportunidades', icon: Globe },
@@ -93,7 +93,7 @@ export function ProviderLeads() {
                <button
                  key={tab.id}
                  onClick={() => setActiveTab(tab.id as TabType)}
-                 className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap flex items-center gap-2 transition-all ${
+                 className={`flex-1 sm:flex-none px-6 py-2 rounded-xl text-sm font-bold whitespace-nowrap flex items-center gap-2 transition-all ${
                    activeTab === tab.id 
                      ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20' 
                      : 'text-gray-400 hover:text-white hover:bg-white/5'
@@ -102,7 +102,7 @@ export function ProviderLeads() {
                  <tab.icon className="w-4 h-4" />
                  {tab.label}
                </button>
-           ))}
+            ))}
         </div>
       </div>
 

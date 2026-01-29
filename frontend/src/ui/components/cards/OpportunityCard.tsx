@@ -45,7 +45,7 @@ export function OpportunityCard({
       <motion.div
         whileHover={{ y: -4, scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
-        className={`group relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-5 border transition-all duration-300 ${isUrgent ? 'border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'border-gray-800'}`}
+        className={`group relative bg-gray-900/50 backdrop-blur-sm rounded-2xl p-4 border transition-all duration-300 ${isUrgent ? 'border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.1)]' : 'border-gray-800'}`}
       >
         {isUrgent && (
           <div className="absolute top-0 right-0 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold rounded-bl-xl rounded-tr-xl flex items-center gap-1 shadow-md">
