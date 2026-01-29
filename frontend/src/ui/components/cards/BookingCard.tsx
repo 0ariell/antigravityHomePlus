@@ -63,7 +63,7 @@ export function BookingCard({
       animate={{ opacity: 1, y: 0 }}
       layout
       onClick={onClick}
-      className={`bg-gray-800/50 rounded-3xl p-0 border border-gray-700/50 overflow-hidden hover:bg-gray-800/70 transition-all ${onClick ? 'cursor-pointer' : ''}`}
+      className={`bg-gray-900/50 backdrop-blur-sm rounded-2xl p-0 border border-gray-800/50 overflow-hidden hover:bg-gray-800/40 transition-all ${onClick ? 'cursor-pointer' : ''}`}
     >
       <div className="flex flex-col sm:flex-row">
         {/* Left Status Strip */}

@@ -97,7 +97,7 @@ export function ChatPage() {
         <motion.div 
           initial={{ x: -20 }}
           animate={{ x: 0 }}
-          className={`w-full lg:w-96 flex flex-col bg-gray-800/50 rounded-2xl border border-gray-700/50 overflow-hidden shadow-sm ${
+          className={`w-full lg:w-96 flex flex-col bg-gray-900/50 backdrop-blur-md rounded-2xl border border-gray-800 overflow-hidden shadow-lg ${
             selectedConversation ? 'hidden lg:flex' : 'flex'
           }`}
         >
@@ -118,7 +118,7 @@ export function ChatPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar conversación..."
-                className="w-full pl-11 pr-4 py-3 bg-gray-900/50 border border-gray-700 rounded-xl text-sm text-white placeholder-gray-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
+                className="w-full pl-11 pr-4 py-3 bg-gray-900/40 border border-gray-800 rounded-xl text-sm text-white placeholder-gray-500 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none"
               />
             </div>
           </div>
@@ -185,13 +185,13 @@ export function ChatPage() {
         </motion.div>
 
         {/* Chat Area */}
-        <div className={`flex-1 flex flex-col bg-gray-800/50 rounded-2xl border border-gray-700/50 overflow-hidden shadow-sm ${
+        <div className={`flex-1 flex flex-col bg-gray-900/40 backdrop-blur-md rounded-2xl border border-gray-800 overflow-hidden shadow-xl ${
           selectedConversation ? 'flex' : 'hidden lg:flex'
         }`}>
           {selectedConversation ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-700/50 bg-gray-800/80 backdrop-blur-sm">
+              <div className="p-4 border-b border-gray-800 bg-gray-900/60 backdrop-blur-xl">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <button 
@@ -331,7 +331,7 @@ export function ChatPage() {
                       value={newMessage}
                       onChange={handleTypingInput}
                       placeholder="Escribe un mensaje..."
-                      className="w-full px-5 py-3.5 bg-gray-700/50 border border-gray-600 text-white placeholder-gray-400 rounded-2xl pr-12 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
+                      className="w-full px-5 py-3.5 bg-gray-900/40 border border-gray-800 text-white placeholder-gray-500 rounded-2xl pr-12 focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none"
                     />
                     <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-600 rounded-lg transition-colors">
                       <Smile className="w-5 h-5 text-gray-400" />

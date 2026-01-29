@@ -227,7 +227,7 @@ function CompactBookingCard({ booking, navigate }: { booking: Booking, navigate:
 
   return (
     <div className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden hover:border-primary-500/30 transition-colors">
-      <div className="p-4 flex items-center justify-between gap-4">
+      <div className="card p-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-1 min-w-0">
           <div className="w-12 h-12 rounded-2xl bg-gray-800 flex items-center justify-center border border-gray-700 shrink-0">
             {booking.provider.avatarUrl ? (
@@ -427,7 +427,7 @@ export function MyRequestsPage() {
          </div>
          
          {bookings.length === 0 ? (
-           <div className="p-10 border border-dashed border-gray-800 rounded-[2rem] text-center bg-gray-900/20">
+           <div className="p-10 border border-dashed border-gray-800 rounded-2xl text-center bg-gray-900/10">
               <p className="text-gray-600 text-sm italic">No hay solicitudes directas o confirmadas.</p>
            </div>
          ) : (
@@ -448,7 +448,7 @@ export function MyRequestsPage() {
          </div>
 
          {requests.length === 0 ? (
-           <div className="p-10 border border-dashed border-gray-800 rounded-[2rem] text-center bg-gray-900/20">
+           <div className="p-10 border border-dashed border-gray-800 rounded-2xl text-center bg-gray-900/10">
               <p className="text-gray-600 text-sm italic">No tienes otras solicitudes abiertas.</p>
            </div>
          ) : (
@@ -470,13 +470,13 @@ export function MyRequestsPage() {
 
       {/* Empty State Final Call */}
       {requests.length === 0 && bookings.length === 0 && (
-        <div className="flex flex-col items-center justify-center p-12 bg-gray-900 rounded-[3rem] border border-gray-800 shadow-2xl">
+        <div className="flex flex-col items-center justify-center p-12 glass rounded-2xl shadow-2xl">
            <AlertCircle className="w-16 h-16 text-gray-600 mb-4" />
            <h3 className="text-xl font-bold text-white mb-2 font-display">Todo bajo control</h3>
            <p className="text-gray-500 text-sm text-center max-w-xs mb-8">No tienes gestiones pendientes en este momento. ¡Buen trabajo!</p>
            <button 
              onClick={() => navigate('/dashboard')}
-             className="w-full bg-gray-800 text-white font-bold py-3 rounded-2xl hover:bg-gray-700 transition"
+             className="w-full btn-secondary"
            >
              Volver al Inicio
            </button>

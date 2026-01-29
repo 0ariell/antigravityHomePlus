@@ -25,11 +25,11 @@ export function RequestCard({
     <motion.div
       whileHover={{ y: -2 }}
       onClick={onClick}
-      className={`bg-gray-800/50 rounded-2xl p-5 border border-gray-700/50 shadow-sm hover:shadow-md transition-all cursor-pointer group`}
+      className="card p-5 shadow-sm hover:shadow-lg transition-all cursor-pointer group hover:bg-gray-800/40"
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-1 bg-primary-500/10 text-primary-400 text-xs font-semibold rounded-lg">
+          <span className="px-2.5 py-1 bg-primary-500/10 text-primary-400 text-[10px] font-black rounded-lg uppercase tracking-wider border border-primary-500/10">
             {category}
           </span>
           <span className="text-xs text-gray-400 flex items-center gap-1">

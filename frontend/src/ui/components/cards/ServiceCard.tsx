@@ -41,7 +41,7 @@ export function ServiceCard({
   return (
     <Link to={`/services/${id}`}>
       <motion.div
-        className="group relative bg-gray-800/50 rounded-3xl overflow-hidden border border-gray-700/50 hover:bg-gray-800/70 transition-all duration-300"
+        className="group relative card overflow-hidden hover:bg-gray-800/40 transition-all duration-300"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         whileHover={{ y: -5 }}

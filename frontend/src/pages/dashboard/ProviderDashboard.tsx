@@ -52,12 +52,12 @@ export function ProviderDashboard() {
              </h1>
           </div>
           <div className="flex gap-3">
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 min-w-[140px]">
-                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Este Mes</p>
+              <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-4 min-w-[140px] shadow-sm">
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Este Mes</p>
                   <p className="text-2xl font-bold text-white font-mono">${stats.monthRevenue.toLocaleString()}</p>
               </div>
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 min-w-[140px]">
-                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Activos</p>
+              <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 rounded-2xl p-4 min-w-[140px] shadow-sm">
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1">Activos</p>
                   <div className="flex items-center gap-2">
                      <p className="text-2xl font-bold text-primary-500">{stats.activeJobs}</p>
                      <Briefcase className="w-4 h-4 text-gray-600" />
@@ -77,7 +77,7 @@ export function ProviderDashboard() {
           </div>
           
           {nextBooking ? (
-              <div className="bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-800 rounded-2xl p-6 relative overflow-hidden group hover:border-gray-700 transition-colors cursor-pointer" onClick={() => navigate('/my-jobs')}>
+              <div className="bg-gray-900/50 backdrop-blur-md border border-gray-800 rounded-2xl p-6 relative overflow-hidden group hover:border-primary-500/30 transition-all cursor-pointer shadow-lg" onClick={() => navigate('/my-jobs')}>
                    <div className="absolute top-0 right-0 p-4 opacity-50">
                        <Zap className="w-24 h-24 text-gray-800 -mr-8 -mt-8 transform rotate-12" />
                    </div>
@@ -143,12 +143,12 @@ export function ProviderDashboard() {
                   Accesos Directos
                </h3>
                <div className="grid gap-3">
-                  <button onClick={() => navigate('/my-jobs')} className="bg-gray-900 border border-gray-800 hover:bg-gray-800 p-4 rounded-xl text-left transition-all group">
+                  <button onClick={() => navigate('/my-jobs')} className="bg-gray-900/50 border border-gray-800 hover:bg-primary-500/5 p-4 rounded-2xl text-left transition-all group backdrop-blur-sm">
                       <div className="bg-blue-500/10 w-fit p-2 rounded-lg mb-3 group-hover:scale-110 transition-transform">
                           <Calendar className="w-5 h-5 text-blue-500" />
                       </div>
                       <span className="block text-white font-bold text-sm">Mi Agenda</span>
-                      <span className="text-xs text-gray-500">Gestionar trabajos</span>
+                      <span className="text-[10px] text-gray-500 uppercase font-black tracking-tight">Gestionar trabajos</span>
                   </button>
                   <button onClick={() => navigate('/leads', { state: { initialTab: 'OPPORTUNITIES' } })} className="bg-gray-900 border border-gray-800 hover:bg-gray-800 p-4 rounded-xl text-left transition-all group">
                       <div className="bg-primary-500/10 w-fit p-2 rounded-lg mb-3 group-hover:scale-110 transition-transform">

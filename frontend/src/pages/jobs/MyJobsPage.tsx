@@ -80,7 +80,7 @@ export function MyJobsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 p-1 bg-gray-800 rounded-2xl overflow-x-auto border border-gray-700">
+      <div className="flex bg-gray-900/50 backdrop-blur-md p-1 rounded-2xl overflow-x-auto border border-gray-800">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
@@ -88,19 +88,19 @@ export function MyJobsPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all relative ${
+              className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all relative ${
                 isActive
-                  ? 'bg-gray-700 text-white shadow-sm ring-1 ring-white/10'
-                  : 'text-gray-400 hover:text-gray-300'
+                  ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-primary-400' : ''}`} />
+              <Icon className="w-4 h-4" />
               {tab.label}
               {tab.count > 0 && (
-                <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
+                <span className={`ml-1 px-2 py-0.5 rounded-full text-[10px] font-black tracking-tighter ${
                   isActive 
-                    ? 'bg-primary-500/20 text-primary-300' 
-                    : 'bg-gray-700 text-gray-400'
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-gray-800 text-gray-500'
                 }`}>
                   {tab.count}
                 </span>
