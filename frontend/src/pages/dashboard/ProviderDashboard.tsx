@@ -1,391 +1,414 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  TrendingUp, 
-  Clock, 
-  Star, 
-  DollarSign,
-  MapPin,
+  Globe,
+  Briefcase,
+  List,
+  MapPin, 
+  Loader2, 
+  Calendar,
   ChevronRight,
-  Zap,
-  CheckCircle,
-  AlertCircle,
-  MessageSquare,
-  Briefcase
+  Map as MapIcon 
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
-import { useAuthStore } from '../../app/stores';
-import { SkeletonStats, SkeletonCard } from '../../ui';
-import { OpportunityCard } from '../../ui/components/cards/OpportunityCard';
+import { requestsService, type ServiceRequest } from '../../services/requests.service';
+import { MapLeadsView } from '../../components/MapLeadsView';
 
-interface ProviderStats {
-  activeJobs: number;
-  completedJobs: number;
-  pendingQuotes: number;
-  monthlyEarnings: number;
-  rating: number;
-  totalReviews: number;
+interface MyQuote {
+    id: string;
+    status: string;
+    price: number;
+    request: ServiceRequest;
 }
 
-interface LeadRequest {
+interface Booking {
   id: string;
-  title: string;
+  status: 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'REJECTED';
   description: string;
-  category: string;
-  zone: string;
-  urgency: string;
-  budget: number | null;
   createdAt: string;
+  quotedPrice: number | null;
   client: {
     firstName: string;
     lastName: string;
+    avatarUrl?: string | null;
   };
+   service: {
+    title: string;
+  } | null;
 }
 
 export function ProviderDashboard() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
-  const [stats, setStats] = useState<ProviderStats>({
-    activeJobs: 0,
-    completedJobs: 0,
-    pendingQuotes: 0,
-    monthlyEarnings: 0,
-    rating: 0,
-    totalReviews: 0,
+  // Tabs: SEARCH (Opportunities + Direct), SCHEDULE (Jobs), MANAGEMENT (Quotes)
+  const [activeTab, setActiveTab] = useState<'SEARCH' | 'SCHEDULE' | 'MANAGEMENT'>('SEARCH');
+  const [loading, setLoading] = useState(true);
+  
+  // Data
+  const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [directRequests, setDirectRequests] = useState<ServiceRequest[]>([]);
+  const [myQuotes, setMyQuotes] = useState<MyQuote[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  
+  // Stats
+  const [stats, setStats] = useState({ 
+    sent: 0, 
+    accepted: 0, 
+    pendingMoney: 0, 
+    totalRevenue: 0 
   });
-  const [leads, setLeads] = useState<LeadRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // View options
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
+  const [isGlobal, setIsGlobal] = useState(false);
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    loadData();
+  }, [activeTab, isGlobal]);
 
-  const loadDashboardData = async () => {
-    setIsLoading(true);
+  const loadData = async () => {
+    setLoading(true);
     try {
-      const [bookingsRes, leadsRes] = await Promise.all([
-        httpClient.get('/bookings/my-bookings').catch(() => ({ data: [] })),
-        httpClient.get('/service-requests').catch(() => ({ data: { data: [] } })),
+      // Parallel Data Fetching
+      const [quotesData, bookingsRes] = await Promise.all([
+         requestsService.getMyQuotes(),
+         httpClient.get('/bookings/my-bookings')
       ]);
 
-      const bookings = bookingsRes.data || [];
-      const leadsData = leadsRes.data?.data || [];
+      const quotes = quotesData || [];
+      const userBookings = bookingsRes.data || [];
 
-      const activeJobs = bookings.filter((b: any) => ['ACCEPTED', 'IN_PROGRESS'].includes(b.status)).length;
-      const completedJobs = bookings.filter((b: any) => b.status === 'COMPLETED').length;
-      const pendingQuotes = bookings.filter((b: any) => b.status === 'PENDING').length;
+      setMyQuotes(quotes);
+      setBookings(userBookings);
       
-      const monthlyEarnings = bookings
-        .filter((b: any) => b.status === 'COMPLETED')
-        .reduce((sum: number, b: any) => sum + (b.quotedPrice || 0), 0);
-
+      // Calculate Stats
+      const sent = quotes.length;
+      const accepted = quotes.filter(q => q.status === 'ACCEPTED').length;
+      const pendingMoney = quotes
+          .filter(q => q.status === 'PENDING')
+          .reduce((acc, q) => acc + q.price, 0);
+      const totalRevenue = quotes
+          .filter(q => q.status === 'ACCEPTED')
+          .reduce((acc, q) => acc + q.price, 0);
+      
       setStats({
-        activeJobs,
-        completedJobs,
-        pendingQuotes,
-        monthlyEarnings,
-        rating: (user as any)?.avgRating || 0,
-        totalReviews: (user as any)?.totalReviews || 0,
+          sent,
+          accepted,
+          pendingMoney,
+          totalRevenue
       });
 
-      setLeads(leadsData.slice(0, 5));
+      // Load specific tab data
+      if (activeTab === 'SEARCH') {
+         const [direct, opportunities] = await Promise.all([
+            requestsService.getDirect(), // Always fetch direct
+            isGlobal ? requestsService.getAllOpen() : requestsService.getNearbyOpen()
+         ]);
+         setDirectRequests(direct || []);
+         setRequests(opportunities || []);
+      }
+      
     } catch (error) {
-      console.error('Error loading dashboard:', error);
+      console.error('Error loading data', error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const StatCard = ({ 
-    icon: Icon, 
-    label, 
-    value, 
-    subtext,
-    color,
-    onClick 
-  }: { 
-    icon: any; 
-    label: string; 
-    value: string | number; 
-    subtext?: string;
-    color: string;
-    onClick?: () => void;
-  }) => (
-    <motion.button
-      whileHover={{ y: -4, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className={`w-full text-left card p-5 relative overflow-hidden group ${onClick ? 'cursor-pointer' : ''}`}
-    >
-      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${color} opacity-10 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110`} />
-      
-      <div className="flex items-start justify-between mb-4 relative">
-        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
-        {onClick && (
-          <ChevronRight className="w-5 h-5 text-gray-600 group-hover:text-primary-400 group-hover:translate-x-1 transition-all" />
-        )}
+  const updateBookingStatus = async (bookingId: string, status: string) => {
+    setActionLoading(bookingId);
+    try {
+      await httpClient.patch(`/bookings/${bookingId}/status`, { status });
+      setBookings((prev) =>
+        prev.map((b) => (b.id === bookingId ? { ...b, status: status as Booking['status'] } : b))
+      );
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      alert('Error al actualizar');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // --- Render Components ---
+
+  const renderStatsRow = () => (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
+          <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl flex flex-col justify-center">
+             <span className="text-gray-500 text-[10px] uppercase tracking-widest font-bold mb-1">Ingresos Totales</span>
+             <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-white font-mono tracking-tight">${stats.totalRevenue.toLocaleString()}</span>
+             </div>
+          </div>
+          <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl flex flex-col justify-center">
+             <span className="text-gray-500 text-[10px] uppercase tracking-widest font-bold mb-1">Pendiente Cobro</span>
+             <span className="text-2xl font-bold text-gray-400 font-mono tracking-tight">${stats.pendingMoney.toLocaleString()}</span>
+          </div>
+          <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl flex flex-col justify-center">
+             <span className="text-gray-500 text-[10px] uppercase tracking-widest font-bold mb-1">Por Aceptar</span>
+             <span className="text-2xl font-bold text-gray-400 font-mono tracking-tight">{stats.sent - stats.accepted}</span>
+          </div>
+          <div className="bg-gray-900 border border-gray-800 p-4 rounded-xl flex flex-col justify-center">
+             <span className="text-gray-500 text-[10px] uppercase tracking-widest font-bold mb-1">Trabajos Activos</span>
+             <span className="text-2xl font-bold text-primary-500 font-mono tracking-tight">{bookings.filter(b => b.status === 'IN_PROGRESS').length}</span>
+          </div>
       </div>
-      
-      <div className="relative">
-        <p className="text-sm font-medium text-gray-400 mb-1">{label}</p>
-        <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
-        {subtext && <p className="text-xs text-gray-500 mt-1 font-medium">{subtext}</p>}
-      </div>
-    </motion.button>
   );
 
-  if (isLoading) {
-    return (
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <div className="h-8 w-48 bg-gray-800 rounded-lg animate-pulse" />
-            <div className="h-4 w-64 bg-gray-800 rounded animate-pulse" />
-          </div>
+  const renderCompactRequest = (req: ServiceRequest, isDirect = false) => (
+    <div key={req.id} className="group bg-gray-900/40 border border-gray-800 hover:border-gray-700 rounded-xl p-4 transition-all flex items-center justify-between gap-4">
+        <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 mb-1.5">
+                {isDirect && (
+                    <span className="bg-amber-500/10 text-amber-500 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border border-amber-500/20">
+                        Directa
+                    </span>
+                )}
+                <span className="bg-gray-800 text-gray-400 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                    {req.category}
+                </span>
+                <span className="text-[10px] text-gray-600 flex items-center gap-1">
+                    <MapPin className="w-3 h-3" /> {req.zone}
+                </span>
+            </div>
+            <h3 className="text-white font-bold text-sm truncate pr-4">{req.title}</h3>
+            <p className="text-gray-500 text-xs truncate mt-0.5 max-w-[90%]">{req.description}</p>
         </div>
-        <SkeletonStats />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
+        <button 
+            onClick={() => navigate(`/leads/${req.id}`)}
+            className="shrink-0 bg-primary-500/10 text-primary-500 hover:bg-primary-500 hover:text-white border border-primary-500/20 px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2"
+        >
+            Cotizar <ChevronRight className="w-3 h-3" />
+        </button>
+    </div>
+  );
+
+  const renderJobCard = (booking: Booking) => (
+      <div key={booking.id} className="bg-gray-900 border border-gray-800 p-5 rounded-2xl flex flex-col gap-4">
+         <div className="flex justify-between items-start">
+             <div>
+                 <div className="flex items-center gap-2 mb-2">
+                     <span className={`px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded ${
+                         booking.status === 'IN_PROGRESS' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                         booking.status === 'ACCEPTED' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' :
+                         'bg-gray-800 text-gray-500'
+                     }`}>
+                         {booking.status === 'IN_PROGRESS' ? 'En Curso' : booking.status === 'ACCEPTED' ? 'Agendado' : booking.status}
+                     </span>
+                     <span className="text-xs text-gray-500">{new Date(booking.createdAt).toLocaleDateString()}</span>
+                 </div>
+                 <h3 className="text-white font-bold">{booking.service?.title || 'Servicio'}</h3>
+                 <p className="text-xs text-gray-500 mt-1">Cliente: {booking.client.firstName} {booking.client.lastName}</p>
+             </div>
+             <div className="text-right">
+                 <p className="text-lg font-bold text-white font-mono">${booking.quotedPrice?.toLocaleString()}</p>
+             </div>
+         </div>
+         
+         <div className="flex items-center gap-2 pt-3 border-t border-gray-800">
+             <button 
+               onClick={() => navigate('/chat', { state: { bookingId: booking.id } })}
+               className="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold py-2.5 rounded-lg transition-colors"
+             >
+                 Chat
+             </button>
+             {booking.status === 'ACCEPTED' && (
+                 <button 
+                   onClick={() => updateBookingStatus(booking.id, 'IN_PROGRESS')}
+                   className="flex-1 bg-primary-500 hover:bg-primary-600 text-white text-xs font-bold py-2.5 rounded-lg transition-colors"
+                   disabled={actionLoading === booking.id}
+                 >
+                     {actionLoading === booking.id ? <Loader2 className="w-4 h-4 animate-spin mx-auto"/> : 'Iniciar'}
+                 </button>
+             )}
+             {booking.status === 'IN_PROGRESS' && (
+                 <button 
+                   onClick={() => updateBookingStatus(booking.id, 'COMPLETED')}
+                   className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors"
+                   disabled={actionLoading === booking.id}
+                 >
+                     {actionLoading === booking.id ? <Loader2 className="w-4 h-4 animate-spin mx-auto"/> : 'Completar'}
+                 </button>
+             )}
+         </div>
       </div>
-    );
-  }
+  );
 
   return (
-    <motion.div 
-      className="space-y-8"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-    >
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-            Hola, {user?.firstName}
-            <div className="bg-primary-500/10 p-2 rounded-xl">
-              <Zap className="w-6 h-6 text-primary-500" />
-            </div>
-          </h1>
-          <p className="text-gray-400 mt-1">
-            {user?.isOnline 
-              ? '✨ Estás disponible para recibir trabajos' 
-              : '⏸️ Estás en modo offline, actívate para recibir alertas'}
-          </p>
-        </div>
+    <div className="max-w-4xl mx-auto space-y-8 pb-20 pt-6">
+      
+      {/* Header Info */}
+      <header>
+          <div className="flex items-center gap-2 mb-2 text-primary-500">
+             <Briefcase className="w-5 h-5" />
+             <span className="text-xs font-black uppercase tracking-widest">Panel Profesional</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Tu Negocio</h2>
+      </header>
 
-        {/* Quick Stats Badge */}
-        <div className="flex items-center gap-3">
-          {stats.rating > 0 && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 rounded-2xl border border-amber-500/20">
-              <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
-              <div className="flex flex-col items-start leading-none">
-                <span className="font-bold text-amber-400 text-lg">{stats.rating.toFixed(1)}</span>
-                <span className="text-[10px] text-amber-500 uppercase font-bold tracking-wide">{stats.totalReviews} Reseñas</span>
-              </div>
-            </div>
-          )}
-        </div>
+      {renderStatsRow()}
+
+      {/* Tabs */}
+      <div className="bg-gray-900/50 p-1 rounded-xl flex gap-1 border border-gray-800 w-full sm:w-fit">
+          {[
+              { id: 'SEARCH', label: 'Búsqueda', icon: Globe },
+              { id: 'SCHEDULE', label: 'Agenda', icon: Calendar },
+              { id: 'MANAGEMENT', label: 'Gestión', icon: List }
+          ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex-1 sm:flex-none px-5 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                    activeTab === tab.id 
+                    ? 'bg-gray-800 text-white shadow-sm ring-1 ring-gray-700' 
+                    : 'text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                 <tab.icon className="w-3.5 h-3.5" />
+                 {tab.label}
+              </button>
+          ))}
       </div>
 
-      {/* Online Status Warning */}
-      {!user?.isOnline && (
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-2xl flex items-center gap-4"
-        >
-          <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center animate-pulse">
-            <AlertCircle className="w-5 h-5 text-orange-400" />
-          </div>
-          <div className="flex-1">
-            <p className="font-bold text-orange-300">Estás en modo offline</p>
-            <p className="text-sm text-orange-400/80">Activá "Disponible" en el header para que los clientes te encuentren.</p>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard 
-          icon={Briefcase} 
-          label="Trabajos activos" 
-          value={stats.activeJobs}
-          color="from-blue-500 to-indigo-600"
-          onClick={() => navigate('/my-jobs')}
-        />
-        <StatCard 
-          icon={Clock} 
-          label="Por responder" 
-          value={stats.pendingQuotes}
-          subtext="Oportunidades"
-          color="from-amber-500 to-orange-500"
-          onClick={() => navigate('/my-jobs')}
-        />
-        <StatCard 
-          icon={CheckCircle} 
-          label="Completados" 
-          value={stats.completedJobs}
-          subtext="Total histórico"
-          color="from-green-500 to-emerald-500"
-          onClick={() => navigate('/my-jobs')}
-        />
-        <StatCard 
-          icon={DollarSign} 
-          label="Ganancias" 
-          value={`$${stats.monthlyEarnings.toLocaleString()}`}
-          subtext="Este mes"
-          color="from-purple-500 to-violet-600"
-        />
-      </div>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Leads Section */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-500/10 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-primary-400" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Solicitudes en tu zona</h2>
-                <p className="text-sm text-gray-500">Oportunidades cercanas a tu ubicación</p>
-              </div>
-            </div>
-            <button 
-              onClick={() => navigate('/leads')}
-              className="text-sm text-primary-400 font-bold hover:underline flex items-center gap-1"
+      <AnimatePresence mode="wait">
+        {loading ? (
+             <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 text-primary-500 animate-spin" /></div>
+        ) : (
+            <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="space-y-6"
             >
-              Ver todas <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+                {/* --- TAB: SEARCH --- */}
+                {activeTab === 'SEARCH' && (
+                    <>
+                        {/* Filters */}
+                        <div className="flex items-center justify-between mb-4">
+                             <div className="flex items-center gap-3">
+                                <span className="text-xs text-gray-500 font-medium">Radio de búsqueda:</span>
+                                <button 
+                                    onClick={() => setIsGlobal(!isGlobal)}
+                                    className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors border ${
+                                        isGlobal 
+                                        ? 'bg-primary-500/10 text-primary-400 border-primary-500/30' 
+                                        : 'bg-gray-800 text-gray-500 border-gray-700'
+                                    }`}
+                                >
+                                    {isGlobal ? 'Global (Todo el país)' : 'Cercanos (Tu Zona)'}
+                                </button>
+                             </div>
+                             <div className="flex bg-gray-900 rounded-lg p-0.5 border border-gray-800">
+                                 <button onClick={() => setViewMode('list')} className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-gray-800 text-white' : 'text-gray-500'}`}><List className="w-3.5 h-3.5"/></button>
+                                 <button onClick={() => setViewMode('map')} className={`p-1.5 rounded ${viewMode === 'map' ? 'bg-gray-800 text-white' : 'text-gray-500'}`}><MapIcon className="w-3.5 h-3.5"/></button>
+                             </div>
+                        </div>
 
-          {leads.length === 0 ? (
-            <div className="text-center py-16 bg-gray-800/30 rounded-3xl border border-dashed border-gray-700">
-              <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-8 h-8 text-gray-600" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-1">Sin solicitudes por ahora</h3>
-              <p className="text-gray-500 max-w-xs mx-auto">
-                Las nuevas solicitudes en tu zona aparecerán aquí automáticamente.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {leads.map((lead, index) => (
-                <motion.div
-                  key={lead.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <OpportunityCard
-                    id={lead.id}
-                    title={lead.title}
-                    description={lead.description}
-                    category={lead.category}
-                    zone={lead.zone}
-                    urgency={lead.urgency}
-                    budget={lead.budget}
-                    createdAt={lead.createdAt}
-                    clientName={`${lead.client.firstName} ${lead.client.lastName}`}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
+                        {viewMode === 'map' ? (
+                            <MapLeadsView requests={[...directRequests, ...requests]} onQuote={(id) => navigate(`/leads/${id}`)} />
+                        ) : (
+                            <div className="space-y-6">
+                                {/* Direct Requests First */}
+                                {directRequests.length > 0 && (
+                                    <div className="space-y-3">
+                                        <h3 className="text-xs font-black text-amber-500 uppercase tracking-widest pl-1">Solicitudes Directas ({directRequests.length})</h3>
+                                        <div className="grid gap-2">
+                                            {directRequests.map(req => renderCompactRequest(req, true))}
+                                        </div>
+                                    </div>
+                                )}
 
-        {/* Sidebar Actions */}
-        <div className="space-y-6">
-          {/* Performance Card */}
-          <div className="card p-6 bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700">
-            <h3 className="font-bold text-lg mb-6 flex items-center gap-2 text-white">
-              <TrendingUp className="w-5 h-5 text-green-400" />
-              Tu rendimiento
-            </h3>
-            <div className="space-y-5">
-              <div>
-                <div className="flex items-center justify-between text-sm mb-2 opacity-90">
-                  <span className="text-gray-400">Tasa de respuesta</span>
-                  <span className="font-bold text-green-400">85%</span>
-                </div>
-                <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: '85%' }}
-                    className="h-full bg-green-500 rounded-full" 
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-sm mb-2 opacity-90">
-                  <span className="text-gray-400">Trabajos completados</span>
-                  <span className="font-bold text-blue-400">92%</span>
-                </div>
-                <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: '92%' }}
-                    className="h-full bg-blue-500 rounded-full" 
-                  />
-                </div>
-              </div>
-              <div>
-                <div className="flex items-center justify-between text-sm mb-2 opacity-90">
-                  <span className="text-gray-400">Satisfacción</span>
-                  <span className="font-bold text-amber-400">4.8/5</span>
-                </div>
-                <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: '96%' }}
-                    className="h-full bg-amber-500 rounded-full" 
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+                                {/* General Opportunities */}
+                                <div className="space-y-3">
+                                    <h3 className="text-xs font-black text-gray-500 uppercase tracking-widest pl-1">
+                                        {isGlobal ? 'Todas las Oportunidades' : 'Oportunidades en tu Zona'} ({requests.length})
+                                    </h3>
+                                    
+                                    {requests.length === 0 && directRequests.length === 0 ? (
+                                        <div className="text-center py-16 px-4 border border-dashed border-gray-800 rounded-2xl">
+                                            <Globe className="w-10 h-10 text-gray-700 mx-auto mb-3" />
+                                            <p className="text-gray-400 text-sm font-medium">No hay solicitudes disponibles ahora.</p>
+                                            <p className="text-gray-600 text-xs mt-1">Probá ampliando a búsqueda global.</p>
+                                        </div>
+                                    ) : requests.length === 0 ? (
+                                        <p className="text-center text-xs text-gray-600 py-8">No hay oportunidades generales, solo directas.</p>
+                                    ) : (
+                                        <div className="grid gap-2">
+                                            {requests.map(req => renderCompactRequest(req))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
 
-          {/* Quick Actions */}
-          <div className="card p-6">
-            <h3 className="font-bold text-white mb-4">Acciones rápidas</h3>
-            <div className="space-y-3">
-              <button 
-                onClick={() => navigate('/my-services')}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gray-800/50 hover:bg-gray-800 transition-all text-left group border border-gray-700/50 hover:border-gray-600"
-              >
-                <div className="w-10 h-10 bg-primary-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Briefcase className="w-5 h-5 text-primary-400" />
-                </div>
-                <div className="flex-1">
-                  <span className="font-bold text-white block">Mis servicios</span>
-                  <p className="text-xs text-gray-500">Gestionar catálogo</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-gray-600 group-hover:translate-x-1 transition-transform" />
-              </button>
+                {/* --- TAB: SCHEDULE (JOBS) --- */}
+                {activeTab === 'SCHEDULE' && (
+                    <div className="space-y-6">
+                         {bookings.length === 0 ? (
+                             <div className="text-center py-16 px-4 bg-gray-900/20 border border-gray-800 rounded-2xl">
+                                 <Briefcase className="w-10 h-10 text-gray-700 mx-auto mb-3" />
+                                 <p className="text-gray-400 text-sm">Tu agenda está vacía.</p>
+                                 <button onClick={() => setActiveTab('SEARCH')} className="text-primary-500 text-xs font-bold mt-2 hover:underline">Buscar trabajos</button>
+                             </div>
+                         ) : (
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                 {bookings.map(b => renderJobCard(b))}
+                             </div>
+                         )}
+                    </div>
+                )}
 
-              <button 
-                onClick={() => navigate('/chat')}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gray-800/50 hover:bg-gray-800 transition-all text-left group border border-gray-700/50 hover:border-gray-600"
-              >
-                <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <MessageSquare className="w-5 h-5 text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <span className="font-bold text-white block">Mensajes</span>
-                  <p className="text-xs text-gray-500">Ver conversaciones</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-gray-600 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
+                {/* --- TAB: MANAGEMENT (Quotes) --- */}
+                {activeTab === 'MANAGEMENT' && (
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xs font-black text-white uppercase tracking-widest pl-1">Presupuestos Enviados</h3>
+                        </div>
+                        
+                        {myQuotes.length === 0 ? (
+                             <div className="text-center py-12 text-gray-500 text-xs">No has enviado presupuestos aún.</div>
+                        ) : (
+                            <div className="grid gap-3">
+                                {myQuotes.map(quote => (
+                                    <div key={quote.id} className="bg-gray-900 border border-gray-800 p-4 rounded-xl flex justify-between items-center group hover:border-gray-700 transition-colors">
+                                        <div>
+                                            <h4 className="text-sm font-bold text-white mb-1">{quote.request.title}</h4>
+                                            <div className="flex items-center gap-3">
+                                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded lowercase ${
+                                                    quote.status === 'ACCEPTED' ? 'bg-green-500/20 text-green-500' :
+                                                    quote.status === 'REJECTED' ? 'bg-red-900/20 text-red-500' :
+                                                    'bg-gray-800 text-gray-400'
+                                                }`}>
+                                                    {quote.status}
+                                                </span>
+                                                <span className="text-[10px] text-gray-600">{new Date(quote.request.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-bold text-gray-300 font-mono">${quote.price.toLocaleString()}</p>
+                                            <button 
+                                                onClick={() => navigate(`/leads/${quote.request.id}`)}
+                                                className="text-[10px] text-primary-500 font-bold hover:underline mt-1"
+                                            >
+                                                Ver Detalle
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+            </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
