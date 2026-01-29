@@ -233,6 +233,7 @@ model Booking {
   updatedAt   DateTime      @updatedAt
   acceptedAt  DateTime?
   completedAt DateTime?
+  startedAt   DateTime?
   
   // Relations
   conversation Conversation?

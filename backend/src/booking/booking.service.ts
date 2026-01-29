@@ -185,6 +185,8 @@ export class BookingService {
       if (dto.quotedPrice) {
         updateData.finalPrice = dto.quotedPrice;
       }
+    } else if (dto.status === 'IN_PROGRESS') {
+      updateData.startedAt = new Date();
     }
 
     return this.prisma.booking.update({
