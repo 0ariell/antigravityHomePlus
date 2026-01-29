@@ -299,8 +299,8 @@ export function ChatPage() {
                                 </span>
                                 {isOwn && (
                                   message.readAt 
-                                    ? <CheckCheck className="w-3 h-3 text-primary-500" />
-                                    : <Check className="w-3 h-3 text-gray-400" />
+                                    ? <span title="Leído" className="cursor-help"><CheckCheck className="w-3 h-3 text-primary-500" /></span>
+                                    : <span title="Enviado" className="cursor-help"><Check className="w-3 h-3 text-gray-400" /></span>
                                 )}
                               </div>
                             </div>
