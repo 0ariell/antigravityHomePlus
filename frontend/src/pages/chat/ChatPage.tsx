@@ -298,9 +298,24 @@ export function ChatPage() {
                                   {formatTime(message.createdAt)}
                                 </span>
                                 {isOwn && (
-                                  message.readAt 
-                                    ? <span title="Leído" className="cursor-help"><CheckCheck className="w-3 h-3 text-primary-500" /></span>
-                                    : <span title="Enviado" className="cursor-help"><Check className="w-3 h-3 text-gray-400" /></span>
+                                  <div className="relative group cursor-help">
+                                    {message.readAt ? (
+                                      <CheckCheck className="w-3 h-3 text-primary-500" />
+                                    ) : (
+                                      <Check className="w-3 h-3 text-gray-400" />
+                                    )}
+                                    
+                                    {/* Premium Styled Tooltip */}
+                                    <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50">
+                                      <div className="bg-gray-900/90 backdrop-blur-md border border-gray-800 px-2.5 py-1 rounded-lg shadow-xl whitespace-nowrap">
+                                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">
+                                          {message.readAt ? 'Leído' : 'Enviado'}
+                                        </span>
+                                      </div>
+                                      {/* Tooltip Arrow */}
+                                      <div className="w-2 h-2 bg-gray-900/90 border-r border-b border-gray-800 rotate-45 absolute -bottom-1 right-1" />
+                                    </div>
+                                  </div>
                                 )}
                               </div>
                             </div>
