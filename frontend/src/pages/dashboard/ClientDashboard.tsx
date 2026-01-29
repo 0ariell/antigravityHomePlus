@@ -2,26 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Zap, 
-  Droplet, 
-  PaintBucket, 
-  Wrench, 
-  Home,
   Clock,
   ArrowRight,
-  Search,
+  Users,
   AlertCircle
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useAuthStore } from '../../app/stores';
 
-const QUICK_CATEGORIES = [
-  { id: 'fuga', label: 'Fuga de Agua', icon: Droplet, gradient: 'from-blue-500 to-cyan-500' },
-  { id: 'electricidad', label: 'Cortocircuito', icon: Zap, gradient: 'from-amber-400 to-orange-500' },
-  { id: 'pintura', label: 'Pintura', icon: PaintBucket, gradient: 'from-pink-500 to-rose-500' },
-  { id: 'reparaciones', label: 'Algo se rompió', icon: Wrench, gradient: 'from-gray-400 to-slate-500' },
-  { id: 'construccion', label: 'Remodelación', icon: Home, gradient: 'from-emerald-400 to-green-600' },
-];
 
 function ActiveJobCard({ job, navigate }: { job: any, navigate: any }) {
   const [duration, setDuration] = useState<string>('00:00:00');
@@ -181,50 +169,27 @@ export function ClientDashboard() {
                 </div>
             </motion.div>
 
-            {/* Explore Solutions CTA */}
+            {/* Find Professionals CTA */}
             <motion.div 
                 whileHover={{ scale: 1.02 }}
-                onClick={() => navigate('/services')}
+                onClick={() => navigate('/professionals')}
                 className="group cursor-pointer relative h-64 rounded-[2rem] overflow-hidden bg-gray-900 border border-gray-800 shadow-xl"
             >
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581094794329-cd119277db43?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-30 group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-transparent" />
                 
                 <div className="absolute bottom-0 left-0 p-8 w-full">
                     <div className="w-12 h-12 bg-primary-500/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-4 border border-primary-500/20 text-primary-500">
-                        <Search className="w-6 h-6" />
+                        <Users className="w-6 h-6" />
                     </div>
-                    <h2 className="text-2xl font-bold text-white mb-1">Ver Servicios</h2>
-                    <p className="text-gray-300 text-sm mb-4">Explora soluciones preventivas y mejoras para tu hogar.</p>
+                    <h2 className="text-2xl font-bold text-white mb-1">Encontrar Profesionales</h2>
+                    <p className="text-gray-300 text-sm mb-4">Busca y contacta directamente con expertos verificados en tu zona.</p>
                     
                     <div className="flex items-center gap-2 text-primary-400 font-bold text-sm">
-                        Explorar <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        Explorar Directorio <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                 </div>
             </motion.div>
-        </div>
-
-        {/* Problem Categories */}
-        <div className="space-y-4">
-             <div className="flex items-center justify-between px-2">
-                <h3 className="text-lg font-bold text-white">¿Qué necesitas solucionar?</h3>
-            </div>
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide px-2">
-                {QUICK_CATEGORIES.map((cat) => (
-                    <button
-                        key={cat.id}
-                        onClick={() => navigate(`/services?category=${cat.label}`)}
-                        className="flex flex-col items-center gap-3 min-w-[5rem] group"
-                    >
-                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${cat.gradient} p-0.5 shadow-lg group-hover:scale-105 transition-transform`}>
-                            <div className="w-full h-full bg-gray-900 rounded-[14px] flex items-center justify-center">
-                                <cat.icon className="w-7 h-7 text-white" />
-                            </div>
-                        </div>
-                        <span className="text-xs font-medium text-gray-400 group-hover:text-white transition-colors text-center leading-tight max-w-[5rem]">{cat.label}</span>
-                    </button>
-                ))}
-            </div>
         </div>
 
         {/* Active Jobs Tracker */}
