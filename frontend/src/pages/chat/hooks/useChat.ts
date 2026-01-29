@@ -144,7 +144,11 @@ export function useChat() {
     }
   };
 
-  const selectConversation = async (conv: Conversation) => {
+  const selectConversation = async (conv: Conversation | null) => {
+    if (!conv) {
+      setSelectedConversation(null);
+      return;
+    }
     if (selectedConversation?.id === conv.id) return;
     
     // Leave previous

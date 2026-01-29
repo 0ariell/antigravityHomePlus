@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 import { useState } from 'react';
-import { useChat, type Message, type Conversation } from './hooks/useChat';
+import { useChat, type Conversation } from './hooks/useChat';
 
 export function ChatPage() {
   const {
@@ -195,7 +195,7 @@ export function ChatPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <button 
-                      onClick={() => selectConversation(null as any)} // Hack to deselect, or handle in hook? Hook handles select(conv). Pass null?
+                      onClick={() => selectConversation(null)} 
                       className="lg:hidden p-2 hover:bg-gray-700 rounded-xl transition-colors"
                     >
                       <ArrowLeft className="w-5 h-5 text-gray-300" />

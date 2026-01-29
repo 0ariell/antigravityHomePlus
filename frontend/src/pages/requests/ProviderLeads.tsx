@@ -92,7 +92,7 @@ export function ProviderLeads() {
            ].map(tab => (
                <button
                  key={tab.id}
-                 onClick={() => setActiveTab(tab.id as any)}
+                 onClick={() => setActiveTab(tab.id as TabType)}
                  className={`flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap flex items-center gap-2 transition-all ${
                    activeTab === tab.id 
                      ? 'bg-primary-500 text-white shadow-lg' 
