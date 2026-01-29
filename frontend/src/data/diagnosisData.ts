@@ -87,6 +87,20 @@ const CARP_ARMADO_MUEBLE: Question[] = [
     ...GENERIC_QUESTIONS
 ];
 
+const PLOMERIA_PERDIDA: Question[] = [
+    { id: 'origen_perdida', text: '¿Dónde se origina la pérdida?', options: ['Tubería interna', 'Grifería', 'Conexión flexible', 'No lo sé'] },
+    { id: 'frecuencia_perdida', text: '¿Cuándo pierde?', options: ['Es constante', 'Solo al usar el artefacto', 'Es intermitente'] },
+    { id: 'daño_superficie', text: '¿Está dañando paredes o pisos?', options: ['Sí, hay humedad visible', 'Sí, gotea al vecino', 'No por ahora'] },
+    ...GENERIC_QUESTIONS
+];
+
+const ELEC_LUMINARIA: Question[] = [
+    { id: 'tipo_trabajo', text: '¿Es una instalación nueva o reemplazo?', options: ['Instalación nueva (requiere cableado)', 'Reemplazo (solo montaje)'] },
+    { id: 'altura_techo', text: '¿A qué altura se debe instalar?', options: ['Altura estándar (hasta 2.5m)', 'Doble altura (requiere escalera alta)'] },
+    { id: 'producto_listo', text: '¿Ya tienes la lámpara/aplique?', options: ['Sí, ya lo tengo', 'No, necesito asesoramiento'] },
+    ...GENERIC_QUESTIONS
+];
+
 export const DIAGNOSIS_DATA: Trade[] = [
   {
     id: 'plomeria',
@@ -104,18 +118,18 @@ export const DIAGNOSIS_DATA: Trade[] = [
             ...GENERIC_QUESTIONS
         ]
       },
-      { id: 'p_perdida_agua', label: 'Pérdida de agua en canilla', questions: GENERIC_QUESTIONS },
+      { id: 'p_perdida_agua', label: 'Pérdida de agua en canilla', questions: PLOMERIA_PERDIDA },
       { id: 'p_inodoro_pierde', label: 'Inodoro pierde agua', questions: GENERIC_QUESTIONS },
       { id: 'p_inodoro_no_carga', label: 'Inodoro no carga agua', questions: GENERIC_QUESTIONS },
       { id: 'p_inodoro_tapado', label: 'Inodoro tapado', questions: PLOMERIA_INODORO_TAPADO },
       { id: 'p_desague_tapado', label: 'Desagüe tapado (cocina / baño)', questions: GENERIC_QUESTIONS },
-      { id: 'p_perdida_pared', label: 'Pérdida de agua en pared o piso', questions: GENERIC_QUESTIONS },
+      { id: 'p_perdida_pared', label: 'Pérdida de agua en pared o piso', questions: PLOMERIA_PERDIDA },
       { id: 'p_presion_baja', label: 'Baja presión de agua', questions: GENERIC_QUESTIONS },
       { id: 'p_cambio_griferia', label: 'Cambio de grifería', questions: GENERIC_QUESTIONS },
       { id: 'p_inst_lavarropas', label: 'Instalación de lavarropas', questions: GENERIC_QUESTIONS },
-      { id: 'p_caño_roto', label: 'Caño roto', questions: GENERIC_QUESTIONS },
-      { id: 'p_filtracion_vecino', label: 'Filtración de agua del vecino', questions: GENERIC_QUESTIONS },
-      { id: 'p_termotanque_pierde', label: 'Termotanque pierde agua', questions: GENERIC_QUESTIONS }
+      { id: 'p_caño_roto', label: 'Caño roto', questions: PLOMERIA_PERDIDA },
+      { id: 'p_filtracion_vecino', label: 'Filtración de agua del vecino', questions: PLOMERIA_PERDIDA },
+      { id: 'p_termotanque_pierde', label: 'Termotanque pierde agua', questions: PLOMERIA_PERDIDA }
     ]
   },
   {
@@ -130,8 +144,8 @@ export const DIAGNOSIS_DATA: Trade[] = [
       { id: 'e_chispas', label: 'Chispas en enchufe', questions: GENERIC_QUESTIONS },
       { id: 'e_cambio_enchufes', label: 'Cambio de enchufes', questions: GENERIC_QUESTIONS },
       { id: 'e_cambio_interruptores', label: 'Cambio de interruptores', questions: GENERIC_QUESTIONS },
-      { id: 'e_inst_luminaria', label: 'Instalación de luminaria', questions: GENERIC_QUESTIONS },
-      { id: 'e_inst_ventilador', label: 'Instalación de ventilador de techo', questions: GENERIC_QUESTIONS },
+      { id: 'e_inst_luminaria', label: 'Instalación de luminaria', questions: ELEC_LUMINARIA },
+      { id: 'e_inst_ventilador', label: 'Instalación de ventilador de techo', questions: ELEC_LUMINARIA },
       { id: 'e_inst_tablero', label: 'Instalación de tablero eléctrico', questions: GENERIC_QUESTIONS },
       { id: 'e_cables_expuestos', label: 'Cables expuestos', questions: GENERIC_QUESTIONS },
       { id: 'e_luz_parpadea', label: 'Luz parpadea', questions: GENERIC_QUESTIONS },
