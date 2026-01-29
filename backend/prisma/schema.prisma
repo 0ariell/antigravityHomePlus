@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,7 +7,233 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ===== ENUMS =====
+model User {
+  id                     String           @id @default(uuid())
+  email                  String           @unique
+  password               String?
+  role                   UserRole
+  googleId               String?          @unique
+  firstName              String?
+  lastName               String?
+  phone                  String?
+  avatarUrl              String?
+  bio                    String?
+  zone                   String?
+  trades                 String[]
+  certifications         String[]
+  portfolioUrls          String[]
+  address                String?
+  avgRating              Float            @default(0)
+  totalReviews           Int              @default(0)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  isOnline               Boolean          @default(false)
+  latitude               Float?
+  longitude              Float?
+  aptitudes              String[]
+  isTeam                 Boolean          @default(false)
+  languages              String[]
+  teamSize               Int              @default(1)
+  tools                  String[]
+  vehicles               String[]
+  yearsExperience        Int              @default(0)
+  bookingsAsClient       Booking[]        @relation("ClientBookings")
+  bookingsAsProvider     Booking[]        @relation("ProviderBookings")
+  messages               Message[]
+  notifications          Notification[]
+  payments               Payment[]
+  quotes                 Quote[]
+  reviewsGiven           Review[]         @relation("ReviewAuthor")
+  reviewsReceived        Review[]         @relation("ReviewSubject")
+  serviceRequests        ServiceRequest[]
+  directRequestsReceived ServiceRequest[] @relation("DirectRequests")
+  services               Service[]
+
+  @@map("users")
+}
+
+model Service {
+  id           String    @id @default(uuid())
+  providerId   String
+  title        String
+  description  String
+  category     String
+  zone         String
+  priceBase    Float?
+  priceUnit    String?
+  images       String[]
+  isActive     Boolean   @default(true)
+  avgRating    Float     @default(0)
+  totalReviews Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  bookings     Booking[]
+  provider     User      @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([category])
+  @@index([zone])
+  @@index([providerId])
+  @@map("services")
+}
+
+model ServiceRequest {
+  id               String        @id @default(uuid())
+  clientId         String
+  category         String
+  title            String
+  description      String
+  images           String[]
+  zone             String
+  preferredDate    DateTime?
+  status           RequestStatus @default(OPEN)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  latitude         Float?
+  longitude        Float?
+  targetProviderId String?
+  diagnosis        Json?
+  extraInfo        String?
+  quotes           Quote[]
+  client           User          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  targetProvider   User?         @relation("DirectRequests", fields: [targetProviderId], references: [id])
+
+  @@index([category])
+  @@index([zone])
+  @@index([status])
+  @@index([targetProviderId])
+  @@map("service_requests")
+}
+
+model Quote {
+  id            String         @id @default(uuid())
+  requestId     String
+  providerId    String
+  price         Float
+  description   String?
+  status        QuoteStatus    @default(PENDING)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  estimatedDate DateTime?
+  isAsap        Boolean        @default(false)
+  provider      User           @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  request       ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("quotes")
+}
+
+model Booking {
+  id            String        @id @default(uuid())
+  clientId      String
+  providerId    String
+  serviceId     String?
+  status        BookingStatus @default(PENDING)
+  description   String
+  images        String[]
+  preferredDate DateTime?
+  address       String
+  notes         String?
+  quotedPrice   Float?
+  finalPrice    Float?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  acceptedAt    DateTime?
+  completedAt   DateTime?
+  startedAt     DateTime?
+  diagnosis     Json?
+  extraInfo     String?
+  client        User          @relation("ClientBookings", fields: [clientId], references: [id], onDelete: Cascade)
+  provider      User          @relation("ProviderBookings", fields: [providerId], references: [id], onDelete: Cascade)
+  service       Service?      @relation(fields: [serviceId], references: [id])
+  conversation  Conversation?
+  payment       Payment?
+  review        Review?
+
+  @@index([clientId])
+  @@index([providerId])
+  @@index([status])
+  @@map("bookings")
+}
+
+model Conversation {
+  id        String    @id @default(uuid())
+  bookingId String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String
+  attachments    String[]
+  createdAt      DateTime     @default(now())
+  readAt         DateTime?
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@map("messages")
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  bookingId  String   @unique
+  authorId   String
+  providerId String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  author     User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  provider   User     @relation("ReviewSubject", fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@map("reviews")
+}
+
+model Payment {
+  id           String        @id @default(uuid())
+  bookingId    String        @unique
+  providerId   String
+  amount       Float
+  currency     String        @default("ARS")
+  status       PaymentStatus @default(PENDING)
+  providerRef  String?
+  providerData Json?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  completedAt  DateTime?
+  booking      Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  provider     User          @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([readAt])
+  @@map("notifications")
+}
+
 enum UserRole {
   CLIENT
   PROVIDER
@@ -44,305 +267,14 @@ enum NotificationType {
   PAYMENT_RECEIVED
 }
 
-// ===== MODELS =====
-model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  password      String?   // Nullable for OAuth users
-  role          UserRole
-  googleId      String?   @unique
-  
-  // Profile
-  firstName     String?
-  lastName      String?
-  phone         String?
-  avatarUrl     String?
-  bio           String?
-
-  // Professional Profile
-  yearsExperience Int       @default(0)
-  isTeam        Boolean   @default(false)
-  teamSize      Int       @default(1)
-  vehicles      String[]  // e.g. "Camioneta", "Moto"
-  tools         String[]  // e.g. "Taladro Industrial", "Escalera 10m"
-  languages     String[]  // e.g. "Español", "Inglés"
-  aptitudes     String[]  // e.g. "Puntualidad", "Limpieza"
-  
-  // Provider-specific
-  zone          String?   // Area de trabajo
-  trades        String[]  // Oficios: plomería, electricidad, etc.
-  certifications String[]
-  portfolioUrls String[]
-  
-  // Client-specific
-  address       String?
-  
-  // Ratings (computed)
-  avgRating     Float     @default(0)
-  totalReviews  Int       @default(0)
-  
-  // Status
-  isOnline      Boolean   @default(false)
-  
-  // Geolocation
-  latitude      Float?
-  longitude     Float?
-  
-  // Timestamps
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  // Relations
-  services      Service[]
-  serviceRequests ServiceRequest[]
-  quotes        Quote[]
-  bookingsAsClient   Booking[] @relation("ClientBookings")
-  bookingsAsProvider Booking[] @relation("ProviderBookings")
-  messages      Message[]
-  reviewsGiven  Review[]  @relation("ReviewAuthor")
-  reviewsReceived Review[] @relation("ReviewSubject")
-  notifications Notification[]
-  payments      Payment[]
-  
-  // New Relation for Direct Requests
-  directRequestsReceived ServiceRequest[] @relation("DirectRequests")
-  
-  @@map("users")
-}
-
-model Service {
-  id          String   @id @default(uuid())
-  providerId  String
-  provider    User     @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  
-  // Capability definition
-  title       String   // e.g. "Plomería General", "Electricidad"
-  description String
-  category    String   // This matches the ServiceRequest category
-  zone        String   // Zone where provider operates
-  
-  // Optional: Base pricing for unnecessary info, but kept for legacy/reference
-  priceBase   Float?
-  priceUnit   String?
-  
-  images      String[] // Portfolio images
-  isActive    Boolean  @default(true) // If true, provider receives requests for this category
-  
-  // Ratings
-  avgRating   Float    @default(0)
-  totalReviews Int     @default(0)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  bookings    Booking[]
-  
-  @@index([category])
-  @@index([zone])
-  @@index([providerId])
-  @@map("services")
-}
-
 enum RequestStatus {
   OPEN
   CLOSED
   CANCELLED
 }
 
-model ServiceRequest {
-  id          String        @id @default(uuid())
-  clientId    String
-  client      User          @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
-  category    String        // Match with Service.category
-  title       String        // e.g. "Pérdida de agua en cocina"
-  description String
-  images      String[]
-  zone        String        // Location of the job
-  latitude    Float?
-  longitude   Float?
-  preferredDate DateTime?
-  
-  // Direct Request Logic
-  targetProviderId String?
-  targetProvider   User?        @relation("DirectRequests", fields: [targetProviderId], references: [id])
-  
-  status      RequestStatus @default(OPEN)
-  
-  diagnosis   Json?         // Structured QA results
-  extraInfo   String?       // Optional additional details
-  
-  quotes      Quote[]
-  
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  
-  @@index([category])
-  @@index([zone])
-  @@index([status])
-  @@index([targetProviderId])
-  @@map("service_requests")
-}
-
 enum QuoteStatus {
   PENDING
   ACCEPTED
   REJECTED
-}
-
-model Quote {
-  id          String      @id @default(uuid())
-  requestId   String
-  request     ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  providerId  String
-  provider    User        @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  
-  price       Float
-  description String?
-  
-  estimatedDate DateTime? // Proposed date for the job
-  isAsap        Boolean   @default(false) // If true, provider offers to go "now"
-  
-  status      QuoteStatus @default(PENDING)
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  @@map("quotes")
-}
-
-model Booking {
-  id          String        @id @default(uuid())
-  clientId    String
-  client      User          @relation("ClientBookings", fields: [clientId], references: [id], onDelete: Cascade)
-  providerId  String
-  provider    User          @relation("ProviderBookings", fields: [providerId], references: [id], onDelete: Cascade)
-  serviceId   String?       // Make optional if coming from Request
-  service     Service?      @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-  
-  status      BookingStatus @default(PENDING)
-
-  
-  // Request details
-  description String        // Descripción del problema (Summary)
-  diagnosis   Json?         // Results from guided wizard
-  extraInfo   String?       // Field for additional details
-  images      String[]      // Fotos del problema
-  preferredDate DateTime?   // Fecha preferida
-  address     String        // Dirección aproximada
-  notes       String?       // Notas adicionales
-  
-  // Pricing
-  quotedPrice Float?        // Precio cotizado por provider
-  finalPrice  Float?        // Precio final
-  
-  // Timestamps
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  acceptedAt  DateTime?
-  completedAt DateTime?
-  startedAt   DateTime?
-  
-  // Relations
-  conversation Conversation?
-  review      Review?
-  payment     Payment?
-  
-  @@index([clientId])
-  @@index([providerId])
-  @@index([status])
-  @@map("bookings")
-}
-
-model Conversation {
-  id        String    @id @default(uuid())
-  bookingId String    @unique
-  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
-  // Relations
-  messages  Message[]
-  
-  @@map("conversations")
-}
-
-model Message {
-  id             String       @id @default(uuid())
-  conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  senderId       String
-  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  
-  content        String
-  attachments    String[]     // URLs de adjuntos
-  
-  createdAt      DateTime     @default(now())
-  readAt         DateTime?
-  
-  @@index([conversationId])
-  @@index([senderId])
-  @@map("messages")
-}
-
-model Review {
-  id         String   @id @default(uuid())
-  bookingId  String   @unique
-  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  authorId   String
-  author     User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  providerId String
-  provider   User     @relation("ReviewSubject", fields: [providerId], references: [id], onDelete: Cascade)
-  
-  rating     Int      // 1-5
-  comment    String?
-  
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  
-  @@index([providerId])
-  @@map("reviews")
-}
-
-model Payment {
-  id           String        @id @default(uuid())
-  bookingId    String        @unique
-  booking      Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  providerId   String
-  provider     User          @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  
-  amount       Float
-  currency     String        @default("ARS")
-  status       PaymentStatus @default(PENDING)
-  
-  // Provider references (Stripe/MercadoPago)
-  providerRef  String?
-  providerData Json?
-  
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  completedAt  DateTime?
-  
-  @@index([providerId])
-  @@index([status])
-  @@map("payments")
-}
-
-model Notification {
-  id        String           @id @default(uuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  type      NotificationType
-  title     String
-  message   String
-  data      Json?            // Datos adicionales (bookingId, etc.)
-  
-  readAt    DateTime?
-  createdAt DateTime         @default(now())
-  
-  @@index([userId])
-  @@index([readAt])
-  @@map("notifications")
 }
