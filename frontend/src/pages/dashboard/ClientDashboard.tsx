@@ -10,8 +10,7 @@ import {
   Clock,
   ArrowRight,
   Search,
-  AlertCircle,
-  Hammer
+  AlertCircle
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useAuthStore } from '../../app/stores';
