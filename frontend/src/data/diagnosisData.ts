@@ -119,11 +119,6 @@ const GENERIC_QUESTIONS: Question[] = [
   }),
 ];
 
-const PHOTO_GUIDE_DEFAULT: PhotoGuideItem[] = [
-  { id: "general", label: "Foto general del área (contexto)" },
-  { id: "cerca", label: "Primer plano del problema" },
-  { id: "detalle", label: "Detalle de conexiones/soporte/daño" },
-];
 
 const PHOTO_GUIDE_PLOMERIA: PhotoGuideItem[] = [
   { id: "general", label: "Foto general (baño/cocina/lavadero)" },

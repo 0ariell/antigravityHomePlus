@@ -218,10 +218,18 @@ export function RequestWizard() {
                 <div className="space-y-10 pb-10">
                     {selectedProblem?.questions.map((q, idx) => (
                         <div key={q.id} className="space-y-4">
-                            <h3 className="text-lg font-bold text-white flex gap-3">
-                                <span className="text-primary-500/40">0{idx+1}</span>
-                                {q.text}
-                            </h3>
+                            <div className="space-y-1">
+                                <h3 className="text-lg font-bold text-white flex gap-3">
+                                    <span className="text-primary-500/40">0{idx+1}</span>
+                                    {q.text}
+                                    {!q.required && q.required !== undefined && (
+                                        <span className="text-[10px] font-medium text-gray-500 bg-gray-800 px-2 py-0.5 rounded-full self-center">OPCIONAL</span>
+                                    )}
+                                </h3>
+                                {q.help && (
+                                    <p className="text-xs text-gray-500 pl-8">{q.help}</p>
+                                )}
+                            </div>
                             <div className="grid grid-cols-1 gap-2">
                                 {q.options.map(opt => (
                                     <button
@@ -244,7 +252,7 @@ export function RequestWizard() {
                     <button onClick={prevStep} className="flex-1 py-4 text-gray-500 font-bold hover:text-white">Atrás</button>
                     <button 
                       onClick={nextStep} 
-                      disabled={Object.keys(answers).length < (selectedProblem?.questions.length || 0)}
+                      disabled={selectedProblem?.questions.some(q => (q.required !== false) && !answers[q.id])}
                       className="flex-[2] btn-primary py-4 disabled:opacity-50"
                     >
                         Continuar
@@ -289,10 +297,30 @@ export function RequestWizard() {
           {step === 5 && (
             <motion.div key="st5" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
                 <h2 className="text-2xl font-bold text-white text-center">Fotos obligatorias</h2>
-                <div className="p-4 bg-primary-500/10 border border-primary-500/10 rounded-2xl flex items-center gap-3">
-                    <Info className="w-5 h-5 text-primary-400" />
-                    <p className="text-[11px] text-primary-300">Sube al menos 3 fotos: vista general, primer plano y conexiones.</p>
-                </div>
+                
+                {selectedProblem?.photoGuide && (
+                    <div className="space-y-3">
+                        <div className="p-4 bg-primary-500/10 border border-primary-500/10 rounded-2xl flex items-center gap-3">
+                            <Info className="w-5 h-5 text-primary-400" />
+                            <p className="text-[11px] text-primary-300">Sube al menos {selectedProblem.minPhotos} fotos siguiendo esta guía:</p>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                            {selectedProblem.photoGuide.map(item => (
+                                <div key={item.id} className="flex items-center gap-3 bg-gray-900/40 p-3 rounded-xl border border-gray-800/50">
+                                    <div className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700">
+                                        <Camera className="w-2.5 h-2.5 text-gray-400" />
+                                    </div>
+                                    <span className="text-[11px] text-gray-400 font-medium">{item.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                        {images.length < (selectedProblem.minPhotos || 3) && (
+                            <p className="text-[10px] text-center text-amber-500/80 font-bold uppercase tracking-widest mt-2 animate-pulse">
+                                Faltan {(selectedProblem.minPhotos || 3) - images.length} {(selectedProblem.minPhotos || 3) - images.length === 1 ? 'foto' : 'fotos'} para continuar
+                            </p>
+                        )}
+                    </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                     {images.map((img, idx) => (
@@ -318,14 +346,14 @@ export function RequestWizard() {
                     )}
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex gap-4 pt-4">
                     <button onClick={prevStep} className="flex-1 py-4 text-gray-500 font-bold hover:text-white">Atrás</button>
                     <button 
                       onClick={nextStep} 
-                      disabled={images.length < 3}
+                      disabled={images.length < (selectedProblem?.minPhotos || 3)}
                       className="flex-[2] btn-primary py-4 disabled:opacity-30"
                     >
-                        {images.length < 3 ? `Faltan ${3-images.length} fotos` : 'Continuar'}
+                        {images.length < (selectedProblem?.minPhotos || 3) ? `Subir fotos (${images.length}/${selectedProblem?.minPhotos})` : 'Continuar'}
                     </button>
                 </div>
             </motion.div>
