@@ -45,6 +45,48 @@ const GENERIC_QUESTIONS: Question[] = [
   }
 ];
 
+const PLOMERIA_INODORO_TAPADO: Question[] = [
+    { id: 'desborde', text: '¿Se desborda el agua al tirar la cadena?', options: ['Sí, totalmente', 'Parcialmente', 'No se desborda'] },
+    { id: 'intentos', text: '¿Has intentado destaparlo?', options: ['No intenté nada', 'Con sopapa/ventosa', 'Con alambre/cinta', 'Con productos químicos'] },
+    { id: 'alcance', text: '¿El problema es solo en este inodoro?', options: ['Sí, solo aquí', 'Afecta otros desagües (ducha/bidet)', 'No lo sé'] },
+    ...GENERIC_QUESTIONS
+];
+
+const ELEC_SALTA_TERMICA: Question[] = [
+    { id: 'cuando_salta', text: '¿En qué momento salta la térmica?', options: ['Al encender un aparato puntual', 'Al azar / sin motivo aparente', 'No deja rearmarla (salta enseguida)'] },
+    { id: 'clima', text: '¿Ocurre cuando llueve o hay humedad?', options: ['Sí, siempre', 'A veces', 'No, no tiene relación'] },
+    { id: 'disyuntor', text: '¿Tienes disyuntor diferencial instalado?', options: ['Sí', 'No', 'No estoy seguro'] },
+    ...GENERIC_QUESTIONS
+];
+
+const GAS_OLOR: Question[] = [
+    { id: 'ubicacion_olor', text: '¿Dónde percibes el olor a gas?', options: ['Cerca de un artefacto', 'En el nicho del medidor', 'En un ambiente cerrado', 'En toda la casa'] },
+    { id: 'frecuencia', text: '¿El olor es constante?', options: ['Sí, constante', 'Solo cuando uso un artefacto', 'Solo a veces'] },
+    { id: 'llave_paso', text: '¿Has cerrado la llave de paso?', options: ['Sí, la general', 'Solo la del artefacto', 'No la cerré'] },
+    ...GENERIC_QUESTIONS
+];
+
+const ALBA_HUMEDAD: Question[] = [
+    { id: 'altura', text: '¿A qué altura se encuentra la humedad?', options: ['Cerca del piso (cimientos)', 'En el techo', 'En el medio de la pared'] },
+    { id: 'exterior', text: '¿La pared da al exterior?', options: ['Sí', 'No, es interna', 'No, da al vecino'] },
+    { id: 'estado_superficie', text: '¿Cómo está la superficie?', options: ['Solo mancha de humedad', 'Pintura descascarada', 'Hay moho u hongos negros', 'Revoque cayéndose'] },
+    ...GENERIC_QUESTIONS
+];
+
+const PINT_UNA_HABITACION: Question[] = [
+    { id: 'tamaño', text: '¿Qué tamaño aproximado tiene la habitación?', options: ['Chica (hasta 2x2m)', 'Mediana (3x3m)', 'Grande (4x4m o más)'] },
+    { id: 'muebles', text: '¿Hay que mover muebles pesados?', options: ['Sí, hay muchos', 'Pocos muebles', 'No, está vacía'] },
+    { id: 'estado_paredes', text: '¿Cómo están las paredes?', options: ['Muy buen estado', 'Requieren arreglos menores', 'Muchos huecos o grietas'] },
+    ...GENERIC_QUESTIONS
+];
+
+const CARP_ARMADO_MUEBLE: Question[] = [
+    { id: 'estado_mueble', text: '¿El mueble es nuevo en caja?', options: ['Sí, nuevo embalado', 'No, es para rearmar', 'Parcialmente armado'] },
+    { id: 'tipo_mueble', text: '¿Qué tipo de mueble es?', options: ['Ropero / Placard grande', 'Escritorio / Mesa', 'Cómoda / Biblioteca mediana', 'Mueble de cocina'] },
+    { id: 'herramientas', text: '¿Tienes las herramientas básicas?', options: ['Sí, tengo todo', 'No, el profesional debe traerlas'] },
+    ...GENERIC_QUESTIONS
+];
+
 export const DIAGNOSIS_DATA: Trade[] = [
   {
     id: 'plomeria',
@@ -59,14 +101,13 @@ export const DIAGNOSIS_DATA: Trade[] = [
             { id: 'tipo_canilla', text: '¿Qué tipo de canilla es?', options: ['Monocomando', 'Doble comando', 'Grifería de cocina', 'Grifería de baño', 'No estoy seguro'] },
             { id: 'intensidad_goteo', text: '¿Cómo es el goteo?', options: ['Goteo leve ocasional', 'Goteo constante', 'Chorrito continuo', 'Pierde agua solo al abrir', 'No lo sé'] },
             { id: 'ubicacion', text: '¿Dónde se encuentra la canilla?', options: ['Cocina', 'Baño', 'Lavadero', 'Exterior', 'Otro'] },
-            { id: 'antiguedad_inst', text: '¿Hace cuánto está instalada?', options: ['Menos de 1 año', 'Entre 1 y 5 años', 'Más de 5 años', 'No lo sé'] },
-            { id: 'accesibilidad', text: '¿Es fácil acceder a la canilla?', options: ['Sí, está a la vista', 'Parcialmente', 'No, requiere desmontar mueble o pared', 'No lo sé'] }
+            ...GENERIC_QUESTIONS
         ]
       },
       { id: 'p_perdida_agua', label: 'Pérdida de agua en canilla', questions: GENERIC_QUESTIONS },
       { id: 'p_inodoro_pierde', label: 'Inodoro pierde agua', questions: GENERIC_QUESTIONS },
       { id: 'p_inodoro_no_carga', label: 'Inodoro no carga agua', questions: GENERIC_QUESTIONS },
-      { id: 'p_inodoro_tapado', label: 'Inodoro tapado', questions: GENERIC_QUESTIONS },
+      { id: 'p_inodoro_tapado', label: 'Inodoro tapado', questions: PLOMERIA_INODORO_TAPADO },
       { id: 'p_desague_tapado', label: 'Desagüe tapado (cocina / baño)', questions: GENERIC_QUESTIONS },
       { id: 'p_perdida_pared', label: 'Pérdida de agua en pared o piso', questions: GENERIC_QUESTIONS },
       { id: 'p_presion_baja', label: 'Baja presión de agua', questions: GENERIC_QUESTIONS },
@@ -84,7 +125,7 @@ export const DIAGNOSIS_DATA: Trade[] = [
     color: 'from-yellow-400 to-orange-500',
     problems: [
       { id: 'e_cortes_luz', label: 'Cortes de luz en parte de la casa', questions: GENERIC_QUESTIONS },
-      { id: 'e_salta_termica', label: 'Salta la térmica o disyuntor', questions: GENERIC_QUESTIONS },
+      { id: 'e_salta_termica', label: 'Salta la térmica o disyuntor', questions: ELEC_SALTA_TERMICA },
       { id: 'e_toma_no_funciona', label: 'Tomacorriente no funciona', questions: GENERIC_QUESTIONS },
       { id: 'e_chispas', label: 'Chispas en enchufe', questions: GENERIC_QUESTIONS },
       { id: 'e_cambio_enchufes', label: 'Cambio de enchufes', questions: GENERIC_QUESTIONS },
@@ -106,7 +147,7 @@ export const DIAGNOSIS_DATA: Trade[] = [
     icon: Flame,
     color: 'from-orange-500 to-red-600',
     problems: [
-      { id: 'g_olor_gas', label: 'Olor a gas', questions: GENERIC_QUESTIONS },
+      { id: 'g_olor_gas', label: 'Olor a gas', questions: GAS_OLOR },
       { id: 'g_revision_inst', label: 'Revisión de instalación de gas', questions: GENERIC_QUESTIONS },
       { id: 'g_inst_cocina', label: 'Instalación de cocina', questions: GENERIC_QUESTIONS },
       { id: 'g_inst_estufa', label: 'Instalación de estufa', questions: GENERIC_QUESTIONS },
@@ -130,7 +171,7 @@ export const DIAGNOSIS_DATA: Trade[] = [
     color: 'from-amber-600 to-orange-700',
     problems: [
       { id: 'a_pared_agrietada', label: 'Arreglo de pared agrietada', questions: GENERIC_QUESTIONS },
-      { id: 'a_humedad_pared', label: 'Humedad en pared', questions: GENERIC_QUESTIONS },
+      { id: 'a_humedad_pared', label: 'Humedad en pared', questions: ALBA_HUMEDAD },
       { id: 'a_revoque', label: 'Reparación de revoque', questions: GENERIC_QUESTIONS },
       { id: 'a_pared_nueva', label: 'Construcción de pared nueva', questions: GENERIC_QUESTIONS },
       { id: 'a_hueco', label: 'Apertura de hueco', questions: GENERIC_QUESTIONS },
@@ -153,7 +194,7 @@ export const DIAGNOSIS_DATA: Trade[] = [
     color: 'from-pink-500 to-rose-500',
     problems: [
       { id: 'pi_interior_completa', label: 'Pintura interior completa', questions: GENERIC_QUESTIONS },
-      { id: 'pi_una_habitacion', label: 'Pintura de una habitación', questions: GENERIC_QUESTIONS },
+      { id: 'pi_una_habitacion', label: 'Pintura de una habitación', questions: PINT_UNA_HABITACION },
       { id: 'pi_exterior', label: 'Pintura de exterior', questions: GENERIC_QUESTIONS },
       { id: 'pi_techo', label: 'Pintura de techo', questions: GENERIC_QUESTIONS },
       { id: 'pi_humedad', label: 'Reparación y pintura por humedad', questions: GENERIC_QUESTIONS },
@@ -178,7 +219,7 @@ export const DIAGNOSIS_DATA: Trade[] = [
       { id: 'c_reparacion_puerta', label: 'Reparación de puerta', questions: GENERIC_QUESTIONS },
       { id: 'c_ajuste_puerta', label: 'Ajuste de puerta', questions: GENERIC_QUESTIONS },
       { id: 'c_puerta_no_cierra', label: 'Puerta no cierra', questions: GENERIC_QUESTIONS },
-      { id: 'c_armado_mueble', label: 'Armado de mueble', questions: GENERIC_QUESTIONS },
+      { id: 'c_armado_mueble', label: 'Armado de mueble', questions: CARP_ARMADO_MUEBLE },
       { id: 'c_reparacion_mueble', label: 'Reparación de mueble', questions: GENERIC_QUESTIONS },
       { id: 'c_mueble_medida', label: 'Mueble a medida', questions: GENERIC_QUESTIONS },
       { id: 'c_estantes', label: 'Colocación de estantes', questions: GENERIC_QUESTIONS },
