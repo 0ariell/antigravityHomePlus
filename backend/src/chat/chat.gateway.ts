@@ -139,6 +139,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
+  @SubscribeMessage('markAsRead')
+  async handleMarkAsRead(
+    @ConnectedSocket() client: AuthenticatedSocket,
+    @MessageBody() data: { conversationId: string }
+  ) {
+      if (!client.userId) return;
+
+      try {
+          await this.chatService.markConversationAsRead(data.conversationId, client.userId);
+          // Notify room that messages were read
+          this.server.to(`conversation:${data.conversationId}`).emit('messagesRead', {
+              conversationId: data.conversationId,
+              readBy: client.userId,
+              readAt: new Date().toISOString() // Client can update UI
+          });
+      } catch (error) {
+          console.error("MarkAsRead Error", error);
+      }
+  }
+
   // Utility method to emit to specific user (for notifications)
   emitToUser(userId: string, event: string, data: any) {
     const userSockets = this.userSockets.get(userId);

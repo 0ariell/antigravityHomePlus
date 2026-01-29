@@ -16,6 +16,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { requestsService, type ServiceRequest } from '../../services/requests.service';
 import { httpClient } from '../../infra/http';
+import { BOOKING_STATUS } from '../../app/constants/domain';
+
 
 interface Booking {
   id: string;
@@ -217,10 +219,10 @@ function CompactRequestCard({ req, onExpand, isExpanded, quotes, loadingQuotes, 
 function CompactBookingCard({ booking, navigate }: { booking: Booking, navigate: any }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const statusColors: any = {
-    'PENDING': 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-    'ACCEPTED': 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-    'IN_PROGRESS': 'bg-green-500/10 text-green-500 border-green-500/20',
-    'COMPLETED': 'bg-gray-500/10 text-gray-400 border-gray-500/20',
+    [BOOKING_STATUS.PENDING]: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+    [BOOKING_STATUS.ACCEPTED]: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+    [BOOKING_STATUS.IN_PROGRESS]: 'bg-green-500/10 text-green-500 border-green-500/20',
+    [BOOKING_STATUS.COMPLETED]: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
   };
 
   return (

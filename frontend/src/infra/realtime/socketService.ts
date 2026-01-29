@@ -64,6 +64,10 @@ class SocketService {
     this.chatSocket.on('userTyping', (data) => {
       this.emit('userTyping', data);
     });
+
+    this.chatSocket.on('messagesRead', (data) => {
+      this.emit('messagesRead', data);
+    });
   }
 
   disconnect() {
@@ -118,6 +122,10 @@ class SocketService {
 
   sendTyping(conversationId: string, isTyping: boolean) {
     this.chatSocket?.emit('typing', { conversationId, isTyping });
+  }
+
+  markAsRead(conversationId: string) {
+    this.chatSocket?.emit('markAsRead', { conversationId });
   }
 
   // Event subscription system

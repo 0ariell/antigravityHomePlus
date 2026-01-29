@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { httpClient } from '../../infra/http';
 import { useAuthStore } from '../../app/stores';
+import { BOOKING_STATUS } from '../../app/constants/domain';
 
 
 function ActiveJobCard({ job, navigate }: { job: any, navigate: any }) {
@@ -93,7 +94,7 @@ export function ClientDashboard() {
 
       // Get Active Jobs for Tracker
       const active = bookings
-        .filter((b: any) => ['ACCEPTED', 'IN_PROGRESS'].includes(b.status))
+        .filter((b: any) => [BOOKING_STATUS.ACCEPTED, BOOKING_STATUS.IN_PROGRESS].includes(b.status))
         .slice(0, 2);
       setActiveJobs(active);
 

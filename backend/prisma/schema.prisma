@@ -131,6 +131,8 @@ model Booking {
   images        String[]
   preferredDate DateTime?
   address       String
+  latitude      Float?
+  longitude     Float?
   notes         String?
   quotedPrice   Float?
   finalPrice    Float?

@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   CheckCircle, 
   X, 
@@ -12,97 +10,29 @@ import {
   Archive
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { httpClient } from '../../infra/http';
-import { useAuthStore } from '../../app/stores';
 import { ProviderProfileModal } from '../../components/ProviderProfileModal';
-import { requestsService, type ServiceRequest } from '../../services/requests.service';
 import { BookingCard } from '../../ui/components/cards/BookingCard';
 import { RequestCard } from '../../ui/components/cards/RequestCard';
-
-interface Booking {
-  id: string;
-  status: 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'REJECTED';
-  description: string;
-  preferredDate: string | null;
-  address: string | null;
-  quotedPrice: number | null;
-  createdAt: string;
-  service: {
-    id: string;
-    title: string;
-    category: string;
-  } | null;
-  provider: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    avatarUrl?: string | null;
-    avgRating?: number;
-    totalReviews?: number;
-  };
-  client: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    avatarUrl?: string | null;
-  };
-}
-
-type TabType = 'open' | 'active' | 'completed';
+import { useMyJobs } from './hooks/useMyJobs';
 
 export function MyJobsPage() {
-  const navigate = useNavigate();
-  const { user } = useAuthStore();
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [requests, setRequests] = useState<ServiceRequest[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabType>('open');
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-
-  // Profile modal state
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(null);
-
-  const isProvider = user?.role === 'PROVIDER';
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      const [bookingsRes, requestsData] = await Promise.all([
-        httpClient.get('/bookings/my-bookings'),
-        isProvider ? Promise.resolve([]) : requestsService.getMyRequests()
-      ]);
-      setBookings(bookingsRes.data || []);
-      setRequests(requestsData || []);
-    } catch (error) {
-      console.error('Error loading data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateBookingStatus = async (bookingId: string, status: string) => {
-    setActionLoading(bookingId);
-    try {
-      await httpClient.patch(`/bookings/${bookingId}/status`, { status });
-      setBookings((prev) =>
-        prev.map((b) => (b.id === bookingId ? { ...b, status: status as Booking['status'] } : b))
-      );
-    } catch (error) {
-      console.error('Error updating booking:', error);
-      alert('Error al actualizar');
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const goToChat = (bookingId: string) => {
-    navigate('/chat', { state: { bookingId } });
-  };
+  const {
+      bookings,
+      requests,
+      isLoading,
+      activeTab,
+      setActiveTab,
+      actionLoading,
+      showProfileModal,
+      setShowProfileModal,
+      selectedProviderId,
+      setSelectedProviderId,
+      isProvider,
+      updateBookingStatus,
+      goToChat,
+      openExternalMap,
+      navigate
+  } = useMyJobs();
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-AR', {
@@ -230,6 +160,11 @@ export function MyJobsPage() {
                         rating: isProvider ? undefined : booking.provider?.avgRating
                       }}
                       onChat={() => goToChat(booking.id)}
+                      onMapClick={
+                        (booking.latitude && booking.longitude) 
+                          ? () => openExternalMap(booking.latitude!, booking.longitude!) 
+                          : undefined
+                      }
                       actions={
                         <>
                           {isProvider ? (
@@ -326,6 +261,11 @@ export function MyJobsPage() {
                     rating: isProvider ? undefined : booking.provider?.avgRating
                   }}
                   onChat={() => goToChat(booking.id)}
+                  onMapClick={
+                    (booking.latitude && booking.longitude) 
+                      ? () => openExternalMap(booking.latitude!, booking.longitude!) 
+                      : undefined
+                  }
                   actions={
                     <>
                       {isProvider && booking.status === 'ACCEPTED' && (

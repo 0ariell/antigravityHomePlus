@@ -1,85 +1,41 @@
-import { useEffect, useState } from 'react';
-import { requestsService, type ServiceRequest } from '../../services/requests.service';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { MapPin, Loader2, Star, List, Map as MapIcon, Globe, ArrowRight } from 'lucide-react';
+import { 
+    MapPin, 
+    Loader2, 
+    Star, 
+    List, 
+    Map as MapIcon, 
+    Globe, 
+    ArrowRight 
+} from 'lucide-react';
 import { MapLeadsView } from '../../components/MapLeadsView';
 import { motion, AnimatePresence } from 'framer-motion';
-
-interface MyQuote {
-    id: string;
-    status: string;
-    price: number;
-    request: ServiceRequest;
-}
-
-type TabType = 'DIRECT' | 'OPPORTUNITIES' | 'MY_QUOTES';
+import { useProviderLeads, type TabType } from './hooks/useProviderLeads';
+import type { ServiceRequest } from '../../services/requests.service';
 
 export function ProviderLeads() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const {
+      activeTab,
+      setActiveTab,
+      loading,
+      requests,
+      myQuotes,
+      viewMode,
+      setViewMode,
+      isGlobal,
+      setIsGlobal,
+      openQuoteForm,
+      navigate,
+      QUOTE_STATUS
+  } = useProviderLeads();
   
-  // Initialize tab from state or default to DIRECT
-  const initialTab = (location.state as any)?.initialTab as TabType | undefined;
-  const [activeTab, setActiveTab] = useState<TabType>(initialTab || 'DIRECT');
-  
-  const [loading, setLoading] = useState(true);
-  
-  // Data
-  const [requests, setRequests] = useState<ServiceRequest[]>([]);
-  const [myQuotes, setMyQuotes] = useState<MyQuote[]>([]);
-  
-  // Quote Form helpers
-  const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
-  
-  // View options
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
-  const [isGlobal, setIsGlobal] = useState(false);
-
-  useEffect(() => {
-    loadData();
-  }, [activeTab, isGlobal]);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      if (activeTab === 'MY_QUOTES') {
-         const quotesData = await requestsService.getMyQuotes();
-         setMyQuotes(quotesData);
-      } else if (activeTab === 'DIRECT') {
-        const data = await requestsService.getDirect();
-        setRequests(data);
-      } else if (activeTab === 'OPPORTUNITIES') {
-        const data = isGlobal 
-          ? await requestsService.getAllOpen()
-          : await requestsService.getNearbyOpen();
-        setRequests(data);
-      }
-    } catch (error) {
-      console.error('Error loading data', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const openQuoteForm = (requestId: string) => {
-    setSelectedRequest(requestId);
-    setViewMode('list');
-    navigate(`/leads/${requestId}`); // Direct navigation to detail
-  };
-
   const renderRequestCard = (req: ServiceRequest, isDirect: boolean = false) => {
-      const isSelected = selectedRequest === req.id;
       return (
         <motion.div 
             layout
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             key={req.id} 
-            className={`card p-6 transition-all border mb-4 ${
-                isSelected 
-                    ? 'ring-2 ring-primary-500 bg-gray-800 border-primary-500' 
-                    : 'bg-gray-800 border-gray-700 hover:border-gray-600'
-            }`}
+            className="card p-6 transition-all border mb-4 bg-gray-800 border-gray-700 hover:border-gray-600"
         >
             <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
@@ -203,11 +159,11 @@ export function ProviderLeads() {
                                     <div>
                                         <div className="flex items-center gap-3 mb-2">
                                             <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                                                quote.status === 'ACCEPTED' ? 'bg-green-500/20 text-green-400' :
-                                                quote.status === 'REJECTED' ? 'bg-red-500/20 text-red-400' :
+                                                quote.status === QUOTE_STATUS.ACCEPTED ? 'bg-green-500/20 text-green-400' :
+                                                quote.status === QUOTE_STATUS.REJECTED ? 'bg-red-500/20 text-red-400' :
                                                 'bg-amber-500/20 text-amber-400'
                                             }`}>
-                                                {quote.status === 'ACCEPTED' ? 'Aceptado' : quote.status === 'PENDING' ? 'Pendiente' : 'Rechazado'}
+                                                {quote.status === QUOTE_STATUS.ACCEPTED ? 'Aceptado' : quote.status === QUOTE_STATUS.PENDING ? 'Pendiente' : 'Rechazado'}
                                             </span>
                                             <span className="text-gray-400 text-sm">{new Date(quote.request.createdAt).toLocaleDateString()}</span>
                                         </div>

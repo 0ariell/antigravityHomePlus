@@ -191,6 +191,38 @@ export class ChatService {
     return message;
   }
 
+  async markConversationAsRead(conversationId: string, userId: string) {
+      const conversation = await this.prisma.conversation.findUnique({
+          where: { id: conversationId },
+          include: {
+              booking: {
+                  select: { clientId: true, providerId: true }
+              }
+          }
+      });
+
+      if (!conversation) throw new NotFoundException('Conversation not found');
+
+      const { clientId, providerId } = conversation.booking;
+      if (userId !== clientId && userId !== providerId) {
+          throw new ForbiddenException('Access denied');
+      }
+
+      // Mark all messages sent by the OTHER person as read
+      await this.prisma.message.updateMany({
+          where: {
+              conversationId,
+              senderId: { not: userId }, // Sent by other
+              readAt: null
+          },
+          data: {
+              readAt: new Date()
+          }
+      });
+
+      return { success: true, conversationId, readBy: userId };
+  }
+
   async getUserConversations(userId: string) {
     const bookings = await this.prisma.booking.findMany({
       where: {

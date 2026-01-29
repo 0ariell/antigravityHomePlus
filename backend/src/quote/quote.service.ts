@@ -94,9 +94,11 @@ export class QuoteService {
                 providerId: quote.providerId,
                 status: BookingStatus.ACCEPTED, // Already accepted via quote
                 description: quote.request.description,
-                address: quote.request.zone, // We stored zone as address in request? Or should map Request.zone -> Booking.address
+                address: quote.request.zone,
+                latitude: quote.request.latitude,
+                longitude: quote.request.longitude,
                 images: quote.request.images,
-                preferredDate: quote.estimatedDate || quote.request.preferredDate, // Take provider's estimate if available
+                preferredDate: quote.estimatedDate || quote.request.preferredDate,
                 quotedPrice: quote.price,
                 acceptedAt: new Date(),
                 conversation: { create: {} }

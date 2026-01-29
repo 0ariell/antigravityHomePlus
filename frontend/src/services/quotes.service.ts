@@ -1,4 +1,5 @@
 import { httpClient } from '../infra/http';
+import type { QuoteStatus } from '../app/constants/domain';
 
 export interface CreateQuoteDto {
   requestId: string;
@@ -12,7 +13,7 @@ export interface Quote {
   id: string;
   price: number;
   description?: string;
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  status: QuoteStatus;
   createdAt: string;
   provider: {
     id: string;

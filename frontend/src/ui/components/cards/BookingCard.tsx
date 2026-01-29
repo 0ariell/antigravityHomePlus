@@ -6,11 +6,12 @@ import {
   X, 
   MessageSquare,
   Star,
-  Zap
+  Zap,
+  MapPin
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-type BookingStatus = 'PENDING' | 'ACCEPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'REJECTED';
+import { BOOKING_STATUS, type BookingStatus } from '../../../app/constants/domain';
 
 interface BookingCardProps {
   id: string;
@@ -32,12 +33,12 @@ interface BookingCardProps {
 }
 
 const STATUS_CONFIG: Record<BookingStatus, { label: string; color: string; icon: any }> = {
-  PENDING: { label: 'Pendiente', color: 'bg-yellow-500/10 text-yellow-400', icon: Clock },
-  ACCEPTED: { label: 'Aceptado', color: 'bg-blue-500/10 text-blue-400', icon: CheckCircle },
-  IN_PROGRESS: { label: 'En Progreso', color: 'bg-orange-500/10 text-orange-400', icon: Zap },
-  COMPLETED: { label: 'Completado', color: 'bg-green-500/10 text-green-400', icon: CheckCircle },
-  CANCELLED: { label: 'Cancelado', color: 'bg-red-500/10 text-red-400', icon: X },
-  REJECTED: { label: 'Rechazado', color: 'bg-red-500/10 text-red-400', icon: X },
+  [BOOKING_STATUS.PENDING]: { label: 'Pendiente', color: 'bg-yellow-500/10 text-yellow-400', icon: Clock },
+  [BOOKING_STATUS.ACCEPTED]: { label: 'Aceptado', color: 'bg-blue-500/10 text-blue-400', icon: CheckCircle },
+  [BOOKING_STATUS.IN_PROGRESS]: { label: 'En Progreso', color: 'bg-orange-500/10 text-orange-400', icon: Zap },
+  [BOOKING_STATUS.COMPLETED]: { label: 'Completado', color: 'bg-green-500/10 text-green-400', icon: CheckCircle },
+  [BOOKING_STATUS.CANCELLED]: { label: 'Cancelado', color: 'bg-red-500/10 text-red-400', icon: X },
+  [BOOKING_STATUS.REJECTED]: { label: 'Rechazado', color: 'bg-red-500/10 text-red-400', icon: X },
 };
 
 export function BookingCard({
@@ -49,9 +50,10 @@ export function BookingCard({
   price,
   counterParty,
   onChat,
+  onMapClick, // New prop
   actions,
   onClick
-}: BookingCardProps) {
+}: BookingCardProps & { onMapClick?: () => void }) {
   const statusInfo = STATUS_CONFIG[status] || STATUS_CONFIG.PENDING;
   const StatusIcon = statusInfo.icon;
 
@@ -66,10 +68,10 @@ export function BookingCard({
       <div className="flex flex-col sm:flex-row">
         {/* Left Status Strip */}
         <div className={`hidden sm:block w-2 self-stretch ${
-          status === 'COMPLETED' ? 'bg-green-500' :
-          status === 'IN_PROGRESS' ? 'bg-orange-500' :
-          status === 'ACCEPTED' ? 'bg-blue-500' :
-          status === 'PENDING' ? 'bg-yellow-500' :
+          status === BOOKING_STATUS.COMPLETED ? 'bg-green-500' :
+          status === BOOKING_STATUS.IN_PROGRESS ? 'bg-orange-500' :
+          status === BOOKING_STATUS.ACCEPTED ? 'bg-blue-500' :
+          status === BOOKING_STATUS.PENDING ? 'bg-yellow-500' :
           'bg-gray-600'
         }`} />
 
@@ -147,6 +149,15 @@ export function BookingCard({
                   title="Enviar mensaje"
                 >
                   <MessageSquare className="w-5 h-5 group-hover:text-primary-400 transition-colors" />
+                </button>
+              )}
+              {onMapClick && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); onMapClick(); }}
+                  className="p-2.5 text-gray-500 hover:bg-gray-700 rounded-xl transition-colors relative group"
+                  title="Ver ubicación"
+                >
+                  <MapPin className="w-5 h-5 group-hover:text-green-400 transition-colors" />
                 </button>
               )}
               {actions}

@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { motion } from 'framer-motion';
 import { 
   Briefcase, 
@@ -11,94 +10,18 @@ import {
   Globe, 
   List,
 } from 'lucide-react';
-import { httpClient } from '../../infra/http';
-import { requestsService, type ServiceRequest } from '../../services/requests.service';
-import { useAuthStore } from '../../app/stores';
-
-interface DashboardStats {
-  monthRevenue: number;
-  activeJobs: number;
-  rating: number;
-}
-
-interface Booking {
-    id: string;
-    status: string;
-    quotedPrice: number | null;
-    request: {
-        title: string;
-    }
-    client: {
-        firstName: string;
-        lastName: string;
-    }
-    estimatedDate?: string;
-}
+import { useProviderDashboard } from './hooks/useProviderDashboard';
 
 export function ProviderDashboard() {
-  const navigate = useNavigate();
-  const { user } = useAuthStore();
-  
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<DashboardStats>({ monthRevenue: 0, activeJobs: 0, rating: 0 });
-  const [nextBooking, setNextBooking] = useState<Booking | null>(null);
-  const [recentLeads, setRecentLeads] = useState<ServiceRequest[]>([]);
-
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [quotes, bookingsRes, leads] = await Promise.all([
-         requestsService.getMyQuotes(),
-         httpClient.get('/bookings/my-bookings'),
-         requestsService.getNearbyOpen() // Fetch strict personalized leads for dashboard
-      ]);
-
-      const myBookings = bookingsRes.data || [];
-      const myQuotes = quotes || [];
-
-      // Calculate Revenue (Accepted / Completed)
-      const revenue = myQuotes
-        .filter(q => q.status === 'ACCEPTED')
-        .reduce((acc, q) => acc + q.price, 0);
-
-      const activeCount = myBookings.filter((b: any) => 
-        ['ACCEPTED', 'IN_PROGRESS'].includes(b.status)
-      ).length;
-
-      // Find Next Job (Simplified logic: first accepted/in-progress)
-      // In a real app, sort by date.
-      const upcoming = myBookings.find((b: any) => 
-        ['ACCEPTED', 'IN_PROGRESS'].includes(b.status)
-      );
-
-      setStats({
-          monthRevenue: revenue,
-          activeJobs: activeCount,
-          rating: (user as any)?.avgRating || 0 // Assuming user object has rating
-      });
-
-      setNextBooking(upcoming || null);
-      setRecentLeads((leads || []).slice(0, 3)); // Top 3
-
-    } catch (error) {
-       console.error("Dashboard Load Error", error);
-    } finally {
-       setLoading(false);
-    }
-  };
-
-
-
-  const getTimeGreeting = () => {
-      const hour = new Date().getHours();
-      if (hour < 12) return 'Buenos días';
-      if (hour < 19) return 'Buenas tardes';
-      return 'Buenas noches';
-  };
+  const {
+    user,
+    loading,
+    stats,
+    nextBooking,
+    recentLeads,
+    getTimeGreeting,
+    navigate
+  } = useProviderDashboard();
 
   if (loading) {
     return (

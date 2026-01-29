@@ -1,176 +1,37 @@
-import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageSquare, 
   Send, 
   Search, 
-  Phone, 
-  Video, 
-  MoreVertical,
   Loader2,
   ArrowLeft,
-  Image as ImageIcon,
   Smile,
   Check,
   CheckCheck,
   Zap
 } from 'lucide-react';
-import { httpClient } from '../../infra/http';
-import { useAuthStore } from '../../app/stores';
-import { useLocation } from 'react-router-dom';
-import { socketService } from '../../infra/realtime';
 
-interface Message {
-  id: string;
-  conversationId: string;
-  senderId: string;
-  content: string;
-  attachments: string[];
-  createdAt: string;
-  readAt: string | null;
-  sender: {
-    id: string;
-    firstName: string;
-    lastName: string;
-  };
-}
-
-interface Conversation {
-  id: string;
-  bookingId: string;
-  booking: {
-    id: string;
-    service: {
-      title: string;
-    };
-    client: {
-      id: string;
-      firstName: string;
-      lastName: string;
-    };
-    provider: {
-      id: string;
-      firstName: string;
-      lastName: string;
-    };
-  };
-  messages?: Message[];
-  lastMessage?: Message | null;
-  updatedAt: string;
-}
+import { useState } from 'react';
+import { useChat, type Message, type Conversation } from './hooks/useChat';
 
 export function ChatPage() {
-  const { user } = useAuthStore();
-  const location = useLocation();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
+  const {
+    user,
+    conversations,
+    selectedConversation,
+    messages,
+    isLoading,
+    isLoadingMessages,
+    isSending,
+    typingUsers,
+    messagesEndRef,
+    selectConversation,
+    sendMessage,
+    sendTyping
+  } = useChat();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [newMessage, setNewMessage] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    loadConversations().then((loadedConvs) => {
-      const stateBookingId = (location.state as any)?.bookingId;
-      if (stateBookingId && loadedConvs.length > 0) {
-        const targetConv = loadedConvs.find(c => c.bookingId === stateBookingId);
-        if (targetConv) {
-          setSelectedConversation(targetConv);
-        }
-      }
-    });
-  }, []);
-
-  const loadConversations = async (): Promise<Conversation[]> => {
-    try {
-      const response = await httpClient.get('/chat/conversations');
-      const data = response.data || [];
-      setConversations(data);
-      return data;
-    } catch (error) {
-      console.error('Error loading conversations:', error);
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const unsubscribeMessage = socketService.on('newMessage', (message: Message) => {
-      if (message.conversationId === selectedConversation?.id) {
-        setMessages((prev) => [...prev, message]);
-        scrollToBottom();
-      }
-      setConversations((prev) => 
-        prev.map((conv) => 
-          conv.id === message.conversationId 
-            ? { 
-                ...conv, 
-                messages: [...(conv.messages || []), message], 
-                lastMessage: message,
-                updatedAt: message.createdAt 
-              }
-            : conv
-        ).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-      );
-    });
-
-    const unsubscribeTyping = socketService.on('userTyping', (data: { userId: string; isTyping: boolean }) => {
-      if (data.userId !== user?.id) {
-        setTypingUsers((prev) => {
-          const next = new Set(prev);
-          if (data.isTyping) {
-            next.add(data.userId);
-          } else {
-            next.delete(data.userId);
-          }
-          return next;
-        });
-      }
-    });
-
-    return () => {
-      unsubscribeMessage();
-      unsubscribeTyping();
-    };
-  }, [selectedConversation?.id, user?.id]);
-
-  useEffect(() => {
-    if (selectedConversation) {
-      socketService.joinConversation(selectedConversation.id);
-      loadMessages(selectedConversation.id);
-    }
-
-    return () => {
-      if (selectedConversation) {
-        socketService.leaveConversation(selectedConversation.id);
-      }
-    };
-  }, [selectedConversation?.id]);
-
-  const loadMessages = async (conversationId: string) => {
-    setIsLoadingMessages(true);
-    try {
-      const response = await httpClient.get(`/chat/conversations/${conversationId}`);
-      setMessages(response.data.messages || []);
-      scrollToBottom();
-    } catch (error) {
-      console.error('Error loading messages:', error);
-    } finally {
-      setIsLoadingMessages(false);
-    }
-  };
-
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  };
 
   const getOtherParticipant = (conversation: Conversation) => {
     if (!conversation?.booking) return { firstName: 'Usuario', lastName: 'Desconocido' };
@@ -195,29 +56,15 @@ export function ChatPage() {
     return date.toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
   };
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedConversation || isSending) return;
-    setIsSending(true);
-    try {
-      await socketService.sendMessage(selectedConversation.id, newMessage.trim());
-      setNewMessage('');
-    } catch (error) {
-      console.error('Error sending message:', error);
-    } finally {
-      setIsSending(false);
-    }
+    sendMessage(newMessage);
+    setNewMessage('');
   };
 
-  const handleTyping = () => {
-    if (!selectedConversation) return;
-    socketService.sendTyping(selectedConversation.id, true);
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
-    typingTimeoutRef.current = setTimeout(() => {
-      socketService.sendTyping(selectedConversation.id, false);
-    }, 2000);
+  const handleTypingInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    sendTyping(true);
   };
 
   const filteredConversations = conversations.filter((conv) => {
@@ -299,7 +146,7 @@ export function ChatPage() {
                     <motion.button
                       key={conv.id}
                       whileHover={{ backgroundColor: 'rgba(255,255,255,0.02)' }}
-                      onClick={() => setSelectedConversation(conv)}
+                      onClick={() => selectConversation(conv)}
                       className={`w-full p-4 flex items-start gap-4 text-left transition-all ${
                         isSelected 
                           ? 'bg-primary-500/10 border-l-4 border-l-primary-500' 
@@ -310,7 +157,8 @@ export function ChatPage() {
                         <div className="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                           {other.firstName?.[0] || 'U'}
                         </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-800" />
+                        {/* Static Online Status for now - could be real realtime later */}
+                        {/* <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-800" /> */}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
@@ -347,7 +195,7 @@ export function ChatPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <button 
-                      onClick={() => setSelectedConversation(null)} 
+                      onClick={() => selectConversation(null as any)} // Hack to deselect, or handle in hook? Hook handles select(conv). Pass null?
                       className="lg:hidden p-2 hover:bg-gray-700 rounded-xl transition-colors"
                     >
                       <ArrowLeft className="w-5 h-5 text-gray-300" />
@@ -356,7 +204,6 @@ export function ChatPage() {
                       <div className="w-11 h-11 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold shadow-md">
                         {getOtherParticipant(selectedConversation).firstName?.[0] || 'U'}
                       </div>
-                      <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-gray-800" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-white">
@@ -364,30 +211,13 @@ export function ChatPage() {
                         {getOtherParticipant(selectedConversation).lastName}
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-primary-400 font-medium">
                           {selectedConversation.booking?.service?.title || 'Servicio'}
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <button 
-                      onClick={() => alert('Llamadas: Próximamente')}
-                      className="p-2.5 hover:bg-gray-700 rounded-xl transition-colors"
-                    >
-                      <Phone className="w-5 h-5 text-gray-400" />
-                    </button>
-                    <button 
-                      onClick={() => alert('Video: Próximamente')}
-                      className="p-2.5 hover:bg-gray-700 rounded-xl transition-colors"
-                    >
-                      <Video className="w-5 h-5 text-gray-400" />
-                    </button>
-                    <button className="p-2.5 hover:bg-gray-700 rounded-xl transition-colors">
-                      <MoreVertical className="w-5 h-5 text-gray-400" />
-                    </button>
-                  </div>
+                  {/* Removed Calls/Video buttons for robustness */}
                 </div>
               </div>
 
@@ -406,7 +236,7 @@ export function ChatPage() {
                       ¡Iniciá la conversación!
                     </h3>
                     <p className="text-sm text-gray-400 max-w-xs">
-                      Coordiná los detalles del trabajo directamente con el profesional
+                      Coordiná los detalles del trabajo directamente.
                     </p>
                   </div>
                 ) : (
@@ -414,43 +244,53 @@ export function ChatPage() {
                     {messages.map((message, index) => {
                       const isOwn = message.senderId === user?.id;
                       const showAvatar = !isOwn && (index === 0 || messages[index - 1]?.senderId !== message.senderId);
-                      
+                      const showDateHeader = index === 0 || formatDate(message.createdAt) !== formatDate(messages[index - 1].createdAt);
+
                       return (
-                        <motion.div 
-                          key={message.id} 
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className={`flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}
-                        >
-                          {!isOwn && (
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0 ${
-                              showAvatar 
-                                ? 'bg-gradient-to-br from-gray-400 to-gray-500' 
-                                : 'invisible'
-                            }`}>
-                              {message.sender.firstName?.[0] || 'U'}
+                        <div key={message.id}>
+                           {showDateHeader && (
+                             <div className="flex justify-center my-4">
+                               <span className="bg-gray-700/50 px-3 py-1 rounded-full text-xs text-gray-400">
+                                 {formatDate(message.createdAt)}
+                               </span>
+                             </div>
+                           )}
+
+                           <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`flex items-end gap-2 ${isOwn ? 'justify-end' : 'justify-start'}`}
+                          >
+                            {!isOwn && (
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium flex-shrink-0 ${
+                                showAvatar 
+                                  ? 'bg-gradient-to-br from-gray-400 to-gray-500' 
+                                  : 'invisible'
+                              }`}>
+                                {message.sender.firstName?.[0] || 'U'}
+                              </div>
+                            )}
+                            <div className={`max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
+                              <div className={`rounded-2xl px-4 py-3 ${
+                                isOwn 
+                                  ? 'bg-gradient-to-r from-primary-500 to-orange-500 text-white rounded-br-md shadow-lg shadow-primary-500/20' 
+                                  : 'bg-gray-700 border border-gray-600 text-white rounded-bl-md shadow-sm'
+                              }`}>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                              </div>
+                              <div className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start pl-1'}`}>
+                                <span className={`text-[10px] ${isOwn ? 'text-gray-400' : 'text-gray-400'}`}>
+                                  {formatTime(message.createdAt)}
+                                </span>
+                                {isOwn && (
+                                  message.readAt 
+                                    ? <CheckCheck className="w-3 h-3 text-primary-500" />
+                                    : <Check className="w-3 h-3 text-gray-400" />
+                                )}
+                              </div>
                             </div>
-                          )}
-                          <div className={`max-w-[70%] ${isOwn ? 'order-1' : ''}`}>
-                            <div className={`rounded-2xl px-4 py-3 ${
-                              isOwn 
-                                ? 'bg-gradient-to-r from-primary-500 to-orange-500 text-white rounded-br-md shadow-lg shadow-primary-500/20' 
-                                : 'bg-gray-700 border border-gray-600 text-white rounded-bl-md shadow-sm'
-                            }`}>
-                              <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                            </div>
-                            <div className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start pl-1'}`}>
-                              <span className={`text-[10px] ${isOwn ? 'text-gray-400' : 'text-gray-400'}`}>
-                                {formatTime(message.createdAt)}
-                              </span>
-                              {isOwn && (
-                                message.readAt 
-                                  ? <CheckCheck className="w-3 h-3 text-primary-500" />
-                                  : <Check className="w-3 h-3 text-gray-400" />
-                              )}
-                            </div>
-                          </div>
-                        </motion.div>
+                          </motion.div>
+                        </div>
                       );
                     })}
                     
@@ -461,7 +301,7 @@ export function ChatPage() {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 10 }}
-                          className="flex items-end gap-2"
+                          className="flex items-end gap-2 pt-2"
                         >
                           <div className="w-8 h-8 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs">
                             {getOtherParticipant(selectedConversation).firstName?.[0] || 'U'}
@@ -482,20 +322,14 @@ export function ChatPage() {
               </div>
 
               {/* Message Input */}
-              <form onSubmit={handleSendMessage} className="p-4 border-t border-gray-700/50 bg-gray-800">
+              <form onSubmit={handleSend} className="p-4 border-t border-gray-700/50 bg-gray-800">
                 <div className="flex items-center gap-3">
-                  <button 
-                    type="button"
-                    onClick={() => alert('Adjuntos: Próximamente')}
-                    className="p-2.5 hover:bg-gray-700 rounded-xl transition-colors hidden sm:flex"
-                  >
-                    <ImageIcon className="w-5 h-5 text-gray-400" />
-                  </button>
+                  {/* Removed Attachments button */}
                   <div className="flex-1 relative">
                     <input
                       type="text"
                       value={newMessage}
-                      onChange={(e) => { setNewMessage(e.target.value); handleTyping(); }}
+                      onChange={handleTypingInput}
                       placeholder="Escribe un mensaje..."
                       className="w-full px-5 py-3.5 bg-gray-700/50 border border-gray-600 text-white placeholder-gray-400 rounded-2xl pr-12 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all outline-none"
                     />
@@ -524,7 +358,7 @@ export function ChatPage() {
                 Tus mensajes
               </h3>
               <p className="text-gray-400 max-w-sm">
-                Seleccioná una conversación para ver los mensajes y coordinar con el profesional
+                Seleccioná una conversación para ver los mensajes.
               </p>
             </div>
           )}

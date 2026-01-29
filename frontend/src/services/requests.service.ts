@@ -1,4 +1,5 @@
 import { httpClient } from '../infra/http';
+import type { RequestStatus, QuoteStatus } from '../app/constants/domain';
 
 export interface CreateRequestDto {
   category: string;
@@ -20,7 +21,7 @@ export interface ServiceRequest {
   description: string;
   zone: string;
   images: string[];
-  status: 'OPEN' | 'CLOSED' | 'CANCELLED';
+  status: RequestStatus;
   latitude: number | null;
   longitude: number | null;
   diagnosis?: any;
@@ -33,7 +34,7 @@ export interface ServiceRequest {
     address?: string;
   };
   _count?: { quotes: number };
-  quotes?: { id: string, price: number, status: string, isAsap: boolean, estimatedDate?: string, provider: { firstName: string, lastName: string, avatarUrl?: string, avgRating?: number } }[];
+  quotes?: { id: string, price: number, status: QuoteStatus, isAsap: boolean, estimatedDate?: string, provider: { firstName: string, lastName: string, avatarUrl?: string, avgRating?: number } }[];
 }
 
 export const requestsService = {
